@@ -23,7 +23,7 @@ if(USE_OPENBLAS)
     find_path(OPENBLAS_INCLUDE_DIR NAMES cblas.h PATHS "${CMAKE_CURRENT_SOURCE_DIR}/include/OpenBLAS/")
     if(NOT OPENBLAS_INCLUDE_DIR)
         message(WARNING "OpenBLAS request but headers not found.")
-        message(NOTICE "💡Hint: Place it in the following path:"${CMAKE_CURRENT_SOURCE_DIR}/include/OpenBLAS/cblas.h)
+        message(NOTICE "💡Hint: Place it in the following path: ${CMAKE_CURRENT_SOURCE_DIR}/include/OpenBLAS/cblas.h")
     endif()
 
     # OpenBLAS ライブラリを探す
