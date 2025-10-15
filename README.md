@@ -48,8 +48,10 @@ option(USE_OPENBLAS "Enable OpenBLAS acceleration if headers/libs are available"
 
 if(USE_OPENBLAS)
 	# まず include ディレクトリ内に cblas.h があるかどうかをチェック（プロジェクト内 include を優先）
-	find_path(OPENBLAS_INCLUDE_DIR cblas.h PATHS ${PROJECT_SOURCE_DIR}/include)
+	# OpenBLAS ライブラリをデフォルト検索パスで探す
+	find_library(OPENBLAS_LIB NAMES openblas OpenBLAS)
 
+	if(OPENBLAS_INCLUDE_DIR AND OPENBLAS_LIB)
 	if(OPENBLAS_INCLUDE_DIR)
 		target_include_directories(${PROJECT_NAME} PRIVATE ${OPENBLAS_INCLUDE_DIR})
 		target_compile_definitions(${PROJECT_NAME} PRIVATE USE_OPENBLAS)
