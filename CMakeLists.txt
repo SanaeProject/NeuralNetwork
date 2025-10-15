@@ -1,9 +1,47 @@
 cmake_minimum_required(VERSION 3.15)
 project(NeuralNetwork)
 
+option(USE_OPENBLAS "Enable OpenBLAS acceleration if headers/libs are available" OFF)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(include)
-file(GLOB CONFIGURE_DEPENDS SOURCES "src/*.cpp")
 
-add_executable(NeuralNetwork ${SOURCES})
+file(GLOB PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB DEBUG_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*")
+message(STATUS "Files in src/: ${DEBUG_SRC_FILES}")
+
+# ソースが存在するか検証
+if(PROJECT_SOURCES)
+    add_executable(NeuralNetwork ${PROJECT_SOURCES})
+else()
+    message(FATAL_ERROR "No source files found in src/*.cpp. Create at least one .cpp file (e.g. src/main.cpp) or adjust CMakeLists.txt.")
+endif()
+
+# OPENBLASライブラリを使用する
+if(USE_OPENBLAS)
+    # OpenBLAS のヘッダ（cblas.h）を探す
+    find_path(OPENBLAS_INCLUDE_DIR NAMES cblas.h PATHS "${CMAKE_CURRENT_SOURCE_DIR}/include/OpenBLAS/")
+    if(NOT OPENBLAS_INCLUDE_DIR)
+        message(WARNING "OpenBLAS request but headers not found.")
+        message(NOTICE "💡Hint: Place it in the following path:"${CMAKE_CURRENT_SOURCE_DIR}/include/OpenBLAS/cblas.h)
+    endif()
+
+    # OpenBLAS ライブラリを探す
+    find_library(OPENBLAS_LIB NAMES openblas)
+    if(NOT OPENBLAS_LIB)
+        message(WARNING "OpenBLAS request but libs not found.")
+        message(STATUS "💡Hint: If you installed OpenBLAS via vcpkg, try adding:")
+        message(STATUS "    -DCMAKE_TOOLCHAIN_FILE=C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake")
+        message(STATUS "    -DVCPKG_TARGET_TRIPLET=x64-windows")
+    endif()
+
+    if(OPENBLAS_INCLUDE_DIR AND OPENBLAS_LIB)
+        target_include_directories(${PROJECT_NAME} PRIVATE ${OPENBLAS_INCLUDE_DIR})
+        target_compile_definitions(${PROJECT_NAME} PRIVATE USE_OPENBLAS)
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENBLAS_LIB})
+
+        message(NOTICE "Use OpenBLAS SUCCESS!!")
+    else()
+        message(WARNING "OpenBLAS requested (USE_OPENBLAS=ON) but headers/libs not found. Falling back to pure C++ implementation.")
+    endif()
+endif()
