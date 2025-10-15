@@ -47,17 +47,18 @@ OpenBLAS を利用する場合、本リポジトリでは次の条件を満た�
 option(USE_OPENBLAS "Enable OpenBLAS acceleration if headers/libs are available" OFF)
 
 if(USE_OPENBLAS)
-	# まず include ディレクトリ内に cblas.h があるかどうかをチェック（プロジェクト内 include を優先）
-	# OpenBLAS ライブラリをデフォルト検索パスで探す
-	find_library(OPENBLAS_LIB NAMES openblas OpenBLAS)
+    # OpenBLAS のヘッダ（cblas.h）を探す
+    find_path(OPENBLAS_INCLUDE_DIR cblas.h)
+    # OpenBLAS ライブラリを探す
+    find_library(OPENBLAS_LIB NAMES openblas OpenBLAS)
 
-	if(OPENBLAS_INCLUDE_DIR AND OPENBLAS_LIB)
-	if(OPENBLAS_INCLUDE_DIR)
-		target_include_directories(${PROJECT_NAME} PRIVATE ${OPENBLAS_INCLUDE_DIR})
-		target_compile_definitions(${PROJECT_NAME} PRIVATE USE_OPENBLAS)
-	else()
-		message(WARNING "OpenBLAS requested (USE_OPENBLAS=ON) but headers/libs not found in expected locations. Falling back to pure C++ implementation.")
-	endif()
+    if(OPENBLAS_INCLUDE_DIR AND OPENBLAS_LIB)
+        target_include_directories(${PROJECT_NAME} PRIVATE ${OPENBLAS_INCLUDE_DIR})
+        target_compile_definitions(${PROJECT_NAME} PRIVATE USE_OPENBLAS)
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENBLAS_LIB})
+    else()
+        message(WARNING "OpenBLAS requested (USE_OPENBLAS=ON) but headers/libs not found. Falling back to pure C++ implementation.")
+    endif()
 endif()
 ```
 
