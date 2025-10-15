@@ -79,7 +79,7 @@ endif()
 # Windows 例（PowerShell） NeuralNetwork ディレクトリで実行
 mkdir build
 cd ./build
-cmake -DUSE_OPENBLAS=ON -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -S .. -B build
+cmake -DUSE_OPENBLAS=ON -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -S ..
 ```
 
 ## Matrix 実装方針（OpenBLAS とフォールバック）
