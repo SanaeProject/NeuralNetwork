@@ -51,7 +51,6 @@ if(USE_OPENBLAS)
 
 	if(OPENBLAS_INCLUDE_DIR)
 		target_include_directories(${PROJECT_NAME} PRIVATE ${OPENBLAS_INCLUDE_DIR})
-		target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENBLAS_LIB})
 		target_compile_definitions(${PROJECT_NAME} PRIVATE USE_OPENBLAS)
 	else()
 		message(WARNING "OpenBLAS requested (USE_OPENBLAS=ON) but headers/libs not found in expected locations. Falling back to pure C++ implementation.")
