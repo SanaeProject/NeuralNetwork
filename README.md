@@ -53,11 +53,27 @@ make
 
 ## 使用例
 
+### シンプルなインクルード
+
+すべての機能を使用するには、単一のヘッダーファイルをインクルードできます：
+
+```cpp
+#include "NeuralNetwork.hpp"
+```
+
+個別のコンポーネントを使用する場合は、個別にインクルードすることもできます：
+
+```cpp
+#include "NeuralNetwork/Matrix.h"
+#include "NeuralNetwork/ActivationFunctions.h"
+#include "NeuralNetwork/Layer.h"
+#include "NeuralNetwork/NeuralNetwork.h"
+```
+
 ### XOR問題を解く
 
 ```cpp
-#include "NeuralNetwork/NeuralNetwork.h"
-#include "NeuralNetwork/Matrix.h"
+#include "NeuralNetwork.hpp"
 
 int main() {
     // ニューラルネットワークの作成 (学習率 = 0.5)
@@ -99,7 +115,7 @@ int main() {
 ### 行列演算
 
 ```cpp
-#include "NeuralNetwork/Matrix.h"
+#include "NeuralNetwork.hpp"
 
 int main() {
     // 行列の作成

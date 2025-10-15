@@ -1,5 +1,4 @@
-#include "NeuralNetwork/NeuralNetwork.h"
-#include "NeuralNetwork/Matrix.h"
+#include "NeuralNetwork.hpp"
 #include <iostream>
 
 int main() {

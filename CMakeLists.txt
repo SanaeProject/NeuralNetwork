@@ -26,6 +26,9 @@ target_link_libraries(NeuralNetwork ${BLAS_LIBRARIES})
 add_executable(example_xor examples/example_xor.cpp)
 target_link_libraries(example_xor NeuralNetwork)
 
+add_executable(test_basic examples/test_basic.cpp)
+target_link_libraries(test_basic NeuralNetwork)
+
 # Installation
 install(TARGETS NeuralNetwork
     LIBRARY DESTINATION lib
