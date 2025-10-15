@@ -48,14 +48,23 @@ option(USE_OPENBLAS "Enable OpenBLAS acceleration if headers/libs are available"
 
 if(USE_OPENBLAS)
     # OpenBLAS のヘッダ（cblas.h）を探す
-    find_path(OPENBLAS_INCLUDE_DIR cblas.h)
+    find_path(OPENBLAS_INCLUDE_DIR NAMES cblas.h PATHS "${CMAKE_CURRENT_SOURCE_DIR}/include/OpenBLAS/")
+    if(NOT OPENBLAS_INCLUDE_DIR)
+        message(WARNING "OpenBLAS request but headers not found.")
+    endif()
+
     # OpenBLAS ライブラリを探す
-    find_library(OPENBLAS_LIB NAMES openblas OpenBLAS)
+    find_library(OPENBLAS_LIB NAMES openblas)
+    if(NOT OPENBLAS_LIB)
+        message(WARNING "OpenBLAS request but libs not found.")
+    endif()
 
     if(OPENBLAS_INCLUDE_DIR AND OPENBLAS_LIB)
         target_include_directories(${PROJECT_NAME} PRIVATE ${OPENBLAS_INCLUDE_DIR})
         target_compile_definitions(${PROJECT_NAME} PRIVATE USE_OPENBLAS)
         target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENBLAS_LIB})
+
+        message(NOTICE "Use OpenBLAS SUCCESS!!")
     else()
         message(WARNING "OpenBLAS requested (USE_OPENBLAS=ON) but headers/libs not found. Falling back to pure C++ implementation.")
     endif()
@@ -63,6 +72,15 @@ endif()
 ```
 
 上記のように、ヘッダ（include）とライブラリが正しく見つかった場合のみ `USE_OPENBLAS` がコンパイル定義されます。Windows では vcpkg 等で事前に OpenBLAS を取得し、CMake の toolchain を通すのが簡単です。
+
+### ビルドコマンド例
+
+```shell
+# Windows 例（PowerShell） NeuralNetwork ディレクトリで実行
+mkdir build
+cd ./build
+cmake -DUSE_OPENBLAS=ON -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -S .. -B build
+```
 
 ## Matrix 実装方針（OpenBLAS とフォールバック）
 
