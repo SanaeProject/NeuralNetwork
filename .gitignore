@@ -22,8 +22,21 @@ mono_crash.*
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
-x64/
-x86/
+
+[Dd]ebug/x64/
+[Dd]ebugPublic/x64/
+[Rr]elease/x64/
+[Rr]eleases/x64/
+bin/x64/
+obj/x64/
+
+[Dd]ebug/x86/
+[Dd]ebugPublic/x86/
+[Rr]elease/x86/
+[Rr]eleases/x86/
+bin/x86/
+obj/x86/
+
 [Ww][Ii][Nn]32/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
@@ -310,9 +323,6 @@ node_modules/
 # Visual Studio 6 auto-generated workspace file (contains which files were open etc.)
 *.vbw
 
-# Visual Studio 6 auto-generated project file (contains which files were open etc.)
-*.vbp
-
 # Visual Studio 6 workspace and project file (working project files containing files to include in project)
 *.dsw
 *.dsp
@@ -416,3 +426,100 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Linker files
+*.ilk
+
+# Debugger Files
+*.pdb
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# debug information files
+*.dwo
+
+# ビルド成果物
+/build/
+/bin/
+/obj/
+/out/
+/Debug/
+/Release/
+*.exe
+*.dll
+*.lib
+*.pdb
+*.ilk
+*.idb
+*.exp
+
+# CMake関連
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+install_manifest.txt
+
+# Visual Studio関連
+*.sln
+*.vcxproj*
+*.user
+*.opensdf
+*.sdf
+*.suo
+*.log
+*.tlog
+*.vspscc
+*.vssscc
+*.ncb
+*.cache
+*.db
+*.ipch
+*.iobj
+*.iopdb
+*.lastbuildstate
+*.VC.db
+*.VC.VC.opendb
+
+# その他
+*.log
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+Thumbs.db
+
+# IDE設定（任意で除外）
+.vscode/
+.idea/
