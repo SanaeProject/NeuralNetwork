@@ -45,16 +45,17 @@ OpenBLAS を利用する場合、本リポジトリでは次の条件を満た�
 ```cmake
 # CMakeLists.txt 抜粋
 option(USE_OPENBLAS "Enable OpenBLAS acceleration if headers/libs are available" OFF)
+set(OPENBLAS_PATH "C:/vcpkg/installed/x64-windows/include/openblas/" CACHE STRING "Blas library include path")
 
 if(USE_OPENBLAS)
     # OpenBLAS のヘッダ（cblas.h）を探す
-    find_path(OPENBLAS_INCLUDE_DIR NAMES cblas.h PATHS "${CMAKE_CURRENT_SOURCE_DIR}/include/OpenBLAS/")
+    find_path(OPENBLAS_INCLUDE_DIR NAMES cblas.h PATHS "${OPENBLAS_PATH}")
     if(NOT OPENBLAS_INCLUDE_DIR)
         message(WARNING "OpenBLAS request but headers not found.")
     endif()
 
     # OpenBLAS ライブラリを探す
-    find_library(OPENBLAS_LIB NAMES openblas)
+    find_library(OPENBLAS_LIB NAMES openblas PATHS "${OPENBLAS_PATH}/../../lib")
     if(NOT OPENBLAS_LIB)
         message(WARNING "OpenBLAS request but libs not found.")
     endif()
