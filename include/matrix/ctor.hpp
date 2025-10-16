@@ -38,7 +38,7 @@ template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, RowMajor, Container, En>::Matrix(const InitContainer2D& data)
 {  
    this->_rows = data.size();  
-   this->_cols = data.begin()->size();  
+   this->_cols = data.size() == 0 ? 0 : data.begin()->size();
    this->_data.resize(this->_rows * this->_cols);  
 
    const size_t outer = RowMajor ? _rows : _cols;  
