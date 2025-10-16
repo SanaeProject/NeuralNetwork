@@ -1,16 +1,33 @@
 #include <iostream>
 #include <vector>
 #include <cblas.h>
+#include <matrix/matrix>
 
 int main() {
-	std::vector<float> mtxA = { 1.0, 2.0, 3.0, 4.0 };
-	std::vector<float> mtxB = { 5.0, 6.0, 7.0, 8.0 };
-
-	std::vector<float> mtxC(4, 0.0);
-	cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 2, 2, 2, 1.0, mtxA.data(), 2, mtxB.data(), 2, 0.0, mtxC.data(), 2);
-    
-	for (const auto& val : mtxC) {
-		std::cout << val << " ";
+	// Row major matrix
+	Matrix<float> matA = {
+		{1.0f, 2.0f, 3.0f},
+		{4.0f, 5.0f, 6.0f}
+	};
+	for (size_t i = 0; i < matA.rows(); ++i) {
+		for (size_t j = 0; j < matA.cols(); ++j) {
+			std::cout << matA(i, j) << " ";
+		}
+		std::cout << std::endl;
 	}
-    return 0;
+
+	// Column major matrix
+	Matrix<float, false> matB = {
+		{1.0f, 2.0f},
+		{3.0f, 4.0f},
+		{5.0f, 6.0f}
+	};
+	for (size_t i = 0; i < matB.rows(); ++i) {
+		for (size_t j = 0; j < matB.cols(); ++j) {
+			std::cout << matB(i, j) << " ";
+		}
+		std::cout << std::endl;
+	}
+
+   return 0;
 }

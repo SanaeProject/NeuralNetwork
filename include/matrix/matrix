@@ -1,0 +1,9 @@
+#ifndef SANAE_INCLUDED_MATRIX
+#define SANAE_INCLUDED_MATRIX
+
+#include "matrix.h"
+#include "ctor.hpp"
+#include "ops.hpp"
+#include "util.hpp"
+
+#endif
