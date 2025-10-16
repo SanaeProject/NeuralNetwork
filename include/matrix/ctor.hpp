@@ -28,8 +28,12 @@ inline Matrix<T, RowMajor, Container, En>::Matrix(const Container2D& data)
 
    size_t index = 0;
    for (size_t i = 0; i < outer; i++) {
-       for (size_t j = 0; j < inner; j++) {  
-           _data[index] = RowMajor ? data[i][j] : data[j][i];
+       for (size_t j = 0; j < inner; j++) {
+           if constexpr (RowMajor)
+			   _data[index] = data[i][j];
+           else
+			   _data[index] = data[j][i];
+
            index++;
        }  
    }  
@@ -46,7 +50,11 @@ inline Matrix<T, RowMajor, Container, En>::Matrix(const InitContainer2D& data)
    size_t index = 0;
    for (size_t i = 0; i < outer; i++) {
        for (size_t j = 0; j < inner; j++) {
-           _data[index] = RowMajor ? *((data.begin()+i)->begin()+j) : *((data.begin() + j)->begin() + i);
+           if constexpr (RowMajor)
+               _data[index] = *((data.begin() + i)->begin() + j);
+		   else
+			   _data[index] = *((data.begin() + j)->begin() + i);
+
            index++;
        }
    }
