@@ -44,6 +44,9 @@ public:
 
 	T& operator()(size_t row, size_t col);
 	T& operator()(size_t index);
+	
+	const T& operator()(size_t row, size_t col) const;
+	const T& operator()(size_t index) const;
 
 	Matrix(const Container2D& data);
 	Matrix(const InitContainer2D& data);
