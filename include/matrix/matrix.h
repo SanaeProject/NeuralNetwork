@@ -48,6 +48,12 @@ public:
 	const T& operator()(size_t row, size_t col) const;
 	const T& operator()(size_t index) const;
 
+	bool operator==(const Matrix& other) const;
+	bool operator!=(const Matrix& other) const;
+
+	bool operator==(const Matrix<T,!RowMajor>& other) const;
+	bool operator!=(const Matrix<T,!RowMajor>& other) const;
+
 	Matrix(const Container2D& data);
 	Matrix(const InitContainer2D& data);
 };

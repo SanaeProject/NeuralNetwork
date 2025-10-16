@@ -2,6 +2,7 @@
 #include <vector>
 #include <cblas.h>
 #include <matrix/matrix>
+#include <cassert>
 
 int main() {
 	// s—Dæ
@@ -18,9 +19,8 @@ int main() {
 
 	// —ñ—Dæ
 	Matrix<float, false> matB = {
-		{1.0f, 2.0f},
-		{3.0f, 4.0f},
-		{5.0f, 6.0f}
+		{1.0f, 2.0f, 3.0f},
+		{4.0f, 5.0f, 6.0f}
 	};
 	for (size_t i = 0; i < matB.rows(); ++i) {
 		for (size_t j = 0; j < matB.cols(); ++j) {
@@ -29,4 +29,6 @@ int main() {
 		std::cout << std::endl;
 	}
 
+	// Ši”[•û–@‚ªˆá‚¤‚ª“à—e‚Í“¯‚¶
+	assert(matA == matB);
 }

@@ -36,5 +36,49 @@ inline const T& Matrix<T, RowMajor, Container, En>::operator()(size_t index) con
 	return this->_data[index];
 }
 
+template<typename T, bool RowMajor, typename Container, typename En>
+inline bool Matrix<T, RowMajor, Container, En>::operator==(const Matrix& other) const
+{
+	if (this->cols() != other.cols() || this->rows() != other.rows())
+		return false;
+
+	for (size_t i = 0; i < this->rows(); ++i) {
+		for (size_t j = 0; j < this->cols(); ++j) {
+			if (this->operator()(i, j) != other(i, j))
+				return false;
+		}
+	}
+
+	return true;
+}
+
+template<typename T, bool RowMajor, typename Container, typename En>
+inline bool Matrix<T, RowMajor, Container, En>::operator!=(const Matrix& other) const
+{
+	return !(*this == other);
+}
+
+template<typename T, bool RowMajor, typename Container, typename En>
+inline bool Matrix<T, RowMajor, Container, En>::operator==(const Matrix<T,!RowMajor>& other) const
+{
+	if (this->cols() != other.cols() || this->rows() != other.rows())
+		return false;
+
+	for (size_t i = 0; i < this->rows(); ++i) {
+		for (size_t j = 0; j < this->cols(); ++j) {
+			if (this->operator()(i, j) != other(i, j))
+				return false;
+		}
+	}
+
+	return true;
+}
+
+template<typename T, bool RowMajor, typename Container, typename En>
+inline bool Matrix<T, RowMajor, Container, En>::operator!=(const Matrix<T,!RowMajor>& other) const
+{
+	return !(*this == other);
+}
+
 
 #endif // SANAE_NEURALNETWORK_MATRIX_OPS
