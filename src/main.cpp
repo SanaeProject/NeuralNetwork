@@ -5,7 +5,7 @@
 #include <cassert>
 
 int main() {
-	// s—Dæ
+	// Row major matrix
 	Matrix<float> matA = {
 		{1.0f, 2.0f, 3.0f},
 		{4.0f, 5.0f, 6.0f}
@@ -17,7 +17,7 @@ int main() {
 		std::cout << std::endl;
 	}
 
-	// —ñ—Dæ
+	// Column major matrix
 	Matrix<float, false> matB = {
 		{1.0f, 2.0f, 3.0f},
 		{4.0f, 5.0f, 6.0f}
@@ -29,6 +29,6 @@ int main() {
 		std::cout << std::endl;
 	}
 
-	// Ši”[•û–@‚ªˆá‚¤‚ª“à—e‚Í“¯‚¶
+	// Assertion check!
 	assert(matA == matB);
 }
