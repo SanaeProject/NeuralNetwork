@@ -6,19 +6,19 @@
 #include <type_traits>  
 #include <vector>  
 
-// std::array”»’è—p‚ÌŒ^
+// std::arrayã‚’ä½¿ã†å‹
 template<typename T>  
 struct is_std_array : std::false_type {};  
 template<typename T, std::size_t N>  
 struct is_std_array<std::array<T, N>> : std::true_type {};  
 
-// std::vector”»’è—p‚ÌŒ^
+// std::vectorã‚’ä½¿ã†å‹
 template<typename T>  
 struct is_std_vector : std::false_type {};  
 template<typename T, typename Alloc>  
 struct is_std_vector<std::vector<T, Alloc>> : std::true_type {};  
 
-// std::vector‚Ü‚½‚Ístd::array”»’è—p‚ÌŒ^
+// std::vectorã¾ãŸã¯std::arrayåˆ¤å®šç”¨ã®å‹
 template<typename T>  
 struct is_vector_or_array : std::disjunction<is_std_vector<T>, is_std_array<T>> {};  
 
