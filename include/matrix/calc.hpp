@@ -124,7 +124,7 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 		};
 
 	const size_t task_count = result_rows * result_cols;
-	const size_t max_threads = std::max(static_cast<size_t>(std::thread::hardware_concurrency()), static_cast<size_t>(1));
+	const size_t max_threads = std::max(std::thread::hardware_concurrency(), 1u);
 	const size_t chunk_size = (task_count + max_threads - 1) / max_threads;
 
 	std::vector<std::thread> threads;
