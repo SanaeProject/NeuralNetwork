@@ -77,6 +77,11 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::h
 	if (this->_rows != other._rows || this->_cols != other._cols) {
 		throw std::invalid_argument("Matrix dimensions must agree for Hadamard division.");
 	}
+	for (const auto& val : other._data) {
+		if (val == static_cast<T>(0)) {
+			throw std::domain_error("Division by zero element in matrix during Hadamard division.");
+		}
+	}
 	_calc(this->_data, other._data, execPolicy, std::divides<T>());
 	return *this;
 }
