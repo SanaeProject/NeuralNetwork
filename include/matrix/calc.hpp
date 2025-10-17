@@ -115,10 +115,7 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 			sum += this->operator()(row, i) * other(i, col);
 		}
 		result_data[row * result_cols + col] = sum;
-	size_t max_threads = std::thread::hardware_concurrency();
-	if (max_threads == 0) {
-		max_threads = 1;
-	}
+		};
 
 	const size_t task_count = result_rows * result_cols;
 	const size_t max_threads = std::thread::hardware_concurrency();
