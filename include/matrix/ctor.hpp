@@ -1,7 +1,6 @@
 #ifndef SANAE_NEURALNETWORK_MATRIX_CTOR  
 #define SANAE_NEURALNETWORK_MATRIX_CTOR  
 
-#include <type_traits>  
 #include "matrix.h"  
 
 template<typename T, bool RowMajor, typename Container, typename En>

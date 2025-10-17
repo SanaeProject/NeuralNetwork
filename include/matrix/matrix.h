@@ -2,12 +2,11 @@
 #define SANAE_NEURALNETWORK_MATRIX  
 
 #include <array>  
-#include <initializer_list>  
+#include <execution>
+#include <initializer_list>
+#include <iosfwd>
 #include <type_traits>  
 #include <vector>  
-
-#include <execution>
-#include <ostream>
 
 // std::executionポリシー判定用の型
 template<typename T> struct is_std_exec_policy : std::false_type {};
@@ -19,7 +18,6 @@ template<> struct is_std_exec_policy<std::execution::parallel_unsequenced_policy
 template<typename T> struct is_vector_or_array : std::false_type {};
 template<typename T, typename Alloc> struct is_vector_or_array<std::vector<T, Alloc>> : std::true_type {};
 template<typename T, std::size_t N>  struct is_vector_or_array<std::array<T, N>>      : std::true_type {};
-
 
 template<typename T, bool RowMajor = true, typename Container = std::vector<T>,
 typename En = std::enable_if_t<is_vector_or_array<Container>::value>>

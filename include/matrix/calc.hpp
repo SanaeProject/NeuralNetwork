@@ -1,12 +1,11 @@
 #ifndef SANAE_NEURALNETWORK_MATRIX_CALC
 #define SANAE_NEURALNETWORK_MATRIX_CALC
 
-#include <type_traits>
-#include <execution>
-#include <algorithm>
-#include <thread>
-#include <functional>
 #include "matrix.h"
+#include <functional>
+#include <stdexcept>
+#include <thread>
+#include <vector>
 
 template<typename T, bool RowMajor, typename Container, typename En>
 template<typename execType, typename calcType, typename TyCheck>
