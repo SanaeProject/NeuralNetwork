@@ -85,6 +85,9 @@ template<typename T, bool RowMajor, typename Container, typename En>
 template<typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::scalar_div(const T& scalar, execType execPolicy)
 {
+	if (scalar == T(0)) {
+		throw std::invalid_argument("Division by zero in scalar_div.");
+	}
 	_calc(this->_data, scalar, execPolicy, std::divides<T>());
 	return *this;
 }
