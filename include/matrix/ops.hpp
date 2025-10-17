@@ -4,7 +4,8 @@
 #include "matrix.h"  
 #include <type_traits>
 #include <utility>
-
+#include <ostream>
+#include <iosfwd> // Fix for VCIC001: Ensure forward declarations for iostream components
 
 template<typename T, bool RowMajor, typename Container, typename En>
 inline T& Matrix<T, RowMajor, Container, En>::operator()(size_t row, size_t col)
@@ -78,6 +79,22 @@ template<typename T, bool RowMajor, typename Container, typename En>
 inline bool Matrix<T, RowMajor, Container, En>::operator!=(const Matrix<T,!RowMajor>& other) const
 {
 	return !(*this == other);
+}
+
+template<typename T, bool RowMajor, typename Container, typename En>
+std::ostream& operator<<(std::ostream& os, const Matrix<T, RowMajor, Container, En>& mat)
+{
+	os << "{";
+	for (size_t i = 0; i < mat.rows(); i++) {
+		os << "{";
+		for (size_t j = 0; j < mat.cols(); j++) {
+			os << mat(i, j) << ((j+1 != mat.cols())?",":"");
+		}
+		os << "}" << ((i+1 != mat.rows())?",":"");
+	}
+	os << "}" ;
+
+	return os;
 }
 
 #endif // SANAE_NEURALNETWORK_MATRIX_OPS
