@@ -59,6 +59,7 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::h
 	if (this->_rows != other._rows || this->_cols != other._cols) {
 		throw std::invalid_argument("Matrix dimensions must agree for Hadamard multiplication.");
 	}
+
 	_calc(this->_data, other._data, execPolicy, std::multiplies<T>());
 	return *this;
 }
@@ -77,12 +78,15 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::h
 	if (this->_rows != other._rows || this->_cols != other._cols) {
 		throw std::invalid_argument("Matrix dimensions must agree for Hadamard division.");
 	}
-	for (const auto& val : other._data) {
-		if (val == static_cast<T>(0)) {
-			throw std::domain_error("Division by zero element in matrix during Hadamard division.");
+
+	_calc(this->_data, other._data, execPolicy, 
+		[](const T& a, const T& b) {
+			if (b == T(0)) {
+				throw std::invalid_argument("Division by zero in Hadamard division.");
+			}
+			return a / b;
 		}
-	}
-	_calc(this->_data, other._data, execPolicy, std::divides<T>());
+	);
 	return *this;
 }
 
@@ -93,6 +97,7 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::s
 	if (scalar == T(0)) {
 		throw std::invalid_argument("Division by zero in scalar_div.");
 	}
+
 	_calc(this->_data, scalar, execPolicy, std::divides<T>());
 	return *this;
 }
@@ -109,7 +114,7 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 
 	Container result_data(result_rows * result_cols);
 
-	auto task = [&](size_t row,size_t col) {
+	auto task = [&](size_t row, size_t col) {
 		T sum = T{};
 		for (size_t  i = 0; i < this->cols(); i++) {
 			sum += this->operator()(row, i) * other(i, col);
