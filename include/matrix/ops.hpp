@@ -80,5 +80,4 @@ inline bool Matrix<T, RowMajor, Container, En>::operator!=(const Matrix<T,!RowMa
 	return !(*this == other);
 }
 
-
 #endif // SANAE_NEURALNETWORK_MATRIX_OPS

@@ -33,15 +33,21 @@ public:
 	using Container2D = std::vector<std::vector<T>>;
 	using InitContainer2D = std::initializer_list<std::initializer_list<T>>;
 
+	// ctor.hpp
 	Matrix();
 	Matrix(size_t rows, size_t cols);
 	Matrix(size_t rows, size_t cols, const T& initial);
+	Matrix(const Container2D& data);
+	Matrix(const InitContainer2D& data);
 
+	// util.hpp
 	size_t rows() const;
 	size_t cols() const;
 
 	const Container& data() const;
+	Matrix<T, !RowMajor> convertLayout() const;
 
+	// ops.hpp
 	T& operator()(size_t row, size_t col);
 	T& operator()(size_t index);
 	
@@ -54,8 +60,9 @@ public:
 	bool operator==(const Matrix<T,!RowMajor>& other) const;
 	bool operator!=(const Matrix<T,!RowMajor>& other) const;
 
-	Matrix(const Container2D& data);
-	Matrix(const InitContainer2D& data);
+	// calc.hpp
+	Matrix& add(const Matrix& other);
+	Matrix& add(const Matrix<T, !RowMajor>& other);
 };
 
 #endif // SANAE_NEURALNETWORK_MATRIX
