@@ -93,7 +93,7 @@ template<typename T, bool RowMajor, typename Container, typename En>
 template<typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::matrix_mul(const Matrix<T, RowMajor, Container, En>& other, execType execPolicy)
 {
-	if (this->cols() != other.rows() || this->rows() != other.cols()) {
+	if (this->cols() != other.rows()) {
 		throw std::invalid_argument("Matrix dimensions must agree for matrix multiplication.");
 	}
 
