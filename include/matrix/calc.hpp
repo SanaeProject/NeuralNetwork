@@ -106,7 +106,7 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 
 	const size_t result_rows = this->rows();
 	const size_t result_cols = other.cols();
-
+	auto task = [&](size_t row, size_t col) {
 	Container result_data(result_rows * result_cols);
 
 	auto task = [&](size_t row,size_t col) {
