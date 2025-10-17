@@ -74,13 +74,16 @@ inline bool Matrix<T, RowMajor, Container, En>::operator!=(const Matrix<T,!RowMa
 template<typename T, bool RowMajor, typename Container, typename En>
 std::ostream& operator<<(std::ostream& os, const Matrix<T, RowMajor, Container, En>& mat)
 {
+	auto comma_if_not_last = [](size_t idx, size_t total) -> const char* {
+		return (idx + 1 != total) ? "," : "";
+	};
 	os << "{";
 	for (size_t i = 0; i < mat.rows(); i++) {
 		os << "{";
 		for (size_t j = 0; j < mat.cols(); j++) {
-			os << mat(i, j) << ((j+1 != mat.cols())?",":"");
+			os << mat(i, j) << comma_if_not_last(j, mat.cols());
 		}
-		os << "}" << ((i+1 != mat.rows())?",":"");
+		os << "}" << comma_if_not_last(i, mat.rows());
 	}
 	os << "}" ;
 
