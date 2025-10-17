@@ -84,8 +84,7 @@ public:
 	template<typename execType = std::execution::sequenced_policy, typename TyCheck = std::enable_if_t<is_std_exec_policy<execType>::value>>
 	Matrix& scalar_div(const T& scalar, execType execPolicy = execType());
 
-	template<typename execType = std::execution::sequenced_policy, typename TyCheck = std::enable_if_t<is_std_exec_policy<execType>::value>>
-	Matrix& matrix_mul(const Matrix& other, execType execPolicy = execType());
+	Matrix& matrix_mul(const Matrix& other);
 };
 
 #endif // SANAE_NEURALNETWORK_MATRIX
