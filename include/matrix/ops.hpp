@@ -19,6 +19,11 @@ inline T& Matrix<T, RowMajor, Container, En>::operator()(size_t index)
 	return this->_data[index];
 }
 template<typename T, bool RowMajor, typename Container, typename En>
+inline T& Matrix<T, RowMajor, Container, En>::operator[](size_t index)
+{
+	return this->_data[index];
+}
+template<typename T, bool RowMajor, typename Container, typename En>
 inline const T& Matrix<T, RowMajor, Container, En>::operator()(size_t row, size_t col) const
 {
 	if constexpr (!RowMajor)
@@ -32,16 +37,19 @@ inline const T& Matrix<T, RowMajor, Container, En>::operator()(size_t index) con
 	return this->_data[index];
 }
 template<typename T, bool RowMajor, typename Container, typename En>
+inline const T& Matrix<T, RowMajor, Container, En>::operator[](size_t index) const
+{
+	return this->_data[index];
+}
+template<typename T, bool RowMajor, typename Container, typename En>
 inline bool Matrix<T, RowMajor, Container, En>::operator==(const Matrix& other) const
 {
 	if (this->cols() != other.cols() || this->rows() != other.rows())
 		return false;
 
-	for (size_t i = 0; i < this->rows(); ++i) {
-		for (size_t j = 0; j < this->cols(); ++j) {
-			if (this->operator()(i, j) != other(i, j))
-				return false;
-		}
+	for(size_t  i=0; i < this->rows()*this->cols(); ++i) {
+		if (this->_data[i] != other._data[i])
+			return false;
 	}
 
 	return true;

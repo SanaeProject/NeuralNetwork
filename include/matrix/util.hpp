@@ -1,6 +1,7 @@
 #ifndef SANAE_NEURALNETWORK_MATRIX_UTIL
 #define SANAE_NEURALNETWORK_MATRIX_UTIL
 
+#include "../view/view.h"
 #include "matrix.h"
 
 template<typename T, bool RowMajor, typename Container, typename En>
@@ -22,12 +23,77 @@ template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, !RowMajor> Matrix<T, RowMajor, Container, En>::convertLayout() const
 {
 	Matrix<T, !RowMajor> result(this->rows(), this->cols());
+
 	for (size_t i = 0; i < this->rows(); i++) {
+		size_t base;
+		if constexpr (RowMajor)
+			base = i * this->cols();
+		else
+			base = i * result.rows();
+
 		for (size_t j = 0; j < this->cols(); j++) {
-			result(i, j) = this->operator()(i, j);
+			if constexpr (RowMajor) {
+				result[j * result.cols() + i] = this->_data[base + j];
+			}
+			else {
+				result[base + j] = this->_data[j * this->rows() + i];
+			}
 		}
 	}
+
 	return result;
+}
+template<typename T, bool RowMajor, typename Container, typename En>
+inline View<T> Matrix<T, RowMajor, Container, En>::get_row(size_t row)
+{
+	if constexpr (RowMajor) {
+		View<T> view(&this->_data[row * this->cols()], this->cols());
+		return view;
+	}
+	else
+	{
+		View<T> view(&this->_data[row], this->cols(), this->rows());
+		return view;
+	}
+}
+template<typename T, bool RowMajor, typename Container, typename En>
+inline View<T> Matrix<T, RowMajor, Container, En>::get_col(size_t col)
+{
+	if constexpr (!RowMajor) {
+		View<T> view(&this->_data[col * this->rows()], this->rows());
+		return view;
+	}
+	else
+	{
+		View<T> view(&this->_data[col], this->rows(), this->cols());
+		return view;
+	}
+}
+template<typename T, bool RowMajor, typename Container, typename En>
+inline View<const T> Matrix<T, RowMajor, Container, En>::get_row(size_t row) const
+{
+	if constexpr (RowMajor) {
+		View<const T> view(&this->_data[row * this->cols()], this->cols());
+		return view;
+	}
+	else
+	{
+		View<const T> view(&this->_data[row], this->cols(), this->rows());
+		return view;
+	}
+}
+template<typename T, bool RowMajor, typename Container, typename En>
+inline View<const T> Matrix<T, RowMajor, Container, En>::get_col(size_t col) const
+{
+	if constexpr (!RowMajor) {
+		View<const T> view(&this->_data[col * this->rows()], this->rows());
+		return view;
+	}
+	else
+	{
+		View<const T> view(&this->_data[col], this->rows(), this->cols());
+		return view;
+	}
 }
 
 #endif // SANAE_NEURALNETWORK_MATRIX_UTIL

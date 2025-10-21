@@ -2,6 +2,7 @@
 #define SANAE_NEURALNETWORK_MATRIX_CALC
 
 #include "matrix.h"
+#include "view/view.h"
 #include <functional>
 #include <stdexcept>
 #include <thread>
@@ -71,7 +72,6 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::s
 	_calc(this->_data, scalar, execPolicy, std::multiplies<T>());
 	return *this;
 }
-
 template<typename T, bool RowMajor, typename Container, typename En>
 template<typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::hadamard_div(const Matrix<T, RowMajor, Container, En>& other, execType execPolicy)
@@ -90,7 +90,6 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::h
 	);
 	return *this;
 }
-
 template<typename T, bool RowMajor, typename Container, typename En>
 template<typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::scalar_div(const T& scalar, execType execPolicy)
@@ -102,9 +101,9 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::s
 	_calc(this->_data, scalar, execPolicy, std::divides<T>());
 	return *this;
 }
-
 template<typename T, bool RowMajor, typename Container, typename En>
-inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::matrix_mul(const Matrix<T, RowMajor, Container, En>& other)
+template<bool OtherMajor, typename MCheck>
+inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::matrix_mul(const Matrix<T, OtherMajor>& other)
 {
 	if (this->cols() != other.rows()) {
 		throw std::invalid_argument("Matrix dimensions must agree for matrix multiplication.");
@@ -115,23 +114,41 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 
 	Container result_data(result_rows * result_cols);
 
+	std::vector<View<T>> this_rows;
+	std::vector<View<const T>> other_cols;
+
+	this_rows.reserve(this->rows());
+	other_cols.reserve(other.cols());
+
+	for (size_t i = 0; i < this->rows(); i++)
+		this_rows.emplace_back(this->get_row(i));
+	for (size_t j = 0; j < other.cols(); j++)
+		other_cols.emplace_back(other.get_col(j));
+
 	auto task = [&](size_t row, size_t col) {
-		T sum = T{};
-		for (size_t  i = 0; i < this->cols(); i++) {
-			sum += this->operator()(row, i) * other(i, col);
-		}
-		result_data[row * result_cols + col] = sum;
+		T value = std::transform_reduce(
+			this_rows[row].begin(), this_rows[row].end(),
+			other_cols[col].begin(),
+			T{},
+			std::plus<T>(),
+			std::multiplies<T>()
+		);
+
+		if constexpr (RowMajor)
+			result_data[row * result_cols + col] = value;
+		else
+			result_data[col * result_rows + row] = value;
 		};
 
-	const size_t task_count = result_rows * result_cols;
-	const size_t max_threads = std::max(std::thread::hardware_concurrency(), 1u);
-	const size_t chunk_size = (task_count + max_threads - 1) / max_threads;
-
 	std::vector<std::thread> threads;
+	const size_t max_threads = std::max(std::thread::hardware_concurrency(),1u);
+	const size_t total_tasks = result_rows * result_cols;
+	const size_t tasks_per_thread = (total_tasks + max_threads - 1) / max_threads;
+	
 	for (size_t t = 0; t < max_threads; t++) {
 		threads.emplace_back([&, t]() {
-			size_t start = t * chunk_size;
-			size_t end = std::min(start + chunk_size, task_count);
+			size_t start = t * tasks_per_thread;
+			size_t end = std::min(start + tasks_per_thread, total_tasks);
 			for (size_t index = start; index < end; index++) {
 				size_t row, col;
 				if constexpr (RowMajor) {
@@ -147,6 +164,7 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 			}
 			});
 	}
+
 	for (auto& thread : threads) {
 		thread.join();
 	}
@@ -154,7 +172,7 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 	this->_rows = result_rows;
 	this->_cols = result_cols;
 	this->_data = std::move(result_data);
-
+	
 	return *this;
 }
 
