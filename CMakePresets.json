@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 2,
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 21
@@ -7,7 +7,6 @@
   "configurePresets": [
     {
       "name": "x64-debug-with-openblas",
-      "displayName": "x64 Debug with OpenBLAS (vcpkg)",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
@@ -18,7 +17,6 @@
     },
     {
       "name": "x64-debug-without-openblas",
-      "displayName": "x64 Debug without OpenBLAS",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
@@ -30,13 +28,11 @@
   "buildPresets": [
     {
       "name": "x64-debug-with-openblas",
-      "configurePreset": "x64-debug-with-openblas",
-      "displayName": "Build x64 Debug with OpenBLAS"
+      "configurePreset": "x64-debug-with-openblas"
     },
     {
       "name": "x64-debug-without-openblas",
-      "configurePreset": "x64-debug-without-openblas",
-      "displayName": "Build x64 Debug without OpenBLAS"
+      "configurePreset": "x64-debug-without-openblas"
     }
   ]
 }
