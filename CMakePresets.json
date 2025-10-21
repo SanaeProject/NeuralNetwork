@@ -6,7 +6,7 @@
   },
   "configurePresets": [
     {
-      "name": "x64-debug-openblas",
+      "name": "x64-debug-with-openblas",
       "displayName": "x64 Debug with OpenBLAS (vcpkg)",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
@@ -15,6 +15,28 @@
         "USE_OPENBLAS": "ON",
         "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
+    },
+    {
+      "name": "x64-debug-without-openblas",
+      "displayName": "x64 Debug without OpenBLAS",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "USE_OPENBLAS": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "x64-debug-with-openblas",
+      "configurePreset": "x64-debug-with-openblas",
+      "displayName": "Build x64 Debug with OpenBLAS"
+    },
+    {
+      "name": "x64-debug-without-openblas",
+      "configurePreset": "x64-debug-without-openblas",
+      "displayName": "Build x64 Debug without OpenBLAS"
     }
   ]
 }
