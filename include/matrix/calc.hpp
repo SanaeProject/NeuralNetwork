@@ -133,7 +133,6 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 			std::plus<T>(),
 			std::multiplies<T>()
 		);
-
 		if constexpr (RowMajor)
 			result_data[row * result_cols + col] = value;
 		else
