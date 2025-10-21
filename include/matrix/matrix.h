@@ -82,6 +82,8 @@ public:
 	 * @param initial 初期値
 	 */
 	Matrix(size_t rows, size_t cols, const T& initial);
+	template<typename InitFunc>
+	Matrix(size_t rows, size_t cols, InitFunc func);
 	/**
 	 * @brief 2次元コンテナから初期化するコンストラクタ
 	 * @param data 2次元コンテナ
@@ -228,7 +230,6 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const Matrix<T, R, C, E>& mat);
 
 	// calc.hpp
-
 	/**
 	 * @brief 他の行列との加算を行います。
 	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy

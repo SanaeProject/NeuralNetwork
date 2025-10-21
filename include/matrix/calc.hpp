@@ -33,6 +33,12 @@ inline void Matrix<T, RowMajor, Container, En>::_calc(Container& to, const T& ot
 		[&](const T& val) { return operation(val, other); });
 }
 template<typename T, bool RowMajor, typename Container, typename En>
+template<typename InitFunc>
+inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols, InitFunc func)
+{
+	this->_data.resize(rows * cols, func);
+}
+template<typename T, bool RowMajor, typename Container, typename En>
 template<typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::add(const Matrix& other, execType execPolicy)
 {
@@ -117,12 +123,12 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 	std::vector<View<T>> this_rows;
 	std::vector<View<const T>> other_cols;
 
-	this_rows.reserve(this->rows());
-	other_cols.reserve(other.cols());
+	this_rows.reserve(result_rows);
+	other_cols.reserve(result_cols);
 
-	for (size_t i = 0; i < this->rows(); i++)
+	for (size_t i = 0; i < result_rows; i++)
 		this_rows.emplace_back(this->get_row(i));
-	for (size_t j = 0; j < other.cols(); j++)
+	for (size_t j = 0; j < result_cols; j++)
 		other_cols.emplace_back(other.get_col(j));
 
 	auto task = [&](size_t row, size_t col) {

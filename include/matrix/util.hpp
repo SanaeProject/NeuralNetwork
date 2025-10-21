@@ -23,20 +23,23 @@ template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, !RowMajor> Matrix<T, RowMajor, Container, En>::convertLayout() const
 {
 	Matrix<T, !RowMajor> result(this->rows(), this->cols());
-
-	for (size_t i = 0; i < this->rows(); i++) {
+	
+	const size_t rows = this->rows();
+	const size_t cols = this->cols();
+	for (size_t i = 0; i < rows; i++) {
 		size_t base;
-		if constexpr (RowMajor)
-			base = i * this->cols();
-		else
-			base = i * result.rows();
 
-		for (size_t j = 0; j < this->cols(); j++) {
+		if constexpr (RowMajor)
+			base = i * cols;  // s—Dæ‚©‚ç—ñ—Dæ‚Ö•ÏŠ·
+		else
+			base = i * rows;  // —ñ—Dæ‚©‚çs—Dæ‚Ö•ÏŠ·
+
+		for (size_t j = 0; j < cols; j++) {
 			if constexpr (RowMajor) {
-				result[j * result.cols() + i] = this->_data[base + j];
+				result[j * cols + i] = this->_data[base + j]; // result[]
 			}
 			else {
-				result[base + j] = this->_data[j * this->rows() + i];
+				result[base + j] = this->_data[j * rows + i];
 			}
 		}
 	}
