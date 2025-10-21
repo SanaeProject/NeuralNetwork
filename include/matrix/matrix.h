@@ -66,7 +66,7 @@ public:
 
 	// ctor.hpp
 	/**
-	 * @brief デフォルトコンストラクタ\
+	 * @brief デフォルトコンストラクタ
 	 */
 	Matrix();
 	/**
