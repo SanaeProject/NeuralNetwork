@@ -47,7 +47,7 @@ inline bool Matrix<T, RowMajor, Container, En>::operator==(const Matrix& other) 
 	if (this->cols() != other.cols() || this->rows() != other.rows())
 		return false;
 
-	for(size_t  i=0; i < this->rows()*this->cols(); ++i) {
+	for (size_t i = 0; i < this->rows() * this->cols(); ++i) {
 		if (this->_data[i] != other._data[i])
 			return false;
 	}
