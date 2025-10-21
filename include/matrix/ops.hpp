@@ -82,8 +82,8 @@ inline bool Matrix<T, RowMajor, Container, En>::operator!=(const Matrix<T,!RowMa
 {
 	return !(*this == other);
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-std::ostream& operator<<(std::ostream& os, const Matrix<T, RowMajor, Container, En>& mat)
+template<typename Ty, bool RowMajor, typename Container, typename En>
+std::ostream& operator<<(std::ostream& os, const Matrix<Ty, RowMajor, Container, En>& mat)
 {
 	const size_t rows = mat.rows();
 	const size_t cols = mat.cols();
