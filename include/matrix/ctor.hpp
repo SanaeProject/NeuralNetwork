@@ -1,8 +1,8 @@
 #ifndef SANAE_NEURALNETWORK_MATRIX_CTOR  
 #define SANAE_NEURALNETWORK_MATRIX_CTOR  
 
-#include <type_traits>  
 #include "matrix.h"  
+#include <initializer_list>
 
 template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, RowMajor, Container, En>::Matrix()
@@ -37,7 +37,7 @@ inline Matrix<T, RowMajor, Container, En>::Matrix(const Container2D& data)
            index++;
        }  
    }  
-}  
+}
 template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, RowMajor, Container, En>::Matrix(const InitContainer2D& data)
 {  
@@ -58,6 +58,6 @@ inline Matrix<T, RowMajor, Container, En>::Matrix(const InitContainer2D& data)
            index++;
        }
    }
-}  
+}
 
 #endif // SANAE_NEURALNETWORK_MATRIX_CTOR
