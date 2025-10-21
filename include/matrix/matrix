@@ -2,10 +2,10 @@
 #define SANAE_INCLUDED_MATRIX
 
 #include "../view/view.h"
-#include "matrix.h"
+#include "calc.hpp"
 #include "ctor.hpp"
+#include "matrix.h"
 #include "ops.hpp"
 #include "util.hpp"
-#include "calc.hpp"
 
 #endif

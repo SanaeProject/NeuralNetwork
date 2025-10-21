@@ -2,7 +2,7 @@
 #define SANAE_NEURALNETWORK_MATRIX_CALC
 
 #include "matrix.h"
-#include "view/view.h"
+#include "../view/view.h"
 #include <functional>
 #include <stdexcept>
 #include <thread>

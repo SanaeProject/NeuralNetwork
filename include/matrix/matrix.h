@@ -1,13 +1,13 @@
 #ifndef SANAE_NEURALNETWORK_MATRIX  
 #define SANAE_NEURALNETWORK_MATRIX  
 
+#include "../view/view.h"
 #include <array>  
 #include <execution>
 #include <initializer_list>
 #include <iosfwd>
 #include <type_traits>  
 #include <vector>  
-#include "view/view.h"
 
 // std::executionポリシー判定用の型
 template<typename T> struct is_std_exec_policy : std::false_type {};

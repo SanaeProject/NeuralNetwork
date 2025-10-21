@@ -2,7 +2,7 @@
 #define SANAE_NEURALNETWORK_MATRIX_CTOR  
 
 #include "matrix.h"  
-#include "view/view.h"
+#include <initializer_list>
 
 template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, RowMajor, Container, En>::Matrix()

@@ -2,7 +2,6 @@
 #define SANAE_NEURALNETWORK_VIEW
 
 #include <iterator>
-#include <type_traits>
 
 /**  
 * @class View  
