@@ -1,7 +1,7 @@
 #ifndef SANAE_INCLUDED_MATRIX
 #define SANAE_INCLUDED_MATRIX
 
-#include "../view/view.h";
+#include "../view/view.h"
 #include "matrix.h"
 #include "ctor.hpp"
 #include "ops.hpp"
