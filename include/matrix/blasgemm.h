@@ -1,7 +1,9 @@
-#if !defined(SANAE_NEURALNETWORK_MATRIX_MATMUL) && defined(USE_OPENBLAS)
+#ifndef SANAE_NEURALNETWORK_MATRIX_MATMUL
 #define SANAE_NEURALNETWORK_MATRIX_MATMUL
 
 #include "matrix.h"
+
+#if defined(USE_OPENBLAS)
 #include <cblas.h>
 
 namespace BlasGemm {
@@ -9,9 +11,12 @@ namespace BlasGemm {
 	struct MatMul {};
 	template<>
 	struct MatMul<float> {
-		static void multiply(const float* A, const float* B, float* C, size_t M, size_t N, size_t K, bool rowMajor) {
+		static void multiply(const float* A, const float* B, float* C, size_t M, size_t N, size_t K, bool rowMajor, bool otherMajor) {
 			CBLAS_ORDER order = rowMajor ? CblasRowMajor : CblasColMajor;
-			cblas_sgemm(order, CblasNoTrans, CblasNoTrans,
+			CBLAS_TRANSPOSE transA = rowMajor ? CblasNoTrans : CblasTrans;
+			CBLAS_TRANSPOSE transB = otherMajor ? CblasNoTrans : CblasTrans;
+
+			cblas_sgemm(order, transA, transB,
 				M, N, K,
 				1.0f,
 				A, rowMajor ? K : M,
@@ -22,61 +27,97 @@ namespace BlasGemm {
 	};
 	template<>
 	struct MatMul<double> {
-		static void multiply(const double* A, const double* B, double* C, size_t M, size_t N, size_t K, bool rowMajor) {
+		static void multiply(const double* A, const double* B, double* C, size_t M, size_t N, size_t K, bool rowMajor, bool otherMajor) {
 			CBLAS_ORDER order = rowMajor ? CblasRowMajor : CblasColMajor;
-			cblas_dgemm(order, CblasNoTrans, CblasNoTrans,
+			CBLAS_TRANSPOSE transA = rowMajor ? CblasNoTrans : CblasTrans;
+			CBLAS_TRANSPOSE transB = otherMajor ? CblasNoTrans : CblasTrans;
+
+			cblas_dgemm(order, transA, transB,
 				M, N, K,
-				1.0,
+				1.0f,
 				A, rowMajor ? K : M,
 				B, rowMajor ? N : K,
-				0.0,
+				0.0f,
 				C, rowMajor ? N : M);
 		}
 	};
 
 	template<typename T>
-	struct add{};
+	struct Add{};
 	template<>
-	struct add<float> {
+	struct Add<float> {
 		static void axpy(size_t n, float alpha, const float* x, float* y) {
 			cblas_saxpy(static_cast<int>(n), alpha, x, 1, y, 1);
 		}
 	};
 	template<>
-	struct add<double> {
+	struct Add<double> {
 		static void axpy(size_t n, double alpha, const double* x, double* y) {
 			cblas_daxpy(static_cast<int>(n), alpha, x, 1, y, 1);
 		}
 	};
 	template<typename T>
-	struct sub {};
+	struct Sub {};
 	template<>
-	struct sub<float> {
+	struct Sub<float> {
 		static void axpy(size_t n, float alpha, const float* x, float* y) {
 			cblas_saxpy(static_cast<int>(n), -alpha, x, 1, y, 1);
 		}
 	};
 	template<>
-	struct sub<double> {
+	struct Sub<double> {
 		static void axpy(size_t n, double alpha, const double* x, double* y) {
 			cblas_daxpy(static_cast<int>(n), -alpha, x, 1, y, 1);
 		}
 	};
 
 	template<typename T>
-	struct scalar_mul {};
+	struct ScalarMul {};
 	template<>
-	struct scalar_mul<float> {
+	struct ScalarMul<float> {
 		static void scal(size_t n, float alpha, float* x) {
 			cblas_sscal(static_cast<int>(n), alpha, x, 1);
 		}
 	};
 	template<>
-	struct scalar_mul<double> {
+	struct ScalarMul<double> {
 		static void scal(size_t n, double alpha, double* x) {
 			cblas_dscal(static_cast<int>(n), alpha, x, 1);
 		}
 	};
 }
+#else
+namespace BlasGemm {
+	template<typename T> 
+	struct MatMul {
+		static void multiply(const T* A, const T* B, T* C, size_t M, size_t N, size_t K, bool rowMajor) {
+			// BLAS未使用時のプレースホルダ
+			throw std::runtime_error("BLAS not supported for this data type.");
+		}
+	};
+	template<typename T> 
+	struct Add {
+		static void axpy(size_t n, T alpha, const T* x, T* y) {
+			// BLAS未使用時のプレースホルダ
+			throw std::runtime_error("BLAS not supported for this data type.");
+		}
+	};
+	template<typename T> 
+	struct Sub {
+		static void axpy(size_t n, T alpha, const T* x, T* y) {
+			// BLAS未使用時のプレースホルダ
+			throw std::runtime_error("BLAS not supported for this data type.");
+		}
+	};
+	template<typename T> 
+	struct ScalarMul {
+		static void scal(size_t n, T alpha, T* x) {
+			// BLAS未使用時のプレースホルダ
+			throw std::runtime_error("BLAS not supported for this data type.");
+		}
+	};
+}
+
+#endif
 
 #endif

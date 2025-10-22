@@ -1,16 +1,11 @@
 #include "matrix/matrix"
+#include "performance.cpp"
 #include <iostream>
-#include <chrono>
 
-template<typename func>
-void benchmark(const std::string& testName, func f) {
-	auto start = std::chrono::high_resolution_clock::now();
-	f();
-	auto end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double, std::milli> duration = end - start;
-	std::cout << testName << " took " << duration.count() << " ms\n";
-}
 int main() {
+	exec();
+	return 0;
+
 #ifdef USE_OPENBLAS
 	std::cout << "Using OpenBLAS for matrix operations." << std::endl;
 #endif
@@ -161,7 +156,7 @@ int main() {
         std::cout << "Testing matrix multiplication...\n";
         MatrixType mat1(data1);
         MatrixType mat2(data2);
-        std::cout << mat1 << " * " << mat2 << " = " << mat1.matrix_mul(mat2) << std::endl;
+        std::cout << mat1 << " * " << mat2 << " = " << mat1.matrix_mul<true>(mat2) << std::endl;
         std::cout << "Matrix multiplication performed.\n" << std::endl;
     }
 

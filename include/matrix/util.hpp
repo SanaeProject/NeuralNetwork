@@ -102,7 +102,7 @@ inline View<const T> Matrix<T, RowMajor, Container, En>::get_col(size_t col) con
 template<typename T, bool RowMajor, typename Container, typename En>
 inline bool Matrix<T, RowMajor, Container, En>::use_blas_gemm() const
 {
-	return use_blas<T>::value;
+	return can_use_blas<T>::value;
 }
 
 #endif // SANAE_NEURALNETWORK_MATRIX_UTIL

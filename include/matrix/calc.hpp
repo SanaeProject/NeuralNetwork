@@ -12,8 +12,8 @@
 
 #ifdef USE_OPENBLAS
 	#include <cblas.h>
-	#include "blasgemm.h"
 #endif
+#include "blasgemm.h"
 
 template<typename T, bool RowMajor, typename Container, typename En>
 template<typename execType, typename calcType, typename TyCheck>
@@ -39,16 +39,18 @@ inline void Matrix<T, RowMajor, Container, En>::_calc(Container& to, const T& ot
 		[&](const T& val) { return operation(val, other); });
 }
 template<typename T, bool RowMajor, typename Container, typename En>
-template<typename execType, typename TyCheck>
+template<bool use_blas, typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::add(const Matrix& other, execType execPolicy)
 {
 	if (this->_rows != other._rows || this->_cols != other._cols) {
 		throw std::invalid_argument("Matrix dimensions must agree for addition.");
 	}
+	if constexpr (use_blas)
+		static_assert(can_use_blas<T>::value , "BLAS is not enabled or BLAS cannot be used for the specified type T.");
 
-	if constexpr (use_blas<T>::value) {
+	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
-		BlasGemm::add<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
+		BlasGemm::Add<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
 	}
 	else {
 		_calc(this->_data, other._data, execPolicy, std::plus<T>());
@@ -56,16 +58,18 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::a
 	return *this;
 }
 template<typename T, bool RowMajor, typename Container, typename En>
-template<typename execType, typename TyCheck>
+template<bool use_blas, typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::sub(const Matrix& other, execType execPolicy)
 {
 	if (this->_rows != other._rows || this->_cols != other._cols) {
 		throw std::invalid_argument("Matrix dimensions must agree for subtraction.");
 	}
+	if constexpr (use_blas)
+		static_assert(can_use_blas<T>::value, "BLAS is not enabled or BLAS cannot be used for the specified type T.");
 
-	if constexpr (use_blas<T>::value) {
+	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
-		BlasGemm::sub<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
+		BlasGemm::Sub<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
 	}
 	else {
 		_calc(this->_data, other._data, execPolicy, std::minus<T>());
@@ -103,12 +107,15 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::h
 	return *this;
 }
 template<typename T, bool RowMajor, typename Container, typename En>
-template<typename execType, typename TyCheck>
+template<bool use_blas, typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::scalar_mul(const T& scalar, execType execPolicy)
 {
-	if constexpr (use_blas<T>::value) {
+	if constexpr (use_blas)
+		static_assert(can_use_blas<T>::value, "BLAS is not enabled or BLAS cannot be used for the specified type T.");
+
+	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
-		BlasGemm::scalar_mul<T>::scal(n, scalar, this->_data.data());
+		BlasGemm::ScalarMul<T>::scal(n, scalar, this->_data.data());
 	}
 	else {
 		_calc(this->_data, scalar, execPolicy, std::multiplies<T>());
@@ -127,33 +134,32 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::s
 	return *this;
 }
 template<typename T, bool RowMajor, typename Container, typename En>
-template<bool OtherMajor, typename MCheck>
+template<bool use_blas, bool OtherMajor, typename MCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::matrix_mul(const Matrix<T, OtherMajor>& other)
 {
 	if (this->cols() != other.rows()) {
 		throw std::invalid_argument("Matrix dimensions must agree for matrix multiplication.");
 	}
+	if constexpr (use_blas)
+		static_assert(can_use_blas<T>::value, "BLAS is not enabled or BLAS cannot be used for the specified type T.");
 
 	const size_t result_rows = this->rows();
 	const size_t result_cols = other.cols();
 
 	Container result_data(result_rows * result_cols);
 
-	if constexpr (use_blas<T>::value) {
+	if constexpr (can_use_blas<T>::value && use_blas) {
 		int m = static_cast<int>(result_rows);
 		int n = static_cast<int>(result_cols);
 		int k = static_cast<int>(this->cols());
-
-		auto layout = CblasRowMajor;
-		auto transA = RowMajor ? CblasNoTrans : CblasTrans;
-		auto transB = OtherMajor ? CblasNoTrans : CblasTrans;
 
 		BlasGemm::MatMul<T>::multiply(
 			this->_data.data(),
 			other._data.data(),
 			result_data.data(),
 			m, n, k,
-			RowMajor
+			RowMajor,
+			OtherMajor
 		);
 	}else{
 		std::vector<View<T>> this_rows;

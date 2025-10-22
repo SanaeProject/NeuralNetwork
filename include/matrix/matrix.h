@@ -22,12 +22,12 @@ template<typename T, std::size_t N>  struct is_vector_or_array<std::array<T, N>>
 
 // BLAS使用判定用の型
 #ifdef USE_OPENBLAS
-	template<typename T> struct use_blas : std::false_type {};
-	template<> struct use_blas<float>  : std::true_type {};
-	template<> struct use_blas<double> : std::true_type {};
+	template<typename T> struct can_use_blas : std::false_type {};
+	template<> struct can_use_blas<float>  : std::true_type {};
+	template<> struct can_use_blas<double> : std::true_type {};
 #else
 	template<typename T>
-	struct use_blas : std::false_type {};
+	struct can_use_blas : std::false_type {};
 #endif
 
 /**
@@ -247,6 +247,7 @@ public:
 	// calc.hpp
 	/**
 	 * @brief 他の行列との加算を行います。
+	 * @tparam use_blas BLASを使用するかどうか(デフォルトはfalse)
 	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy
 	 * @tparam TyCheck 実行ポリシーが上記のポリシーのどれかであるかを検証する
 	 * @param other 加算する行列
@@ -254,10 +255,11 @@ public:
 	 * @return 自身の参照
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
-	template<typename execType = std::execution::parallel_unsequenced_policy, typename TyCheck = std::enable_if_t<is_std_exec_policy<execType>::value>>
+	template<bool use_blas = false, typename execType = std::execution::parallel_unsequenced_policy, typename TyCheck = std::enable_if_t<is_std_exec_policy<execType>::value>>
 	Matrix& add(const Matrix& other, execType execPolicy = execType());
 	/**
 	 * @brief 他の行列との減算を行います。
+	 * @tparam use_blas BLASを使用するかどうか(デフォルトはfalse)
 	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy
 	 * @tparam TyCheck 実行ポリシーが上記のポリシーのどれかであるかを検証する
 	 * @param other 減算する行列
@@ -265,7 +267,7 @@ public:
 	 * @return 自身の参照
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
-	template<typename execType = std::execution::parallel_unsequenced_policy, typename TyCheck = std::enable_if_t<is_std_exec_policy<execType>::value>>
+	template<bool use_blas = false, typename execType = std::execution::parallel_unsequenced_policy, typename TyCheck = std::enable_if_t<is_std_exec_policy<execType>::value>>
 	Matrix& sub(const Matrix& other, execType execPolicy = execType());
 	/**
 	 * @brief 他の行列とのアダマール積を行います。
@@ -280,13 +282,14 @@ public:
 	Matrix& hadamard_mul(const Matrix& other, execType execPolicy = execType());
 	/**
 	 * @brief スカラーとの乗算を行います。
+	 * @tparam use_blas BLASを使用するかどうか(デフォルトはfalse)
 	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy
 	 * @tparam TyCheck 実行ポリシーが上記のポリシーのどれかであるかを検証する
 	 * @param scalar 乗算するスカラー
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 自身の参照
 	 */
-	template<typename execType = std::execution::parallel_unsequenced_policy, typename TyCheck = std::enable_if_t<is_std_exec_policy<execType>::value>>
+	template<bool use_blas = false, typename execType = std::execution::parallel_unsequenced_policy, typename TyCheck = std::enable_if_t<is_std_exec_policy<execType>::value>>
 	Matrix& scalar_mul(const T& scalar, execType execPolicy = execType());
 	/**
 	 * @brief 他の行列とのアダマール除算を行います。
@@ -312,13 +315,14 @@ public:
 	Matrix& scalar_div(const T& scalar, execType execPolicy = execType());
 	/**
 	 * @brief 他の行列との行列乗算を行います。
+	 * @tparam use_blas BLASを使用するかどうか(デフォルトはfalse)
 	 * @tparam OtherMajor 他の行列のメモリレイアウト
 	 * @tparam MCheck RowMajorがfalseかつOtherMajorがtrueである場合にコンパイルエラーとする(効率が非常に悪いため)
 	 * @param other 乗算する行列
 	 * @return 自身の参照
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
-	template<bool OtherMajor,typename MCheck = std::enable_if_t<!(RowMajor == false && OtherMajor == true)>>
+	template<bool use_blas = false, bool OtherMajor, typename MCheck = std::enable_if_t<!(RowMajor == false && OtherMajor == true)>>
 	Matrix& matrix_mul(const Matrix<T,OtherMajor>& other);
 };
 
