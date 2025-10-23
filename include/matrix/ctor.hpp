@@ -3,10 +3,9 @@
 
 #include "matrix.h"  
 #include <initializer_list>
-#include <type_traits>
 
 template<typename T, bool RowMajor, typename Container, typename En>
-inline Matrix<T, RowMajor, Container, En>::Matrix()
+inline Matrix<T, RowMajor, Container, En>::Matrix() : _rows(0), _cols(0), _data()
 {  
 }
 template<typename T, bool RowMajor, typename Container, typename En>
@@ -25,8 +24,7 @@ inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols, Init
     this->_cols = cols;
     this->_data.resize(rows * cols);
 
-    static_assert(std::is_invocable_r_v<T, InitFunc>, "InitFunc must be callable with no arguments and return T");
-	std::generate(this->_data.begin(), this->_data.end(), func);
+    std::generate(this->_data.begin(), this->_data.end(), func);
 }
 template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, RowMajor, Container, En>::Matrix(const Container2D& data)

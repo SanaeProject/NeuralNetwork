@@ -38,8 +38,6 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::a
 {
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for addition.");
-	if constexpr (use_blas && !can_use_blas<T>::value)
-		throw std::invalid_argument("BLAS is not enabled or BLAS cannot be used for the specified type T.");
 
 	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
@@ -56,8 +54,6 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::s
 {
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for subtraction.");
-	if constexpr (use_blas && !can_use_blas<T>::value)
-		throw std::invalid_argument("BLAS is not enabled or BLAS cannot be used for the specified type T.");
 
 	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
@@ -100,9 +96,6 @@ template<typename T, bool RowMajor, typename Container, typename En>
 template<bool use_blas, typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::scalar_mul(const T& scalar, execType execPolicy)
 {
-	if constexpr (use_blas && !can_use_blas<T>::value)
-		throw std::invalid_argument("BLAS is not enabled or BLAS cannot be used for the specified type T.");
-
 	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
 		BlasGemm::ScalarMul<T>::scal(n, scalar, this->_data.data());
@@ -129,8 +122,6 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 	if (this->cols() != other.rows()) {
 		throw std::invalid_argument("Matrix dimensions must agree for matrix multiplication.");
 	}
-	if constexpr (use_blas && !can_use_blas<T>::value)
-		throw std::invalid_argument("BLAS is not enabled or BLAS cannot be used for the specified type T.");
 
 	const size_t result_rows = this->rows();
 	const size_t result_cols = other.cols();
