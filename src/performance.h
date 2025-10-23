@@ -20,8 +20,8 @@ static void benchmark_exec() {
 	std::default_random_engine engine(seedgen());
 	std::uniform_real_distribution<double> dist(0,1);
 
-	Matrix<Type,false> matA(MATRIX_SIZE, MATRIX_SIZE, dist(engine));
-	Matrix<Type,false> matB(MATRIX_SIZE, MATRIX_SIZE, dist(engine));
+	Matrix<Type,false> matA(MATRIX_SIZE, MATRIX_SIZE, [&]() { return dist(engine); });
+	Matrix<Type,false> matB(MATRIX_SIZE, MATRIX_SIZE, [&]() { return dist(engine); });
 
 	std::cout << "Matrix Size: " << MATRIX_SIZE << "x" << MATRIX_SIZE << "\n" << std::endl;
 
@@ -31,41 +31,41 @@ static void benchmark_exec() {
 		std::cout << "OPENBLAS-THREADS:" << openblas_get_num_threads() << "\n" << std::endl;
 #endif
 
-	// ‰ÁŽZ
+	// åŠ ç®—
 	benchmark("Addition", [&]() {
 		matA.add(matB);
 		});
 
-	// Œ¸ŽZ
+	// æ¸›ç®—
 	benchmark("Subtraction", [&]() {
 		matA.sub(matB);
 		});
 
-	// ƒAƒ_ƒ}[ƒ‹Ï
+	// ã‚¢ãƒ€ãƒžãƒ¼ãƒ«ç©
 	benchmark("Hadamard Multiplication", [&]() {
 		matA.hadamard_mul(matB);
 		});
 
-	// ƒXƒJƒ‰[æŽZ
+	// ã‚¹ã‚«ãƒ©ãƒ¼ä¹—ç®—
 	benchmark("Scalar Multiplication", [&]() {
 		matA.scalar_mul(2.0);
 		});
 
-	// ƒAƒ_ƒ}[ƒ‹œŽZ
+	// ã‚¢ãƒ€ãƒžãƒ¼ãƒ«é™¤ç®—
 	benchmark("Hadamard Division", [&]() {
 		matA.hadamard_div(matB);
 		});
-	// ƒXƒJƒ‰[œŽZ
+	// ã‚¹ã‚«ãƒ©ãƒ¼é™¤ç®—
 	benchmark("Scalar Division", [&]() {
 		matA.scalar_div(2.0);
 		});
 
-	// s—ñÏ
+	// è¡Œåˆ—ç©
 	benchmark("Matrix Multiplication", [&]() {
 		matA.matrix_mul(matB);
 		});
 
-	// BLASŽg—p”Å
+	// BLASä½¿ç”¨ç‰ˆ
 	if constexpr (can_use_blas<Type>::value) {
 		std::cout << "\nBLAS Enabled Tests:\n" << std::endl;
 		benchmark("Addition with BLAS", [&]() {
