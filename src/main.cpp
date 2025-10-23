@@ -1,5 +1,5 @@
 #include "matrix/matrix"
-#include "performance.cpp"
+#include "performance.h"
 #include <iostream>
 
 int main() {

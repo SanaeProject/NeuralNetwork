@@ -18,10 +18,10 @@ namespace BlasGemm {
 
 			cblas_sgemm(order, transA, transB,
 				M, N, K,
-				1.0f,
+				1.0,
 				A, AMajor ? K : M,
 				B, AMajor ? N : K,
-				0.0f,
+				0.0,
 				C, AMajor ? N : M);
 		}
 	};
@@ -34,10 +34,10 @@ namespace BlasGemm {
 
 			cblas_dgemm(order, transA, transB,
 				M, N, K,
-				1.0f,
+				1.0,
 				A, AMajor ? K : M,
 				B, AMajor ? N : K,
-				0.0f,
+				0.0,
 				C, AMajor ? N : M);
 		}
 	};

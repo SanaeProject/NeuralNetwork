@@ -92,7 +92,13 @@ public:
 	 * @param initial 初期値
 	 */
 	Matrix(size_t rows, size_t cols, const T& initial);
-	template<typename InitFunc>
+	/**
+	* @brief 行列の行数と列数、初期化関数を指定して初期化するコンストラクタ
+	* @param rows 行数
+	* @param cols 列数
+	* @param func 初期化関数
+	*/
+	template<typename InitFunc,typename InitFuncCheck = std::enable_if_t<std::is_invocable_r_v<T, InitFunc>>>
 	Matrix(size_t rows, size_t cols, InitFunc func);
 	/**
 	 * @brief 2次元コンテナから初期化するコンストラクタ
