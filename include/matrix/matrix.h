@@ -163,7 +163,12 @@ public:
 	 * @brief BLASのGEMMを使用するかどうかを判定します。
 	 * @return 使用する場合はtrue、使用しない場合はfalse
 	 */
-	bool use_blas_gemm() const;
+	bool is_blas_enabled() const;
+	/**
+	* @brief 行列の転置を行います。
+	* @return 自身の参照
+	*/
+	Matrix& transpose();
 
 	// ops.hpp
 	/**

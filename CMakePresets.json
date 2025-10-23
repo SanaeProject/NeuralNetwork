@@ -1,12 +1,12 @@
 {
-  "version": 2,
+  "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 21
   },
   "configurePresets": [
     {
-      "name": "x64-debug-with-openblas",
+      "name": "x64-debug-with-openblas-vs",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
@@ -16,7 +16,7 @@
       }
     },
     {
-      "name": "x64-debug-without-openblas",
+      "name": "x64-debug-without-openblas-vs",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
@@ -25,7 +25,7 @@
       }
     },
     {
-      "name": "x64-release-with-openblas",
+      "name": "x64-release-with-openblas-vs",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
@@ -36,7 +36,7 @@
       }
     },
     {
-      "name": "x64-release-without-openblas",
+      "name": "x64-release-without-openblas-vs",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
@@ -48,20 +48,20 @@
   ],
   "buildPresets": [
     {
-      "name": "x64-debug-with-openblas",
-      "configurePreset": "x64-debug-with-openblas"
+      "name": "x64-debug-with-openblas-vs",
+      "configurePreset": "x64-debug-with-openblas-vs"
     },
     {
-      "name": "x64-debug-without-openblas",
-      "configurePreset": "x64-debug-without-openblas"
+      "name": "x64-debug-without-openblas-vs",
+      "configurePreset": "x64-debug-without-openblas-vs"
     },
     {
-      "name": "x64-release-with-openblas",
-      "configurePreset": "x64-release-with-openblas"
+      "name": "x64-release-with-openblas-vs",
+      "configurePreset": "x64-release-with-openblas-vs"
     },
     {
-      "name": "x64-release-without-openblas",
-      "configurePreset": "x64-release-without-openblas"
+      "name": "x64-release-without-openblas-vs",
+      "configurePreset": "x64-release-without-openblas-vs"
     }
   ]
 }
