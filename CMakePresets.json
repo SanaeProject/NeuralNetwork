@@ -1,13 +1,12 @@
 {
-  "version": 3,
+  "version": 2,
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 21
   },
   "configurePresets": [
     {
-      "name": "x64-debug-openblas",
-      "displayName": "x64 Debug with OpenBLAS (vcpkg)",
+      "name": "x64-debug-with-openblas",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
@@ -15,6 +14,54 @@
         "USE_OPENBLAS": "ON",
         "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
+    },
+    {
+      "name": "x64-debug-without-openblas",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "USE_OPENBLAS": "OFF"
+      }
+    },
+    {
+      "name": "x64-release-with-openblas",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "USE_OPENBLAS": "ON",
+        "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_CXX_FLAGS": "/O2 /arch:AVX2"
+      }
+    },
+    {
+      "name": "x64-release-without-openblas",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "USE_OPENBLAS": "OFF",
+        "CMAKE_CXX_FLAGS": "/O2 /arch:AVX2"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "x64-debug-with-openblas",
+      "configurePreset": "x64-debug-with-openblas"
+    },
+    {
+      "name": "x64-debug-without-openblas",
+      "configurePreset": "x64-debug-without-openblas"
+    },
+    {
+      "name": "x64-release-with-openblas",
+      "configurePreset": "x64-release-with-openblas"
+    },
+    {
+      "name": "x64-release-without-openblas",
+      "configurePreset": "x64-release-without-openblas"
     }
   ]
 }

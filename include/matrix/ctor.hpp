@@ -5,17 +5,27 @@
 #include <initializer_list>
 
 template<typename T, bool RowMajor, typename Container, typename En>
-inline Matrix<T, RowMajor, Container, En>::Matrix()
+inline Matrix<T, RowMajor, Container, En>::Matrix() : _rows(0), _cols(0), _data()
 {  
-}  
+}
 template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols) : _rows(rows), _cols(cols), _data(rows * cols)
 {
-}  
+}
 template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols, const T& initial) : _rows(rows), _cols(cols), _data(rows * cols, initial)
-{  
-}  
+{
+}
+template<typename T, bool RowMajor, typename Container, typename En>
+template<typename InitFunc, typename InitFuncCheck>
+inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols, InitFunc func)
+{
+    this->_rows = rows;
+    this->_cols = cols;
+    this->_data.resize(rows * cols);
+
+    std::generate(this->_data.begin(), this->_data.end(), func);
+}
 template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, RowMajor, Container, En>::Matrix(const Container2D& data)
 {  
