@@ -7,16 +7,15 @@
 template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, RowMajor, Container, En>::Matrix()
 {  
-}  
+}
 template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols) : _rows(rows), _cols(cols), _data(rows * cols)
 {
-}  
+}
 template<typename T, bool RowMajor, typename Container, typename En>
 inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols, const T& initial) : _rows(rows), _cols(cols), _data(rows * cols, initial)
 {
-}  
-
+}
 template<typename T, bool RowMajor, typename Container, typename En>
 template<typename InitFunc>
 inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols, InitFunc func)

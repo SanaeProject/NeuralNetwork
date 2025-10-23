@@ -3,9 +3,6 @@
 #include <iostream>
 
 int main() {
-	exec();
-	return 0;
-
 #ifdef USE_OPENBLAS
 	std::cout << "Using OpenBLAS for matrix operations." << std::endl;
 #endif
@@ -156,9 +153,13 @@ int main() {
         std::cout << "Testing matrix multiplication...\n";
         MatrixType mat1(data1);
         MatrixType mat2(data2);
-        std::cout << mat1 << " * " << mat2 << " = " << mat1.matrix_mul<true>(mat2) << std::endl;
+
+        std::cout << mat1 << " * " << mat2 << " = " << mat1.matrix_mul(mat2) << std::endl;
         std::cout << "Matrix multiplication performed.\n" << std::endl;
     }
+
+	// パフォーマンステスト
+    benchmark_exec();
 
     return 0;
 }

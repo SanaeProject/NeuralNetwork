@@ -1,27 +1,21 @@
 #ifndef SANAE_NEURALNETWORK_MATRIX_CALC
 #define SANAE_NEURALNETWORK_MATRIX_CALC
 
-#include "matrix.h"
 #include "../view/view.h"
-#include "type_traits"
+#include "blasgemm.h"
+#include "matrix.h"
 #include <functional>
 #include <stdexcept>
 #include <thread>
 #include <utility>
 #include <vector>
 
-#ifdef USE_OPENBLAS
-	#include <cblas.h>
-#endif
-#include "blasgemm.h"
-
 template<typename T, bool RowMajor, typename Container, typename En>
 template<typename execType, typename calcType, typename TyCheck>
 inline void Matrix<T, RowMajor, Container, En>::_calc(Container& to, const Container& other, execType execPolicy, calcType operation)
 {
-	if (to.size() != other.size()) {
+	if (to.size() != other.size())
 		throw std::invalid_argument("Container sizes must agree for calculation.");
-	}
 
 	std::transform(execPolicy,
 		to.begin(), to.end(),
@@ -42,11 +36,10 @@ template<typename T, bool RowMajor, typename Container, typename En>
 template<bool use_blas, typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::add(const Matrix& other, execType execPolicy)
 {
-	if (this->_rows != other._rows || this->_cols != other._cols) {
+	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for addition.");
-	}
-	if constexpr (use_blas)
-		static_assert(can_use_blas<T>::value , "BLAS is not enabled or BLAS cannot be used for the specified type T.");
+	if constexpr (use_blas && !can_use_blas<T>::value)
+		throw std::invalid_argument("BLAS is not enabled or BLAS cannot be used for the specified type T.");
 
 	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
@@ -61,11 +54,10 @@ template<typename T, bool RowMajor, typename Container, typename En>
 template<bool use_blas, typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::sub(const Matrix& other, execType execPolicy)
 {
-	if (this->_rows != other._rows || this->_cols != other._cols) {
+	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for subtraction.");
-	}
-	if constexpr (use_blas)
-		static_assert(can_use_blas<T>::value, "BLAS is not enabled or BLAS cannot be used for the specified type T.");
+	if constexpr (use_blas && !can_use_blas<T>::value)
+		throw std::invalid_argument("BLAS is not enabled or BLAS cannot be used for the specified type T.");
 
 	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
@@ -81,9 +73,8 @@ template<typename T, bool RowMajor, typename Container, typename En>
 template<typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::hadamard_mul(const Matrix& other, execType execPolicy)
 {
-	if (this->_rows != other._rows || this->_cols != other._cols) {
+	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for Hadamard multiplication.");
-	}
 
 	_calc(this->_data, other._data, execPolicy, std::multiplies<T>());
 	return *this;
@@ -92,9 +83,8 @@ template<typename T, bool RowMajor, typename Container, typename En>
 template<typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::hadamard_div(const Matrix<T, RowMajor, Container, En>& other, execType execPolicy)
 {
-	if (this->_rows != other._rows || this->_cols != other._cols) {
+	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for Hadamard division.");
-	}
 
 	_calc(this->_data, other._data, execPolicy, 
 		[](const T& a, const T& b) {
@@ -110,8 +100,8 @@ template<typename T, bool RowMajor, typename Container, typename En>
 template<bool use_blas, typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::scalar_mul(const T& scalar, execType execPolicy)
 {
-	if constexpr (use_blas)
-		static_assert(can_use_blas<T>::value, "BLAS is not enabled or BLAS cannot be used for the specified type T.");
+	if constexpr (use_blas && !can_use_blas<T>::value)
+		throw std::invalid_argument("BLAS is not enabled or BLAS cannot be used for the specified type T.");
 
 	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
@@ -126,10 +116,9 @@ template<typename T, bool RowMajor, typename Container, typename En>
 template<typename execType, typename TyCheck>
 inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::scalar_div(const T& scalar, execType execPolicy)
 {
-	if (scalar == T(0)) {
+	if (scalar == T(0))
 		throw std::invalid_argument("Division by zero in scalar_div.");
-	}
-
+	
 	_calc(this->_data, scalar, execPolicy, std::divides<T>());
 	return *this;
 }
@@ -140,8 +129,8 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 	if (this->cols() != other.rows()) {
 		throw std::invalid_argument("Matrix dimensions must agree for matrix multiplication.");
 	}
-	if constexpr (use_blas)
-		static_assert(can_use_blas<T>::value, "BLAS is not enabled or BLAS cannot be used for the specified type T.");
+	if constexpr (use_blas && !can_use_blas<T>::value)
+		throw std::invalid_argument("BLAS is not enabled or BLAS cannot be used for the specified type T.");
 
 	const size_t result_rows = this->rows();
 	const size_t result_cols = other.cols();
@@ -155,7 +144,7 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 
 		BlasGemm::MatMul<T>::multiply(
 			this->_data.data(),
-			other._data.data(),
+			other.data().data(),
 			result_data.data(),
 			m, n, k,
 			RowMajor,
@@ -173,18 +162,30 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 		for (size_t j = 0; j < result_cols; j++)
 			other_cols.emplace_back(other.get_col(j));
 
-		auto task = [&](size_t row, size_t col) {
-			T value = std::transform_reduce(
-				this_rows[row].begin(), this_rows[row].end(),
-				other_cols[col].begin(),
-				T{},
-				std::plus<T>(),
-				std::multiplies<T>()
-			);
-			if constexpr (RowMajor)
-				result_data[row * result_cols + col] = value;
-			else
-				result_data[col * result_rows + row] = value;
+		auto task = [&](size_t start, size_t end) {
+			for (size_t index = start; index < end; index++) {
+				size_t row, col;
+				if constexpr (RowMajor) {
+					row = index / result_cols;
+					col = index % result_cols;
+				}
+				else {
+					col = index / result_rows;
+					row = index % result_rows;
+				}
+				
+				T value = std::transform_reduce(
+					this_rows[row].begin(), this_rows[row].end(),
+					other_cols[col].begin(),
+					T{},
+					std::plus<T>(),
+					std::multiplies<T>()
+				);
+				if constexpr (RowMajor)
+					result_data[row * result_cols + col] = value;
+				else
+					result_data[col * result_rows + row] = value;
+			}
 			};
 
 		std::vector<std::thread> threads;
@@ -196,19 +197,7 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 			threads.emplace_back([&, t]() {
 				size_t start = t * tasks_per_thread;
 				size_t end = std::min(start + tasks_per_thread, total_tasks);
-				for (size_t index = start; index < end; index++) {
-					size_t row, col;
-					if constexpr (RowMajor) {
-						row = index / result_cols;
-						col = index % result_cols;
-					}
-					else {
-						col = index / result_rows;
-						row = index % result_rows;
-					}
-
-					task(row, col);
-				}
+				task(start, end);
 				});
 		}
 
