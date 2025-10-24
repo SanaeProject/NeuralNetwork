@@ -1,6 +1,25 @@
 # NeuralNetwork
-このプロジェクトはまず行列型（Matrix）を実装し、そこから層（Layer）・ニューラルネットワーク（NeuralNetwork）を構築していきます。行列演算では高速化のためにOpenBLASを利用するオプションを提供しますが、OpenBLASの利用条件については「OpenBLAS の利用ポリシー」を参照してください。
 
+## 目次
+
+- [概要](#概要)
+- [目標](#目標)
+- [特徴](#特徴)
+- [前提・要件](#前提要件)
+- [OpenBLAS の利用ポリシー](#openblas-の利用ポリシー)
+- [ビルド手順](#ビルド手順)
+- [ビルドコマンド例](#ビルドコマンド例)
+- [Matrix 実装方針](#matrix-実装方針)
+- [API](#api)
+- [使い方](#使い方)
+- [テスト](#テスト)
+- [貢献](#貢献)
+- [ライセンス](#ライセンス)
+- [補足・今後の予定](#補足今後の予定)
+
+## 概要
+
+このプロジェクトはまず行列型（Matrix）を実装し、そこから層（Layer）・ニューラルネットワーク（NeuralNetwork）を構築していきます。行列演算では高速化のためにOpenBLASを利用するオプションを提供しますが、OpenBLASの利用条件については「OpenBLAS の利用ポリシー」を参照してください。
 
 この方針により、ビルド環境に依存せず安全にフォールバック実装へ切り替えられるようにします。
 
@@ -18,7 +37,7 @@
 - OpenBLAS を利用するオプション（条件を満たす場合のみ有効）
 - OpenBLAS がない環境向けの可読なフォールバック実装
 
-## 前提・要件（想定）
+## 前提・要件
 
 下記はこのREADMEが想定する一般的な開発環境です。プロジェクトに既にビルドシステム（CMake 等）があることを前提としています。
 
@@ -26,7 +45,7 @@
 - CMake 3.15 以上（CMake を使う例を示します）
 - （任意）OpenBLAS（性能を出したい場合）
 
-## OpenBLAS の利用ポリシー（重要）
+## OpenBLAS の利用ポリシー
 
 OpenBLAS を利用する場合、本リポジトリでは次の条件を満たす必要があります:
 
@@ -38,9 +57,10 @@ OpenBLAS を利用する場合、本リポジトリでは次の条件を満た�
 
 この設計により、開発中や CI 環境で OpenBLAS が無くても安全にビルド・テストが可能です。
 
-## ビルド（CMake 例）
+## ビルド手順
 
-以下は CMake を使った一例です。`USE_OPENBLAS` オプションを用意し、OpenBLAS のヘッダとライブラリが見つかった場合にのみ `USE_OPENBLAS` を定義してリンクします。
+- 以下は CMake を使った一例です。`USE_OPENBLAS` オプションを用意し、OpenBLAS のヘッダとライブラリが見つかった場合にのみ `USE_OPENBLAS` を定義してリンクします。
+- Windows環境を想定しているため、vcpkgでOpenBLASをインストールした場合のパスを例示しています。
 
 ```cmake
 # CMakeLists.txt 抜粋
@@ -76,14 +96,22 @@ endif()
 
 ### ビルドコマンド例
 
+- ビルドする際は、OpenBLAS を有効化・無効化したい場合に応じて CMake プリセットを使い分けます。
+- 最適化を有効にする場合は`x64-release-with-openblas-g++`などのプリセットを使用してください。
+- Ninja ビルドでは、`x64-debug-with-openblas-g++` と `x64-debug-without-openblas-g++` のプリセットを用意しています。
+- Visual Studioでのビルドでは、`x64-debug-with-openblas-vs` と `x64-debug-without-openblas-vs` のプリセットを用意しています。
+
 ```shell
-# Windows 例（PowerShell） NeuralNetwork ディレクトリで実行
-mkdir build
-cd ./build
-cmake -DUSE_OPENBLAS=ON -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -S .. -B build
+# Windows 例（PowerShell）
+# プロジェクトルートで実行(OpenBLAS 有効化)
+cmake --preset=x64-debug-with-openblas-g++
+cmake --build --preset=x64-debug-with-openblas-g++
+# OpenBLAS 無効化
+cmake --preset=x64-debug-without-openblas-g++
+cmake --build --preset=x64-debug-without-openblas-g++
 ```
 
-## Matrix 実装方針（OpenBLAS とフォールバック）
+## Matrix 実装方針
 
 - デフォルト：フォールバックの純粋なC++実装（可読性・デバッグ重視）。
 - オプション：`USE_OPENBLAS` が定義され、かつヘッダが見つかった場合に OpenBLAS に委譲。
@@ -91,14 +119,33 @@ cmake -DUSE_OPENBLAS=ON -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcp
 
 設計（簡潔）:
 
-- class Matrix {
-  - rows, cols
-  - std::vector<double> data
-  - static Matrix multiply(const Matrix &A, const Matrix &B) // 内部でOpenBLAS or フォールバック
-  - elementwise ops, transpose, reshape など
-- }
+```cpp
+template<typename T, bool RowMajor = true>
+class Matrix {
+private:
+  size_t _rows, _cols;
+public:
+  std::vector<T> data;
 
-## API（想定インターフェース）
+  Matrix(size_t rows, size_t cols) : _rows(rows), _cols(cols), data(rows * cols) {}
+
+  T& operator()(size_t row, size_t col) {
+    return data[row * _cols + col];
+  }
+
+  const T& operator()(size_t row, size_t col) const {
+    return data[row * _cols + col];
+  }
+
+  Matrix<T, RowMajor> multiply(const Matrix<T, RowMajor>& other) const {
+    // 行列積の実装
+  }
+
+  // その他のメソッド...
+};
+```
+
+## API
 
 - Matrix
   - コンストラクタ、zeros/ones/random ヘルパー
@@ -113,7 +160,7 @@ cmake -DUSE_OPENBLAS=ON -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcp
 - NeuralNetwork
   - addLayer, predict, train
 
-## 使い方（簡単な例）
+## 使い方
 
 以下は擬似コードの例です。
 
@@ -148,7 +195,8 @@ int main() {
 
 ## ライセンス
 
-このプロジェクトは MIT ライセンスの下で公開されています。詳細は LICENSE ファイルを参照してください。
+このプロジェクトは MIT ライセンスの下で公開されています。
+[LICENSE](LICENSE) ファイルを参照してください。
 
 ## 補足・今後の予定
 
