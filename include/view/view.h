@@ -123,6 +123,18 @@ public:
          */
         inline iterator operator-(difference_type n) const { return iterator(_data, _index - n, _stride); }
         /**
+        * @brief イテレータの加算演算子
+        * @param n 加算するオフセット
+        * @return 新しいイテレータ
+        */
+        inline iterator operator+=(difference_type n) const { return iterator(_data, _index + n, _stride); }
+        /**
+         * @brief イテレータの減算演算子
+         * @param n 減算するオフセット
+         * @return 新しいイテレータ
+         */
+        inline iterator operator-=(difference_type n) const { return iterator(_data, _index - n, _stride); }
+        /**
          * @brief イテレータ間の差を計算
          * @param other 比較する他のイテレータ
          * @return 差の値
