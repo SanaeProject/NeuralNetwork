@@ -46,7 +46,7 @@ inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols, Init
 	this->_rows = rows;
 	this->_cols = cols;
 
-	if constexpr (is_std_array<T>::value) {
+	if constexpr (is_std_array<Container>::value) {
 		this->_data = Container();
 	}
 	else {
