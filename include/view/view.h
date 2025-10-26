@@ -5,48 +5,48 @@
 
 /**  
 * @class View  
-* @brief ”CˆÓ‚ÌŒ^T‚Ìƒf[ƒ^‚É‘Î‚·‚éƒrƒ…[‚ğ’ñ‹Ÿ‚·‚éƒeƒ“ƒvƒŒ[ƒgƒNƒ‰ƒXB  
+* @brief ä»»æ„ã®å‹Tã®ãƒ‡ãƒ¼ã‚¿ã«å¯¾ã™ã‚‹ãƒ“ãƒ¥ãƒ¼ã‚’æä¾›ã™ã‚‹ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã‚¯ãƒ©ã‚¹ã€‚  
 *  
-* ‚±‚ÌƒNƒ‰ƒX‚ÍAƒf[ƒ^”z—ñ‚É‘Î‚µ‚ÄƒXƒgƒ‰ƒCƒhƒAƒNƒZƒX‚ğ‰Â”\‚É‚µA  
-* ”ÍˆÍŠOƒAƒNƒZƒX‚ğ–h‚®‚½‚ß‚ÌˆÀ‘S‚ÈƒCƒ“ƒ^[ƒtƒF[ƒX‚ğ’ñ‹Ÿ‚µ‚Ü‚·B  
+* ã“ã®ã‚¯ãƒ©ã‚¹ã¯ã€ãƒ‡ãƒ¼ã‚¿é…åˆ—ã«å¯¾ã—ã¦ã‚¹ãƒˆãƒ©ã‚¤ãƒ‰ã‚¢ã‚¯ã‚»ã‚¹ã‚’å¯èƒ½ã«ã—ã€  
+* ç¯„å›²å¤–ã‚¢ã‚¯ã‚»ã‚¹ã‚’é˜²ããŸã‚ã®å®‰å…¨ãªã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã‚’æä¾›ã—ã¾ã™ã€‚  
 *  
-* @tparam T ƒf[ƒ^Œ^  
+* @tparam T ãƒ‡ãƒ¼ã‚¿å‹  
 */  
 template<typename T>  
 class View {
 private:  
-   T* _data; ///< ƒf[ƒ^”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^  
-   size_t _size; ///< ƒf[ƒ^‚Ì—v‘f”  
-   size_t _stride = 1; ///< ƒXƒgƒ‰ƒCƒhiƒfƒtƒHƒ‹ƒg‚Í1j  
+   T* _data; ///< ãƒ‡ãƒ¼ã‚¿é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿  
+   size_t _size; ///< ãƒ‡ãƒ¼ã‚¿ã®è¦ç´ æ•°  
+   size_t _stride = 1; ///< ã‚¹ãƒˆãƒ©ã‚¤ãƒ‰ï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã¯1ï¼‰  
 
 public:  
    /**  
-    * @brief ƒRƒ“ƒXƒgƒ‰ƒNƒ^  
-    * @param data ƒf[ƒ^”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^  
-    * @param size ƒf[ƒ^‚Ì—v‘f”  
+    * @brief ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿  
+    * @param data ãƒ‡ãƒ¼ã‚¿é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿  
+    * @param size ãƒ‡ãƒ¼ã‚¿ã®è¦ç´ æ•°  
     */  
    View(T* data, size_t size) : _data(data), _size(size) {}  
 
    /**  
-    * @brief ƒXƒgƒ‰ƒCƒh‚ğw’è‚·‚éƒRƒ“ƒXƒgƒ‰ƒNƒ^  
-    * @param data ƒf[ƒ^”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^  
-    * @param size ƒf[ƒ^‚Ì—v‘f”  
-    * @param stride ƒXƒgƒ‰ƒCƒh  
+    * @brief ã‚¹ãƒˆãƒ©ã‚¤ãƒ‰ã‚’æŒ‡å®šã™ã‚‹ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿  
+    * @param data ãƒ‡ãƒ¼ã‚¿é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿  
+    * @param size ãƒ‡ãƒ¼ã‚¿ã®è¦ç´ æ•°  
+    * @param stride ã‚¹ãƒˆãƒ©ã‚¤ãƒ‰  
     */  
    View(T* data, size_t size, size_t stride) : _data(data), _size(size), _stride(stride) {}  
 
    /**  
-    * @brief ƒCƒ“ƒfƒbƒNƒX‰‰Zq  
-    * @param i ƒAƒNƒZƒX‚·‚éƒCƒ“ƒfƒbƒNƒX  
-    * @return w’è‚³‚ê‚½ƒCƒ“ƒfƒbƒNƒX‚Ì—v‘f‚Ö‚ÌQÆ  
+    * @brief ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹æ¼”ç®—å­  
+    * @param i ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹  
+    * @return æŒ‡å®šã•ã‚ŒãŸã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®è¦ç´ ã¸ã®å‚ç…§  
     */  
    T& operator[](size_t i) { return _data[i * _stride]; }  
 
    /**  
-    * @brief ˆÀ‘S‚ÈƒCƒ“ƒfƒbƒNƒXƒAƒNƒZƒX  
-    * @param i ƒAƒNƒZƒX‚·‚éƒCƒ“ƒfƒbƒNƒX  
-    * @return w’è‚³‚ê‚½ƒCƒ“ƒfƒbƒNƒX‚Ì—v‘f‚Ö‚ÌQÆ  
-    * @throw std::out_of_range ”ÍˆÍŠOƒAƒNƒZƒX‚ÉƒXƒ[‚³‚ê‚é—áŠO  
+    * @brief å®‰å…¨ãªã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚¢ã‚¯ã‚»ã‚¹  
+    * @param i ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹  
+    * @return æŒ‡å®šã•ã‚ŒãŸã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®è¦ç´ ã¸ã®å‚ç…§  
+    * @throw std::out_of_range ç¯„å›²å¤–ã‚¢ã‚¯ã‚»ã‚¹æ™‚ã«ã‚¹ãƒ­ãƒ¼ã•ã‚Œã‚‹ä¾‹å¤–  
     */  
    T& at(size_t i) {  
        if (i >= _size) throw std::out_of_range("Index out of range in View::at");  
@@ -55,138 +55,150 @@ public:
 
    /**  
     * @class iterator  
-    * @brief ViewƒNƒ‰ƒX—p‚Ìƒ‰ƒ“ƒ_ƒ€ƒAƒNƒZƒXƒCƒeƒŒ[ƒ^  
+    * @brief Viewã‚¯ãƒ©ã‚¹ç”¨ã®ãƒ©ãƒ³ãƒ€ãƒ ã‚¢ã‚¯ã‚»ã‚¹ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿  
     */  
    class iterator {
    public:
-       using iterator_category = std::random_access_iterator_tag; ///< ƒCƒeƒŒ[ƒ^‚ÌƒJƒeƒSƒŠ
-       using value_type = T; ///< ƒCƒeƒŒ[ƒ^‚Ì’l‚ÌŒ^
-       using difference_type = std::ptrdiff_t; ///< ƒCƒeƒŒ[ƒ^‚Ì·‚ÌŒ^
-       using pointer = const T*; ///< ƒCƒeƒŒ[ƒ^‚Ìƒ|ƒCƒ“ƒ^Œ^
-       using reference = const T&; ///< ƒCƒeƒŒ[ƒ^‚ÌQÆŒ^
+       using iterator_category = std::random_access_iterator_tag; ///< ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®ã‚«ãƒ†ã‚´ãƒª
+       using value_type = T; ///< ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®å€¤ã®å‹
+       using difference_type = std::ptrdiff_t; ///< ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®å·®ã®å‹
+       using pointer = const T*; ///< ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®ãƒã‚¤ãƒ³ã‚¿å‹
+       using reference = const T&; ///< ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®å‚ç…§å‹
 
    private:
-       pointer _data; ///< ƒf[ƒ^”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
-       size_t _index; ///< Œ»İ‚ÌƒCƒ“ƒfƒbƒNƒX
-       size_t _stride; ///< ƒXƒgƒ‰ƒCƒh
+       pointer _data; ///< ãƒ‡ãƒ¼ã‚¿é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿
+       size_t _index; ///< ç¾åœ¨ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+       size_t _stride; ///< ã‚¹ãƒˆãƒ©ã‚¤ãƒ‰
 
    public:
         /**
-        * @brief ƒRƒ“ƒXƒgƒ‰ƒNƒ^
-        * @param data ƒf[ƒ^”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
-        * @param index Œ»İ‚ÌƒCƒ“ƒfƒbƒNƒX
-        * @param stride ƒXƒgƒ‰ƒCƒh
+        * @brief ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+        * @param data ãƒ‡ãƒ¼ã‚¿é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿
+        * @param index ç¾åœ¨ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+        * @param stride ã‚¹ãƒˆãƒ©ã‚¤ãƒ‰
         */
         inline iterator(pointer data, size_t index, size_t stride)
             : _data(data), _index(index), _stride(stride) {
         }
         /**
-        * @brief ƒfƒŠƒtƒ@ƒŒƒ“ƒX‰‰Zq
-        * @return Œ»İ‚Ì—v‘f‚Ö‚ÌQÆ
+        * @brief ãƒ‡ãƒªãƒ•ã‚¡ãƒ¬ãƒ³ã‚¹æ¼”ç®—å­
+        * @return ç¾åœ¨ã®è¦ç´ ã¸ã®å‚ç…§
         */
         inline reference operator*() const { return _data[_index * _stride]; }
         /**
-        * @brief ƒƒ“ƒoƒAƒNƒZƒX‰‰Zq
-        * @return Œ»İ‚Ì—v‘f‚Ö‚Ìƒ|ƒCƒ“ƒ^
+        * @brief ãƒ¡ãƒ³ãƒã‚¢ã‚¯ã‚»ã‚¹æ¼”ç®—å­
+        * @return ç¾åœ¨ã®è¦ç´ ã¸ã®ãƒã‚¤ãƒ³ã‚¿
         */
         inline pointer operator->() const { return &_data[_index * _stride]; }
         /**
-        * @brief ‘O’uƒCƒ“ƒNƒŠƒƒ“ƒg‰‰Zq
-        * @return ƒCƒ“ƒNƒŠƒƒ“ƒgŒã‚ÌƒCƒeƒŒ[ƒ^‚Ö‚ÌQÆ
+        * @brief å‰ç½®ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆæ¼”ç®—å­
+        * @return ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆå¾Œã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã¸ã®å‚ç…§
         */
         inline iterator& operator++() { ++_index; return *this; }
         /**
-         * @brief Œã’uƒCƒ“ƒNƒŠƒƒ“ƒg‰‰Zq
-         * @return ƒCƒ“ƒNƒŠƒƒ“ƒg‘O‚ÌƒCƒeƒŒ[ƒ^‚ÌƒRƒs[
+         * @brief å¾Œç½®ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆæ¼”ç®—å­
+         * @return ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆå‰ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®ã‚³ãƒ”ãƒ¼
          */
         inline iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
         /**
-         * @brief ‘O’uƒfƒNƒŠƒƒ“ƒg‰‰Zq
-         * @return ƒfƒNƒŠƒƒ“ƒgŒã‚ÌƒCƒeƒŒ[ƒ^‚Ö‚ÌQÆ
+         * @brief å‰ç½®ãƒ‡ã‚¯ãƒªãƒ¡ãƒ³ãƒˆæ¼”ç®—å­
+         * @return ãƒ‡ã‚¯ãƒªãƒ¡ãƒ³ãƒˆå¾Œã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã¸ã®å‚ç…§
          */
         inline iterator& operator--() { --_index; return *this; }
         /**
-        * @brief Œã’uƒfƒNƒŠƒƒ“ƒg‰‰Zq
-        * @return ƒfƒNƒŠƒƒ“ƒg‘O‚ÌƒCƒeƒŒ[ƒ^‚ÌƒRƒs[
+        * @brief å¾Œç½®ãƒ‡ã‚¯ãƒªãƒ¡ãƒ³ãƒˆæ¼”ç®—å­
+        * @return ãƒ‡ã‚¯ãƒªãƒ¡ãƒ³ãƒˆå‰ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®ã‚³ãƒ”ãƒ¼
         */
         inline iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }
         /**
-        * @brief ƒCƒeƒŒ[ƒ^‚Ì‰ÁZ‰‰Zq
-        * @param n ‰ÁZ‚·‚éƒIƒtƒZƒbƒg
-        * @return V‚µ‚¢ƒCƒeƒŒ[ƒ^
+        * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®åŠ ç®—æ¼”ç®—å­
+        * @param n åŠ ç®—ã™ã‚‹ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+        * @return æ–°ã—ã„ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
         */
         inline iterator operator+(difference_type n) const { return iterator(_data, _index + n, _stride); }
         /**
-         * @brief ƒCƒeƒŒ[ƒ^‚ÌŒ¸Z‰‰Zq
-         * @param n Œ¸Z‚·‚éƒIƒtƒZƒbƒg
-         * @return V‚µ‚¢ƒCƒeƒŒ[ƒ^
+         * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®æ¸›ç®—æ¼”ç®—å­
+         * @param n æ¸›ç®—ã™ã‚‹ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+         * @return æ–°ã—ã„ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
          */
         inline iterator operator-(difference_type n) const { return iterator(_data, _index - n, _stride); }
         /**
-         * @brief ƒCƒeƒŒ[ƒ^ŠÔ‚Ì·‚ğŒvZ
-         * @param other ”äŠr‚·‚é‘¼‚ÌƒCƒeƒŒ[ƒ^
-         * @return ·‚Ì’l
+        * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®åŠ ç®—æ¼”ç®—å­
+        * @param n åŠ ç®—ã™ã‚‹ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+        * @return æ–°ã—ã„ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+        */
+        inline iterator& operator+=(difference_type n) { _index += n; return *this; }
+        /**
+         * @brief ï¿½Cï¿½eï¿½ï¿½ï¿½[ï¿½^ï¿½ÌŒï¿½ï¿½Zï¿½ï¿½ï¿½Zï¿½q
+         * @param n ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½ï¿½Iï¿½tï¿½Zï¿½bï¿½g
+         * @return ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Cï¿½eï¿½ï¿½ï¿½[ï¿½^
+         */
+        inline iterator& operator-=(difference_type n) { _index -= n; return *this; }
+        /**
+         * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿é–“ã®å·®ã‚’è¨ˆç®—
+         * @param other æ¯”è¼ƒã™ã‚‹ä»–ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+         * @return å·®ã®å€¤
          */
         inline difference_type operator-(const iterator& other) const { return _index - other._index; }
         /**
-         * @brief ƒCƒeƒŒ[ƒ^‚Ì“™‰¿”äŠr‰‰Zq
-         * @param other ”äŠr‚·‚é‘¼‚ÌƒCƒeƒŒ[ƒ^
-         * @return “™‰¿‚Å‚ ‚ê‚ÎtrueA‚»‚¤‚Å‚È‚¯‚ê‚Îfalse
+         * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®ç­‰ä¾¡æ¯”è¼ƒæ¼”ç®—å­
+         * @param other æ¯”è¼ƒã™ã‚‹ä»–ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+         * @return ç­‰ä¾¡ã§ã‚ã‚Œã°trueã€ãã†ã§ãªã‘ã‚Œã°false
          */
         inline bool operator==(const iterator& other) const { return _index == other._index; }
         /**
-         * @brief ƒCƒeƒŒ[ƒ^‚Ì”ñ“™‰¿”äŠr‰‰Zq
-         * @param other ”äŠr‚·‚é‘¼‚ÌƒCƒeƒŒ[ƒ^
-         * @return ”ñ“™‰¿‚Å‚ ‚ê‚ÎtrueA‚»‚¤‚Å‚È‚¯‚ê‚Îfalse
+         * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®éç­‰ä¾¡æ¯”è¼ƒæ¼”ç®—å­
+         * @param other æ¯”è¼ƒã™ã‚‹ä»–ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+         * @return éç­‰ä¾¡ã§ã‚ã‚Œã°trueã€ãã†ã§ãªã‘ã‚Œã°false
          */
         inline bool operator!=(const iterator& other) const { return _index != other._index; }
         /**
-         * @brief ƒCƒeƒŒ[ƒ^‚Ì¬‚È‚è”äŠr‰‰Zq
-         * @param other ”äŠr‚·‚é‘¼‚ÌƒCƒeƒŒ[ƒ^
-         * @return ¬‚È‚è‚Å‚ ‚ê‚ÎtrueA‚»‚¤‚Å‚È‚¯‚ê‚Îfalse
+         * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®å°ãªã‚Šæ¯”è¼ƒæ¼”ç®—å­
+         * @param other æ¯”è¼ƒã™ã‚‹ä»–ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+         * @return å°ãªã‚Šã§ã‚ã‚Œã°trueã€ãã†ã§ãªã‘ã‚Œã°false
          */
         inline bool operator<(const iterator& other) const { return _index < other._index; }
         /**
-         * @brief ƒCƒeƒŒ[ƒ^‚Ì‘å‚È‚è”äŠr‰‰Zq
-         * @param other ”äŠr‚·‚é‘¼‚ÌƒCƒeƒŒ[ƒ^
-         * @return ‘å‚È‚è‚Å‚ ‚ê‚ÎtrueA‚»‚¤‚Å‚È‚¯‚ê‚Îfalse
+         * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®å¤§ãªã‚Šæ¯”è¼ƒæ¼”ç®—å­
+         * @param other æ¯”è¼ƒã™ã‚‹ä»–ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+         * @return å¤§ãªã‚Šã§ã‚ã‚Œã°trueã€ãã†ã§ãªã‘ã‚Œã°false
          */
         inline bool operator>(const iterator& other) const { return _index > other._index; }
         /**
-         * @brief ƒCƒeƒŒ[ƒ^‚Ì¬‚È‚èƒCƒR[ƒ‹”äŠr‰‰Zq
-         * @param other ”äŠr‚·‚é‘¼‚ÌƒCƒeƒŒ[ƒ^
-         * @return ¬‚È‚èƒCƒR[ƒ‹‚Å‚ ‚ê‚ÎtrueA‚»‚¤‚Å‚È‚¯‚ê‚Îfalse
+         * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®å°ãªã‚Šã‚¤ã‚³ãƒ¼ãƒ«æ¯”è¼ƒæ¼”ç®—å­
+         * @param other æ¯”è¼ƒã™ã‚‹ä»–ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+         * @return å°ãªã‚Šã‚¤ã‚³ãƒ¼ãƒ«ã§ã‚ã‚Œã°trueã€ãã†ã§ãªã‘ã‚Œã°false
          */
         inline bool operator<=(const iterator& other) const { return _index <= other._index; }
         /**
-         * @brief ƒCƒeƒŒ[ƒ^‚Ì‘å‚È‚èƒCƒR[ƒ‹”äŠr‰‰Zq
-         * @param other ”äŠr‚·‚é‘¼‚ÌƒCƒeƒŒ[ƒ^
-         * @return ‘å‚È‚èƒCƒR[ƒ‹‚Å‚ ‚ê‚ÎtrueA‚»‚¤‚Å‚È‚¯‚ê‚Îfalse
+         * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®å¤§ãªã‚Šã‚¤ã‚³ãƒ¼ãƒ«æ¯”è¼ƒæ¼”ç®—å­
+         * @param other æ¯”è¼ƒã™ã‚‹ä»–ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
+         * @return å¤§ãªã‚Šã‚¤ã‚³ãƒ¼ãƒ«ã§ã‚ã‚Œã°trueã€ãã†ã§ãªã‘ã‚Œã°false
          */
         inline bool operator>=(const iterator& other) const { return _index >= other._index; }
         /**
-         * @brief “Yš‰‰Zq
-         * @param n ƒIƒtƒZƒbƒg
-         * @return w’è‚³‚ê‚½ƒIƒtƒZƒbƒg‚Ì—v‘f‚Ö‚ÌQÆ
+         * @brief æ·»å­—æ¼”ç®—å­
+         * @param n ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+         * @return æŒ‡å®šã•ã‚ŒãŸã‚ªãƒ•ã‚»ãƒƒãƒˆã®è¦ç´ ã¸ã®å‚ç…§
          */
         inline reference operator[](difference_type n) const { return _data[(_index + n) * _stride]; }
    };
 
    /**  
-    * @brief ƒCƒeƒŒ[ƒ^‚ÌŠJnˆÊ’u‚ğæ“¾  
-    * @return ŠJnˆÊ’u‚ÌƒCƒeƒŒ[ƒ^  
+    * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®é–‹å§‹ä½ç½®ã‚’å–å¾—  
+    * @return é–‹å§‹ä½ç½®ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿  
     */  
    iterator begin() const { return iterator(_data, 0, _stride); }  
 
    /**  
-    * @brief ƒCƒeƒŒ[ƒ^‚ÌI—¹ˆÊ’u‚ğæ“¾  
-    * @return I—¹ˆÊ’u‚ÌƒCƒeƒŒ[ƒ^  
+    * @brief ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã®çµ‚äº†ä½ç½®ã‚’å–å¾—  
+    * @return çµ‚äº†ä½ç½®ã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿  
     */  
    iterator end() const { return iterator(_data, _size, _stride); }  
 
    /**  
-    * @brief ƒf[ƒ^‚Ì—v‘f”‚ğæ“¾  
-    * @return ƒf[ƒ^‚Ì—v‘f”  
+    * @brief ãƒ‡ãƒ¼ã‚¿ã®è¦ç´ æ•°ã‚’å–å¾—  
+    * @return ãƒ‡ãƒ¼ã‚¿ã®è¦ç´ æ•°  
     */  
    size_t size() const { return _size; }  
 };

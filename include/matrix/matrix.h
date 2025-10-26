@@ -20,6 +20,10 @@ template<typename T> struct is_vector_or_array : std::false_type {};
 template<typename T, typename Alloc> struct is_vector_or_array<std::vector<T, Alloc>> : std::true_type {};
 template<typename T, std::size_t N>  struct is_vector_or_array<std::array<T, N>>      : std::true_type {};
 
+// std::array判定用の型
+template<typename T> struct is_std_array : std::false_type {};
+template<typename T, std::size_t N>  struct is_std_array<std::array<T, N>> : std::true_type {};
+
 // BLAS使用判定用の型
 #ifdef USE_OPENBLAS
 	template<typename T> struct can_use_blas : std::false_type {};
@@ -163,7 +167,12 @@ public:
 	 * @brief BLASのGEMMを使用するかどうかを判定します。
 	 * @return 使用する場合はtrue、使用しない場合はfalse
 	 */
-	bool use_blas_gemm() const;
+	bool is_blas_enabled() const;
+	/**
+	* @brief 行列の転置を行います。
+	* @return 自身の参照
+	*/
+	Matrix& transpose();
 
 	// ops.hpp
 	/**
@@ -329,7 +338,7 @@ public:
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
 	template<bool use_blas = false, bool OtherMajor, typename MCheck = std::enable_if_t<!(RowMajor == false && OtherMajor == true)>>
-	Matrix& matrix_mul(const Matrix<T,OtherMajor>& other);
+	Matrix& matrix_mul(const Matrix<T, OtherMajor, Container, En>& other);
 };
 
 #endif // SANAE_NEURALNETWORK_MATRIX

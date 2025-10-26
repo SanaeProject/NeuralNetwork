@@ -34,12 +34,13 @@ inline Matrix<T, !RowMajor> Matrix<T, RowMajor, Container, En>::convertLayout() 
 		else
 			base = i * rows;  // —ñ—Dæ‚©‚çs—Dæ‚Ö•ÏŠ·
 
+		// before[i,j] -> after[j,i] 
 		for (size_t j = 0; j < cols; j++) {
 			if constexpr (RowMajor) {
-				result[j * cols + i] = this->_data[base + j]; // result[]
+				result[j * cols + i] = this->_data[base + j]; // after[j*cols + i] = before[i*cols + j] 
 			}
 			else {
-				result[base + j] = this->_data[j * rows + i];
+				result[base + j] = this->_data[j * rows + i]; // after[i*rows + j] = before[j*rows + i]
 			}
 		}
 	}
@@ -99,9 +100,40 @@ inline View<const T> Matrix<T, RowMajor, Container, En>::get_col(size_t col) con
 	}
 }
 template<typename T, bool RowMajor, typename Container, typename En>
-inline bool Matrix<T, RowMajor, Container, En>::use_blas_gemm() const
+inline bool Matrix<T, RowMajor, Container, En>::is_blas_enabled() const
 {
 	return can_use_blas<T>::value;
+}
+
+template<typename T, bool RowMajor, typename Container, typename En>
+inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::transpose()
+{
+	Container result(this->_data.size());
+	const size_t rows = this->rows();
+	const size_t cols = this->cols();
+
+	for (size_t i = 0; i < rows; i++) {
+		size_t base;
+
+		if constexpr (RowMajor)
+			base = i * cols; // s—Dæ‚©‚ç—ñ—Dæ‚Ö•ÏŠ·
+		else
+			base = i * rows; // —ñ—Dæ‚©‚çs—Dæ‚Ö•ÏŠ·
+
+		for (size_t j = 0; j < cols; j++) {
+			if constexpr (RowMajor) {
+				result[j * cols + i] = this->_data[base + j]; // after[j*cols + i] = before[i*cols + j]
+			}
+			else {
+				result[base + j] = this->_data[j * rows + i]; // after[i*rows + j] = before[j*rows + i]
+			}
+		}
+	}
+
+	this->_rows = cols;
+	this->_cols = rows;
+	this->_data = std::move(result);
+	return *this;
 }
 
 #endif // SANAE_NEURALNETWORK_MATRIX_UTIL

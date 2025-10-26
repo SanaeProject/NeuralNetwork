@@ -117,7 +117,7 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::s
 }
 template<typename T, bool RowMajor, typename Container, typename En>
 template<bool use_blas, bool OtherMajor, typename MCheck>
-inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::matrix_mul(const Matrix<T, OtherMajor>& other)
+inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::matrix_mul(const Matrix<T, OtherMajor, Container, En>& other)
 {
 	if (this->cols() != other.rows()) {
 		throw std::invalid_argument("Matrix dimensions must agree for matrix multiplication.");
@@ -126,7 +126,13 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::m
 	const size_t result_rows = this->rows();
 	const size_t result_cols = other.cols();
 
-	Container result_data(result_rows * result_cols);
+	Container result_data;
+	if constexpr (is_std_array<Container>::value) {
+		result_data = Container();
+	}else
+	{
+		result_data = Container(result_rows * result_cols);
+	}
 
 	if constexpr (can_use_blas<T>::value && use_blas) {
 		int m = static_cast<int>(result_rows);
