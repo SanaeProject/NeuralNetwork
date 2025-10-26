@@ -34,12 +34,13 @@ inline Matrix<T, !RowMajor> Matrix<T, RowMajor, Container, En>::convertLayout() 
 		else
 			base = i * rows;  // —ñ—Dæ‚©‚çs—Dæ‚Ö•ÏŠ·
 
+		// before[i,j] -> after[j,i] 
 		for (size_t j = 0; j < cols; j++) {
 			if constexpr (RowMajor) {
-				result[j * cols + i] = this->_data[base + j];
+				result[j * cols + i] = this->_data[base + j]; // after[j*cols + i] = before[i*cols + j] 
 			}
 			else {
-				result[base + j] = this->_data[j * rows + i];
+				result[base + j] = this->_data[j * rows + i]; // after[i*rows + j] = before[j*rows + i]
 			}
 		}
 	}
@@ -115,16 +116,16 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::t
 		size_t base;
 
 		if constexpr (RowMajor)
-			base = i * cols;
+			base = i * cols; // s—Dæ‚©‚ç—ñ—Dæ‚Ö•ÏŠ·
 		else
-			base = i * rows;
+			base = i * rows; // —ñ—Dæ‚©‚çs—Dæ‚Ö•ÏŠ·
 
 		for (size_t j = 0; j < cols; j++) {
 			if constexpr (RowMajor) {
-				result[j * cols + i] = this->_data[base + j];
+				result[j * cols + i] = this->_data[base + j]; // after[j*cols + i] = before[i*cols + j]
 			}
 			else {
-				result[base + j] = this->_data[j * rows + i];
+				result[base + j] = this->_data[j * rows + i]; // after[i*rows + j] = before[j*rows + i]
 			}
 		}
 	}
