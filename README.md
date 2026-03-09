@@ -44,7 +44,7 @@
 - C++17 以上（C++20 推奨）
 - CMake 3.15 以上（CMake を使う例を示します）
 - （任意）OpenBLAS（性能を出したい場合）
-  CMakeListsでは初期値でwindows環境かつvcpkgフォルダがCドライブ直下にあり、OPENBLASがインストール済みであることを想定しています。
+  CMakeLists では初期値でwindows環境かつvcpkgフォルダがCドライブ直下にあり、OPENBLASがインストール済みであることを想定しています。
 
 ## OpenBLAS の利用ポリシー
 
