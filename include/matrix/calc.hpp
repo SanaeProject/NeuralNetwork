@@ -9,32 +9,36 @@
 #include <thread>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
-template<typename T, bool RowMajor, typename Container, typename En>
-template<typename execType, typename calcType, typename TyCheck>
-inline void Matrix<T, RowMajor, Container, En>::_calc(Container& to, const Container& other, execType execPolicy, calcType operation)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<typename execType, typename calcType>
+inline void Matrix<T, RowMajor, Container>::_calc(Container& to, const Container& other, execType execPolicy, calcType operation)
+	requires StdExecPolicy<execType>
 {
-	if (to.size() != other.size())
-		throw std::invalid_argument("Container sizes must agree for calculation.");
+    if (to.size() != other.size())
+        throw std::invalid_argument("Container sizes must agree for calculation.");
 
-	std::transform(execPolicy,
-		to.begin(), to.end(),
-		other.begin(),
-		to.begin(),
-		operation);
+    std::transform(execPolicy,
+        to.begin(), to.end(),
+        other.begin(),
+        to.begin(),
+        operation);
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-template<typename execType, typename calcType, typename TyCheck>
-inline void Matrix<T, RowMajor, Container, En>::_calc(Container& to, const T& other, execType execPolicy, calcType operation)
+
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<typename execType, typename calcType>
+inline void Matrix<T, RowMajor, Container>::_calc(Container& to, const T& other, execType execPolicy, calcType operation)
+	requires StdExecPolicy<execType>
 {
-	std::transform(execPolicy,
-		to.begin(), to.end(),
-		to.begin(),
-		[&](const T& val) { return operation(val, other); });
+    std::transform(execPolicy,
+        to.begin(), to.end(),
+        to.begin(),
+        [&](const T& val) { return operation(val, other); });
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-template<bool use_blas, typename execType, typename TyCheck>
-inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::add(const Matrix& other, execType execPolicy)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<bool use_blas, typename execType>
+inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::add(const Matrix& other, execType execPolicy) requires StdExecPolicy<execType>
 {
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for addition.");
@@ -44,13 +48,13 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::a
 		BlasGemm::Add<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
 	}
 	else {
-		_calc(this->_data, other._data, execPolicy, std::plus<T>());
+		this->_calc(this->_data, other._data, execPolicy, std::plus<T>());
 	}
 	return *this;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-template<bool use_blas, typename execType, typename TyCheck>
-inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::sub(const Matrix& other, execType execPolicy)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<bool use_blas, typename execType>
+inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::sub(const Matrix& other, execType execPolicy) requires StdExecPolicy<execType>
 {
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for subtraction.");
@@ -60,29 +64,29 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::s
 		BlasGemm::Sub<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
 	}
 	else {
-		_calc(this->_data, other._data, execPolicy, std::minus<T>());
+		this->_calc(this->_data, other._data, execPolicy, std::minus<T>());
 	}
 
 	return *this;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-template<typename execType, typename TyCheck>
-inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::hadamard_mul(const Matrix& other, execType execPolicy)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<typename execType>
+inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::hadamard_mul(const Matrix& other, execType execPolicy) requires StdExecPolicy<execType>
 {
-	if (this->_rows != other._rows || this->_cols != other._cols)
-		throw std::invalid_argument("Matrix dimensions must agree for Hadamard multiplication.");
+   if (this->_rows != other._rows || this->_cols != other._cols)
+       throw std::invalid_argument("Matrix dimensions must agree for Hadamard multiplication.");
 
-	_calc(this->_data, other._data, execPolicy, std::multiplies<T>());
-	return *this;
+   this->_calc(this->_data, other._data, execPolicy, std::multiplies<T>());
+   return *this;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-template<typename execType, typename TyCheck>
-inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::hadamard_div(const Matrix<T, RowMajor, Container, En>& other, execType execPolicy)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<typename execType>
+inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::hadamard_div(const Matrix<T, RowMajor, Container>& other, execType execPolicy) requires StdExecPolicy<execType>
 {
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for Hadamard division.");
 
-	_calc(this->_data, other._data, execPolicy, 
+	this->_calc(this->_data, other._data, execPolicy, 
 		[](const T& a, const T& b) {
 			if (b == T(0)) {
 				throw std::invalid_argument("Division by zero in Hadamard division.");
@@ -92,32 +96,32 @@ inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::h
 	);
 	return *this;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-template<bool use_blas, typename execType, typename TyCheck>
-inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::scalar_mul(const T& scalar, execType execPolicy)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<bool use_blas, typename execType>
+inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::scalar_mul(const T& scalar, execType execPolicy) requires StdExecPolicy<execType>
 {
 	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
 		BlasGemm::ScalarMul<T>::scal(n, scalar, this->_data.data());
 	}
 	else {
-		_calc(this->_data, scalar, execPolicy, std::multiplies<T>());
+		this->_calc(this->_data, scalar, execPolicy, std::multiplies<T>());
 	}
 	return *this;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-template<typename execType, typename TyCheck>
-inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::scalar_div(const T& scalar, execType execPolicy)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<typename execType>
+inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::scalar_div(const T& scalar, execType execPolicy) requires StdExecPolicy<execType>
 {
 	if (scalar == T(0))
 		throw std::invalid_argument("Division by zero in scalar_div.");
 	
-	_calc(this->_data, scalar, execPolicy, std::divides<T>());
+	this->_calc(this->_data, scalar, execPolicy, std::divides<T>());
 	return *this;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<bool use_blas, bool OtherMajor, typename MCheck>
-inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::matrix_mul(const Matrix<T, OtherMajor, Container, En>& other)
+inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::matrix_mul(const Matrix<T, OtherMajor, Container>& other)
 {
 	if (this->cols() != other.rows()) {
 		throw std::invalid_argument("Matrix dimensions must agree for matrix multiplication.");

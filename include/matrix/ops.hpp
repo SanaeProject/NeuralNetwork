@@ -5,44 +5,44 @@
 #include <iosfwd>
 #include <ostream>
 
-template<typename T, bool RowMajor, typename Container, typename En>
-inline T& Matrix<T, RowMajor, Container, En>::operator()(size_t row, size_t col)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline T& Matrix<T, RowMajor, Container>::operator()(size_t row, size_t col)
 {  
 	if constexpr (!RowMajor)
 		return this->_data[col * this->_rows + row];
 
 	return this->_data[row * this->_cols + col];
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline T& Matrix<T, RowMajor, Container, En>::operator()(size_t index)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline T& Matrix<T, RowMajor, Container>::operator()(size_t index)
 {
 	return this->_data[index];
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline T& Matrix<T, RowMajor, Container, En>::operator[](size_t index)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline T& Matrix<T, RowMajor, Container>::operator[](size_t index)
 {
 	return this->_data[index];
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline const T& Matrix<T, RowMajor, Container, En>::operator()(size_t row, size_t col) const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline const T& Matrix<T, RowMajor, Container>::operator()(size_t row, size_t col) const
 {
 	if constexpr (!RowMajor)
 		return this->_data[col * this->_rows + row];
 
 	return this->_data[row * this->_cols + col];
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline const T& Matrix<T, RowMajor, Container, En>::operator()(size_t index) const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline const T& Matrix<T, RowMajor, Container>::operator()(size_t index) const
 {
 	return this->_data[index];
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline const T& Matrix<T, RowMajor, Container, En>::operator[](size_t index) const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline const T& Matrix<T, RowMajor, Container>::operator[](size_t index) const
 {
 	return this->_data[index];
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline bool Matrix<T, RowMajor, Container, En>::operator==(const Matrix& other) const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline bool Matrix<T, RowMajor, Container>::operator==(const Matrix& other) const
 {
 	if (this->cols() != other.cols() || this->rows() != other.rows())
 		return false;
@@ -55,13 +55,13 @@ inline bool Matrix<T, RowMajor, Container, En>::operator==(const Matrix& other) 
 
 	return true;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline bool Matrix<T, RowMajor, Container, En>::operator!=(const Matrix& other) const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline bool Matrix<T, RowMajor, Container>::operator!=(const Matrix& other) const
 {
 	return !(*this == other);
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline bool Matrix<T, RowMajor, Container, En>::operator==(const Matrix<T,!RowMajor>& other) const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline bool Matrix<T, RowMajor, Container>::operator==(const Matrix<T,!RowMajor>& other) const
 {
 	if (this->cols() != other.cols() || this->rows() != other.rows())
 		return false;
@@ -77,13 +77,13 @@ inline bool Matrix<T, RowMajor, Container, En>::operator==(const Matrix<T,!RowMa
 
 	return true;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline bool Matrix<T, RowMajor, Container, En>::operator!=(const Matrix<T,!RowMajor>& other) const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline bool Matrix<T, RowMajor, Container>::operator!=(const Matrix<T,!RowMajor>& other) const
 {
 	return !(*this == other);
 }
-template<typename Ty, bool RowMajor, typename Container, typename En>
-std::ostream& operator<<(std::ostream& os, const Matrix<Ty, RowMajor, Container, En>& mat)
+template<typename Ty, bool RowMajor, typename Container> requires VectorOrArray<Container>
+std::ostream& operator<<(std::ostream& os, const Matrix<Ty, RowMajor, Container>& mat)
 {
 	const size_t rows = mat.rows();
 	const size_t cols = mat.cols();
