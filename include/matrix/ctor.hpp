@@ -17,7 +17,7 @@ inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols)
 
     if constexpr (is_std_array<Container>::value) {
 		// std::arrayのサイズチェックを追加
-		if (this->_rows * this->_cols != std::tuple_size_v<Container>) {
+		if (this->_rows * this->_cols > std::tuple_size_v<Container>) {
 			throw std::invalid_argument("Matrix dimensions do not match std::array size");
 		}
 		this->_data = Container();
@@ -33,7 +33,7 @@ inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, const T&
 	this->_cols = cols;
 	if constexpr (is_std_array<Container>::value) {
 		// std::arrayのサイズチェックを追加
-		if (this->_rows * this->_cols != std::tuple_size_v<Container>) {
+		if (this->_rows * this->_cols > std::tuple_size_v<Container>) {
 			throw std::invalid_argument("Matrix dimensions do not match std::array size");
 		}
 		this->_data = Container();
@@ -57,7 +57,7 @@ inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, InitFunc
 
 	if constexpr (is_std_array<Container>::value) {
 		// std::arrayのサイズチェックを追加
-		if (this->_rows * this->_cols != std::tuple_size_v<Container>) {
+		if (this->_rows * this->_cols > std::tuple_size_v<Container>) {
 			throw std::invalid_argument("Matrix dimensions do not match std::array size");
 		}
 		this->_data = Container();
@@ -76,7 +76,7 @@ inline Matrix<T, RowMajor, Container>::Matrix(const Container2D& data)
 
    if constexpr (is_std_array<Container>::value) {
 	   // std::arrayのサイズチェックを追加
-	   if (this->_rows * this->_cols != std::tuple_size_v<Container>) {
+	   if (this->_rows * this->_cols > std::tuple_size_v<Container>) {
 		   throw std::invalid_argument("Matrix dimensions do not match std::array size");
 	   }
 	   this->_data = Container();
@@ -105,10 +105,10 @@ inline Matrix<T, RowMajor, Container>::Matrix(const InitContainer2D& data)
 {  
    this->_rows = data.size();  
    this->_cols = data.size() == 0 ? 0 : data.begin()->size();
-
+		
    if constexpr (is_std_array<Container>::value) {
 	   // std::arrayのサイズチェックを追加
-	   if (this->_rows * this->_cols != std::tuple_size_v<Container>) {
+	   if (this->_rows * this->_cols > std::tuple_size_v<Container>) {
 		   throw std::invalid_argument("Matrix dimensions do not match std::array size");
 	   }
 	   this->_data = Container();

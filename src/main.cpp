@@ -1,5 +1,5 @@
-#include "./matrix/matrix"
-#include "./performance.h"
+#include "matrix/matrix"
+#include "performance.h"
 #include <iostream>
 
 int main() {
@@ -41,7 +41,7 @@ int main() {
     {
         std::cout << "Testing data retrieval...\n";
         MatrixType mat(data1);
-        const std::array<float, 9>& data = mat.data();
+        const auto& data = mat.data();
 
         std::cout << mat << std::endl;
         for (const auto& val : data) {
