@@ -9,6 +9,7 @@
 #include <thread>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<typename execType, typename calcType>

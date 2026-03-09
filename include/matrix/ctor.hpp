@@ -3,6 +3,7 @@
 
 #include "matrix.h"  
 #include <initializer_list>
+#include <algorithm>
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline Matrix<T, RowMajor, Container>::Matrix() : _rows(0), _cols(0), _data()
