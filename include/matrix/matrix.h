@@ -38,6 +38,17 @@ concept StdArray = is_std_array<std::remove_cvref_t<T>>::value;
 #endif
 	template<typename T> concept CanUseBlas = can_use_blas<T>::value;
 
+// CuBLAS使用判定用の型
+#ifdef USE_CUBLAS
+	template<typename T> struct can_use_cublas : std::false_type {};
+	template<> struct can_use_cublas<float> : std::true_type {};
+	template<> struct can_use_cublas<double> : std::true_type {};
+#else
+	template<typename T>
+	struct can_use_cublas : std::false_type {};
+#endif
+	template<typename T> concept CanUseCuBlas = can_use_cublas<T>::value;
+
 /**
  * @brief 汎用的な行列クラスを提供します。
  * @tparam T 行列の要素型
@@ -215,7 +226,6 @@ public:
 	 * @note 1次元インデックスは行優先または列優先のメモリレイアウトに基づいて解釈されます。
 	 */
 	T& operator[](size_t index);
-
 
 	/**
 	 * @brief 行列の要素にアクセスするための定数演算子を定義します。

@@ -47,6 +47,10 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::add(const
 		int n = static_cast<int>(this->_rows * this->_cols);
 		BlasGemm::Add<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
 	}
+	else if constexpr (can_use_cublas<T>::value && use_blas) {
+		int n = static_cast<int>(this->_rows * this->_cols);
+		BlasGemm::Add<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
+	}
 	else {
 		this->_calc(this->_data, other._data, execPolicy, std::plus<T>());
 	}
@@ -60,6 +64,10 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::sub(const
 		throw std::invalid_argument("Matrix dimensions must agree for subtraction.");
 
 	if constexpr (can_use_blas<T>::value && use_blas) {
+		int n = static_cast<int>(this->_rows * this->_cols);
+		BlasGemm::Sub<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
+	}
+	else if constexpr (can_use_cublas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
 		BlasGemm::Sub<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
 	}
@@ -103,6 +111,9 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::scalar_mu
 	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
 		BlasGemm::ScalarMul<T>::scal(n, scalar, this->_data.data());
+	}else if constexpr (can_use_cublas<T>::value && use_blas) {
+		int n = static_cast<int>(this->_rows * this->_cols);
+		BlasGemm::ScalarMul<T>::scal(n, scalar, this->_data.data());
 	}
 	else {
 		this->_calc(this->_data, scalar, execPolicy, std::multiplies<T>());
@@ -139,6 +150,19 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::matrix_mu
 	}
 
 	if constexpr (can_use_blas<T>::value && use_blas) {
+		int m = static_cast<int>(result_rows);
+		int n = static_cast<int>(result_cols);
+		int k = static_cast<int>(this->cols());
+
+		BlasGemm::MatMul<T>::multiply(
+			this->_data.data(),
+			other.data().data(),
+			result_data.data(),
+			m, n, k,
+			RowMajor,
+			OtherMajor
+		);
+	}else if constexpr (can_use_cublas<T>::value && use_blas) {
 		int m = static_cast<int>(result_rows);
 		int n = static_cast<int>(result_cols);
 		int k = static_cast<int>(this->cols());
