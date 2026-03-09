@@ -4,7 +4,7 @@ project(NeuralNetwork)
 option(USE_OPENBLAS "Enable OpenBLAS acceleration if headers/libs are available" OFF)
 set(OPENBLAS_PATH "C:/vcpkg/installed/x64-windows/include/openblas/" CACHE STRING "Blas library include path")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 include_directories(include)
 
