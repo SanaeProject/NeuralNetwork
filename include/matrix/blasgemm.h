@@ -120,9 +120,7 @@ namespace BlasGemm {
 			// --- C ÇÕèÌÇ… MÅ~N ÇÃóÒÉÅÉWÉÉÅ[Ç∆ÇµÇƒàµÇ§ ---
 			int ldc = M;
 
-			cublasSgemm(
-				handle,
-				transA, transB,
+			cublasSgemm(handle, transA, transB,
 				M, N, K,
 				&alpha,
 				dA, lda,
@@ -137,7 +135,6 @@ namespace BlasGemm {
 			cudaFree(dA); cudaFree(dB); cudaFree(dC);
 		}
 	};
-
 	template<>
 	struct MatMul<double> {
 		static void multiply(const double* A, const double* B, double* C, size_t M, size_t N, size_t K, bool AMajor, bool BMajor) {
@@ -162,9 +159,7 @@ namespace BlasGemm {
 
 			int ldc = M;
 
-			cublasDgemm(
-				handle,
-				transA, transB,
+			cublasDgemm( handle, transA, transB,
 				M, N, K,
 				&alpha,
 				dA, lda,
@@ -179,7 +174,6 @@ namespace BlasGemm {
 			cudaFree(dA); cudaFree(dB); cudaFree(dC);
 		}
 	};
-
 	template<typename T>
 	struct Add {};
 	template<>
@@ -258,7 +252,6 @@ namespace BlasGemm {
 			cudaFree(dx); cudaFree(dy);
 		}
 	};
-
 	template<typename T>
 	struct ScalarMul {};
 	template<>
