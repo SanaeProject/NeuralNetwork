@@ -4,12 +4,12 @@
 #include "matrix.h"  
 #include <initializer_list>
 
-template<typename T, bool RowMajor, typename Container, typename En>
-inline Matrix<T, RowMajor, Container, En>::Matrix() : _rows(0), _cols(0), _data()
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container>::Matrix() : _rows(0), _cols(0), _data()
 {  
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols)
 {
 	this->_rows = rows;
 	this->_cols = cols;
@@ -21,8 +21,8 @@ inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols)
 		this->_data = Container(rows * cols);
     }
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols, const T& initial)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, const T& initial)
 {
 	this->_rows = rows;
 	this->_cols = cols;
@@ -39,9 +39,9 @@ inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols, cons
 		}
 	}
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-template<typename InitFunc, typename InitFuncCheck>
-inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols, InitFunc func)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<typename InitFunc>
+inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, InitFunc func) requires std::is_invocable_r_v<T, InitFunc>
 {
 	this->_rows = rows;
 	this->_cols = cols;
@@ -55,8 +55,8 @@ inline Matrix<T, RowMajor, Container, En>::Matrix(size_t rows, size_t cols, Init
 
     std::generate(this->_data.begin(), this->_data.end(), func);
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline Matrix<T, RowMajor, Container, En>::Matrix(const Container2D& data)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container>::Matrix(const Container2D& data)
 {  
    this->_rows = data.size();  
    this->_cols = data.empty() ? 0 : data[0].size();
@@ -83,8 +83,8 @@ inline Matrix<T, RowMajor, Container, En>::Matrix(const Container2D& data)
        }  
    }  
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline Matrix<T, RowMajor, Container, En>::Matrix(const InitContainer2D& data)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container>::Matrix(const InitContainer2D& data)
 {  
    this->_rows = data.size();  
    this->_cols = data.size() == 0 ? 0 : data.begin()->size();

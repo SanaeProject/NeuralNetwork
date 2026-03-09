@@ -4,30 +4,58 @@
     "major": 3,
     "minor": 21
   },
+
   "configurePresets": [
+
     {
-      "name": "x64-debug-with-openblas-vs",
+      "name": "base",
+      "hidden": true,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON"
+      }
+    },
+
+    {
+      "name": "vs-base",
+      "hidden": true,
+      "inherits": "base"
+    },
+
+    {
+      "name": "gcc-base",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "C:/mingw64/bin/gcc.exe",
+        "CMAKE_CXX_COMPILER": "C:/mingw64/bin/g++.exe"
+      }
+    },
+
+    {
+      "name": "debug-openblas-vs",
+      "inherits": "vs-base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "USE_OPENBLAS": "ON",
         "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
+
     {
-      "name": "x64-debug-without-openblas-vs",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}",
+      "name": "debug-no-openblas-vs",
+      "inherits": "vs-base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "USE_OPENBLAS": "OFF"
       }
     },
+
     {
-      "name": "x64-release-with-openblas-vs",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}",
+      "name": "release-openblas-vs",
+      "inherits": "vs-base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "USE_OPENBLAS": "ON",
@@ -35,97 +63,92 @@
         "CMAKE_CXX_FLAGS": "/O2 /arch:AVX2"
       }
     },
+
     {
-      "name": "x64-release-without-openblas-vs",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}",
+      "name": "release-no-openblas-vs",
+      "inherits": "vs-base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "USE_OPENBLAS": "OFF",
         "CMAKE_CXX_FLAGS": "/O2 /arch:AVX2"
       }
     },
+
     {
-      "name": "x64-debug-with-openblas-g++",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}",
+      "name": "debug-openblas-gcc",
+      "inherits": "gcc-base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "USE_OPENBLAS": "ON",
-        "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "CMAKE_C_COMPILER": "gcc",
-        "CMAKE_CXX_COMPILER": "g++"
+        "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
+
     {
-      "name": "x64-debug-without-openblas-g++",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}",
+      "name": "debug-no-openblas-gcc",
+      "inherits": "gcc-base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "USE_OPENBLAS": "OFF",
-        "CMAKE_C_COMPILER": "gcc",
-        "CMAKE_CXX_COMPILER": "g++"
+        "USE_OPENBLAS": "OFF"
       }
     },
+
     {
-      "name": "x64-release-with-openblas-g++",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}",
+      "name": "release-openblas-gcc",
+      "inherits": "gcc-base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "USE_OPENBLAS": "ON",
         "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "CMAKE_CXX_FLAGS": "-O3 -march=native",
-        "CMAKE_C_COMPILER": "gcc",
-        "CMAKE_CXX_COMPILER": "g++"
+        "CMAKE_CXX_FLAGS": "-O3 -march=native"
       }
     },
+
     {
-      "name": "x64-release-without-openblas-g++",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}",
+      "name": "release-no-openblas-gcc",
+      "inherits": "gcc-base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "USE_OPENBLAS": "OFF",
-        "CMAKE_CXX_FLAGS": "-O3 -march=native",
-        "CMAKE_C_COMPILER": "gcc",
-        "CMAKE_CXX_COMPILER": "g++"
+        "CMAKE_CXX_FLAGS": "-O3 -march=native"
       }
     }
+
   ],
+
   "buildPresets": [
     {
-      "name": "x64-debug-with-openblas-vs",
-      "configurePreset": "x64-debug-with-openblas-vs"
+      "name": "debug-openblas-vs",
+      "configurePreset": "debug-openblas-vs"
     },
     {
-      "name": "x64-debug-without-openblas-vs",
-      "configurePreset": "x64-debug-without-openblas-vs"
+      "name": "debug-no-openblas-vs",
+      "configurePreset": "debug-no-openblas-vs"
     },
     {
-      "name": "x64-release-with-openblas-vs",
-      "configurePreset": "x64-release-with-openblas-vs"
+      "name": "release-openblas-vs",
+      "configurePreset": "release-openblas-vs"
     },
     {
-      "name": "x64-release-without-openblas-vs",
-      "configurePreset": "x64-release-without-openblas-vs"
+      "name": "release-no-openblas-vs",
+      "configurePreset": "release-no-openblas-vs"
+    },
+
+    {
+      "name": "debug-openblas-gcc",
+      "configurePreset": "debug-openblas-gcc"
     },
     {
-      "name": "x64-debug-with-openblas-g++",
-      "configurePreset": "x64-debug-with-openblas-g++"
+      "name": "debug-no-openblas-gcc",
+      "configurePreset": "debug-no-openblas-gcc"
     },
     {
-      "name": "x64-debug-without-openblas-g++",
-      "configurePreset": "x64-debug-without-openblas-g++"
+      "name": "release-openblas-gcc",
+      "configurePreset": "release-openblas-gcc"
     },
     {
-      "name": "x64-release-with-openblas-g++",
-      "configurePreset": "x64-release-with-openblas-g++"
-    },
-    {
-      "name": "x64-release-without-openblas-g++",
-      "configurePreset": "x64-release-without-openblas-g++"
+      "name": "release-no-openblas-gcc",
+      "configurePreset": "release-no-openblas-gcc"
     }
   ]
 }

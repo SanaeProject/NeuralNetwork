@@ -11,11 +11,7 @@
 - [ビルドコマンド例](#ビルドコマンド例)
 - [Matrix 実装方針](#matrix-実装方針)
 - [API](#api)
-- [使い方](#使い方)
-- [テスト](#テスト)
-- [貢献](#貢献)
 - [ライセンス](#ライセンス)
-- [補足・今後の予定](#補足今後の予定)
 
 ## 概要
 
@@ -32,8 +28,6 @@
 ## 特徴
 
 - Matrix 型（行列演算、転置、要素ごとの演算、行列積など）
-- Layer 抽象化（Linear, Activation 等）
-- NeuralNetwork 組み立て、順伝播・逆伝播の基礎実装
 - OpenBLAS を利用するオプション（条件を満たす場合のみ有効）
 - OpenBLAS がない環境向けの可読なフォールバック実装
 
@@ -99,18 +93,18 @@ endif()
 ### ビルドコマンド例
 
 - ビルドする際は、OpenBLAS を有効化・無効化したい場合に応じて CMake プリセットを使い分けます。
-- 最適化を有効にする場合は`x64-release-with-openblas-g++`などのプリセットを使用してください。
-- Ninja ビルドでは、`x64-debug-with-openblas-g++` と `x64-debug-without-openblas-g++` のプリセットを用意しています。
-- Visual Studioでのビルドでは、`x64-debug-with-openblas-vs` と `x64-debug-without-openblas-vs` のプリセットを用意しています。
+- 最適化を有効にする場合は`release-openblas-gcc`などのプリセットを使用してください。
+- Ninja ビルドでは、`debug-openblas-gcc` と `debug-no-openblas-gcc` のプリセットを用意しています。
+- Visual Studioでのビルドでは、`debug-openblas-vs` と `debug-no-openblas-vs` のプリセットを用意しています。
 
 ```shell
 # Windows 例（PowerShell）
 # プロジェクトルートで実行(OpenBLAS 有効化)
-cmake --preset=x64-debug-with-openblas-g++
-cmake --build --preset=x64-debug-with-openblas-g++
+cmake --preset=debug-openblas-gcc
+cmake --build --preset=debug-openblas-gcc
 # OpenBLAS 無効化
-cmake --preset=x64-debug-without-openblas-g++
-cmake --build --preset=x64-debug-without-openblas-g++
+cmake --preset=debug-no-openblas-gcc
+cmake --build --preset=debug-no-openblas-gcc
 ```
 
 ## Matrix 実装方針
@@ -150,60 +144,17 @@ public:
 ## API
 
 - Matrix
-  - コンストラクタ、zeros/ones/random ヘルパー
-  - operator() で要素アクセス
-  - multiply / add / subtract / transpose / apply (要素ごとの関数適用)
-- Layer (抽象クラス)
-  - forward, backward
-- Linear : Layer
-  - 重み行列、バイアス、順伝播・逆伝播
-- Activation : Layer
-  - Sigmoid / ReLU 等
-- NeuralNetwork
-  - addLayer, predict, train
-
-## 使い方
-
-以下は擬似コードの例です。
-
-```cpp
-#include "matrix.h"
-#include "network.h"
-
-int main() {
-	// データ準備
-	Matrix X = Matrix::random(100, 10);
-	Matrix y = Matrix::random(100, 1);
-
-	NeuralNetwork net;
-	net.addLayer(std::make_unique<Linear>(10, 32));
-	net.addLayer(std::make_unique<ReLU>());
-	net.addLayer(std::make_unique<Linear>(32, 1));
-
-	net.train(X, y, /*epochs=*/100, /*lr=*/0.01);
-	auto pred = net.predict(X);
-}
-```
-
-## テスト
-
-簡単なユニットテストやベンチマークを追加しておくと、フォールバックと OpenBLAS 利用時の結果差や精度・速度を確認できます。GoogleTest 等を使うのが便利です。
-
-## 貢献
-
-- Issue で提案してください。
-- Pull Request は小さな単位でお願いします（機能追加 / バグ修正 / ドキュメント）。
-- コーディング規約：可読性重視、単体テストを付けること。
+  - コンストラクタ（サイズ指定・初期値指定・2次元コンテナ/イニシャライザリストから初期化など）
+  - `operator()`, `operator[]` で要素アクセス
+  - `get_row()`, `get_col()` で行・列ビューの取得
+  - `transpose()` で転置
+  - `add()`, `sub()`, `scalar_mul()`, `scalar_div()` でスカラー/行列演算
+  - `hadamard_mul()`, `hadamard_div()` でアダマール積・除算
+  - `matrix_mul()` で行列積
+  - `convertLayout()` で行優先/列優先変換
+  - `is_blas_enabled()` でBLAS使用可否の確認
 
 ## ライセンス
 
 このプロジェクトは MIT ライセンスの下で公開されています。
 [LICENSE](LICENSE) ファイルを参照してください。
-
-## 補足・今後の予定
-
-- より高速な行列ライブラリとの統合（MKL など）
-- GPU サポート（CUDA / ROCm）
-- 追加の最適化アルゴリズム（Adam 等）
-
-もしこのREADMEの内容で追加・修正したい点があれば教えてください。ビルド設定が別のシステム（Makefile, Bazel 等）なら、そのビルド手順に合わせて文面を調整します。

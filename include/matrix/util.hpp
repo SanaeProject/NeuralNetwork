@@ -4,23 +4,23 @@
 #include "../view/view.h"
 #include "matrix.h"
 
-template<typename T, bool RowMajor, typename Container, typename En>
-inline size_t Matrix<T, RowMajor, Container, En>::rows() const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline size_t Matrix<T, RowMajor, Container>::rows() const
 {
 	return this->_rows;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline size_t Matrix<T, RowMajor, Container, En>::cols() const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline size_t Matrix<T, RowMajor, Container>::cols() const
 {
 	return this->_cols;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline const Container& Matrix<T, RowMajor, Container, En>::data() const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline const Container& Matrix<T, RowMajor, Container>::data() const noexcept
 {
 	return this->_data;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline Matrix<T, !RowMajor> Matrix<T, RowMajor, Container, En>::convertLayout() const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, !RowMajor> Matrix<T, RowMajor, Container>::convertLayout() const
 {
 	Matrix<T, !RowMajor> result(this->rows(), this->cols());
 	
@@ -47,8 +47,8 @@ inline Matrix<T, !RowMajor> Matrix<T, RowMajor, Container, En>::convertLayout() 
 
 	return result;
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline View<T> Matrix<T, RowMajor, Container, En>::get_row(size_t row)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline View<T> Matrix<T, RowMajor, Container>::get_row(size_t row)
 {
 	if constexpr (RowMajor) {
 		View<T> view(&this->_data[row * this->cols()], this->cols());
@@ -60,8 +60,8 @@ inline View<T> Matrix<T, RowMajor, Container, En>::get_row(size_t row)
 		return view;
 	}
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline View<T> Matrix<T, RowMajor, Container, En>::get_col(size_t col)
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline View<T> Matrix<T, RowMajor, Container>::get_col(size_t col)
 {
 	if constexpr (!RowMajor) {
 		View<T> view(&this->_data[col * this->rows()], this->rows());
@@ -73,8 +73,8 @@ inline View<T> Matrix<T, RowMajor, Container, En>::get_col(size_t col)
 		return view;
 	}
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline View<const T> Matrix<T, RowMajor, Container, En>::get_row(size_t row) const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline View<const T> Matrix<T, RowMajor, Container>::get_row(size_t row) const
 {
 	if constexpr (RowMajor) {
 		View<const T> view(&this->_data[row * this->cols()], this->cols());
@@ -86,8 +86,8 @@ inline View<const T> Matrix<T, RowMajor, Container, En>::get_row(size_t row) con
 		return view;
 	}
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline View<const T> Matrix<T, RowMajor, Container, En>::get_col(size_t col) const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline View<const T> Matrix<T, RowMajor, Container>::get_col(size_t col) const
 {
 	if constexpr (!RowMajor) {
 		View<const T> view(&this->_data[col * this->rows()], this->rows());
@@ -99,14 +99,14 @@ inline View<const T> Matrix<T, RowMajor, Container, En>::get_col(size_t col) con
 		return view;
 	}
 }
-template<typename T, bool RowMajor, typename Container, typename En>
-inline bool Matrix<T, RowMajor, Container, En>::is_blas_enabled() const
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline bool Matrix<T, RowMajor, Container>::is_blas_enabled() const
 {
 	return can_use_blas<T>::value;
 }
 
-template<typename T, bool RowMajor, typename Container, typename En>
-inline Matrix<T, RowMajor, Container, En>& Matrix<T, RowMajor, Container, En>::transpose()
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose()
 {
 	Container result(this->_data.size());
 	const size_t rows = this->rows();

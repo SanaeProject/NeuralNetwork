@@ -2,6 +2,7 @@
 #define SANAE_NEURALNETWORK_VIEW
 
 #include <iterator>
+#include <stdexcept>
 
 /**  
 * @class View  
