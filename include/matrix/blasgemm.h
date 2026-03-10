@@ -111,20 +111,17 @@ namespace BlasGemm {
 			cublasHandle_t handle;
 			cublasCreate(&handle);
 
-			cublasOperation_t transA = AMajor ? CUBLAS_OP_T : CUBLAS_OP_N;
-			int lda = AMajor ? K : M;   // Row-major Å® K, Col-major Å® M
+			cublasOperation_t transA_adj = AMajor ? CUBLAS_OP_N : CUBLAS_OP_T;
+			cublasOperation_t transB_adj = BMajor ? CUBLAS_OP_N : CUBLAS_OP_T;
+			int lda = AMajor ? K : M;
+			int ldb = BMajor ? N : K;
+			int ldc = N;
 
-			cublasOperation_t transB = BMajor ? CUBLAS_OP_T : CUBLAS_OP_N;
-			int ldb = BMajor ? N : K;   // Row-major Å® N, Col-major Å® K
-
-			// --- C ÇÕèÌÇ… MÅ~N ÇÃóÒÉÅÉWÉÉÅ[Ç∆ÇµÇƒàµÇ§ ---
-			int ldc = M;
-
-			cublasSgemm(handle, transA, transB,
-				M, N, K,
+			cublasSgemm(handle, transB_adj, transA_adj,
+				N, M, K,
 				&alpha,
-				dA, lda,
 				dB, ldb,
+				dA, lda,
 				&beta,
 				dC, ldc
 			);
@@ -151,19 +148,17 @@ namespace BlasGemm {
 			cublasHandle_t handle;
 			cublasCreate(&handle);
 
-			cublasOperation_t transA = AMajor ? CUBLAS_OP_T : CUBLAS_OP_N;
+			cublasOperation_t transA_adj = AMajor ? CUBLAS_OP_N : CUBLAS_OP_T;
+			cublasOperation_t transB_adj = BMajor ? CUBLAS_OP_N : CUBLAS_OP_T;
 			int lda = AMajor ? K : M;
-
-			cublasOperation_t transB = BMajor ? CUBLAS_OP_T : CUBLAS_OP_N;
 			int ldb = BMajor ? N : K;
+			int ldc = N;
 
-			int ldc = M;
-
-			cublasDgemm( handle, transA, transB,
-				M, N, K,
+			cublasDgemm(handle, transB_adj, transA_adj,
+				N, M, K,
 				&alpha,
-				dA, lda,
 				dB, ldb,
+				dA, lda,
 				&beta,
 				dC, ldc
 			);

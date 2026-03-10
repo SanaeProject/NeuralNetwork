@@ -43,11 +43,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::add(const
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for addition.");
 
-	if constexpr (can_use_blas<T>::value && use_blas) {
-		int n = static_cast<int>(this->_rows * this->_cols);
-		BlasGemm::Add<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
-	}
-	else if constexpr (can_use_cublas<T>::value && use_blas) {
+	if constexpr ((can_use_cublas<T>::value || can_use_blas<T>::value) && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
 		BlasGemm::Add<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
 	}
@@ -63,11 +59,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::sub(const
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for subtraction.");
 
-	if constexpr (can_use_blas<T>::value && use_blas) {
-		int n = static_cast<int>(this->_rows * this->_cols);
-		BlasGemm::Sub<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
-	}
-	else if constexpr (can_use_cublas<T>::value && use_blas) {
+	if constexpr ((can_use_cublas<T>::value || can_use_blas<T>::value) && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
 		BlasGemm::Sub<T>::axpy(n, 1.0, other._data.data(), this->_data.data());
 	}
@@ -108,10 +100,7 @@ template<typename T, bool RowMajor, typename Container> requires VectorOrArray<C
 template<bool use_blas, typename execType>
 inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::scalar_mul(const T& scalar, execType execPolicy) requires StdExecPolicy<execType>
 {
-	if constexpr (can_use_blas<T>::value && use_blas) {
-		int n = static_cast<int>(this->_rows * this->_cols);
-		BlasGemm::ScalarMul<T>::scal(n, scalar, this->_data.data());
-	}else if constexpr (can_use_cublas<T>::value && use_blas) {
+	if constexpr ((can_use_cublas<T>::value || can_use_blas<T>::value) && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
 		BlasGemm::ScalarMul<T>::scal(n, scalar, this->_data.data());
 	}
@@ -149,20 +138,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::matrix_mu
 		result_data = Container(result_rows * result_cols);
 	}
 
-	if constexpr (can_use_blas<T>::value && use_blas) {
-		int m = static_cast<int>(result_rows);
-		int n = static_cast<int>(result_cols);
-		int k = static_cast<int>(this->cols());
-
-		BlasGemm::MatMul<T>::multiply(
-			this->_data.data(),
-			other.data().data(),
-			result_data.data(),
-			m, n, k,
-			RowMajor,
-			OtherMajor
-		);
-	}else if constexpr (can_use_cublas<T>::value && use_blas) {
+	if constexpr ((can_use_cublas<T>::value || can_use_blas<T>::value) && use_blas) {
 		int m = static_cast<int>(result_rows);
 		int n = static_cast<int>(result_cols);
 		int k = static_cast<int>(this->cols());
