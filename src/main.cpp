@@ -5,6 +5,8 @@
 int main() {
 #ifdef USE_OPENBLAS
 	std::cout << "Using OpenBLAS for matrix operations." << std::endl;
+#elif defined(USE_CUBLAS)
+	std::cout << "Using cuBLAS for matrix operations." << std::endl;
 #endif
 
     using MatrixType = Matrix<float,true,std::array<float,9>>;

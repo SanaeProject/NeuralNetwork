@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.15)
 project(NeuralNetwork)
 
 option(USE_OPENBLAS "Enable OpenBLAS acceleration if headers/libs are available" OFF)
+option(USE_CUBLAS "Enable cuBLAS acceleration if CUDA Toolkit is available" OFF)
+
+# OpenBLASのパスを設定
 set(OPENBLAS_PATH "C:/vcpkg/installed/x64-windows/include/openblas/" CACHE STRING "Blas library include path")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -19,6 +22,30 @@ if(PROJECT_SOURCES)
     add_executable(NeuralNetwork ${PROJECT_SOURCES} "include/matrix/matrix.h" "include/matrix/ops.hpp" "include/matrix/ctor.hpp" "include/matrix/util.hpp" "include/matrix/matrix" "include/view/view.h" "include/matrix/blasgemm.h" "src/performance.h")
 else()
     message(FATAL_ERROR "No source files found in src/*.cpp. Create at least one .cpp file (e.g. src/main.cpp) or adjust CMakeLists.txt.")
+endif()
+
+# OpenBLASとcuBLASの両方が有効な場合、cuBLASを優先する
+if(USE_CUBLAS AND USE_OPENBLAS)
+    message(WARNING "Both cuBLAS and OpenBLAS options are enabled. cuBLAS will be used for acceleration.")
+    set(USE_OPENBLAS OFF)
+endif()
+
+# CuBLASライブラリを使用する
+if(USE_CUBLAS)
+    find_package(CUDAToolkit REQUIRED)
+
+    target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+            CUDA::cublas
+            CUDA::cudart
+    )
+
+    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_CUBLAS)
+
+    message(STATUS "✅ cuBLAS acceleration enabled.")
+    message(STATUS "    CUDA Toolkit: ${CUDAToolkit_VERSION}")
+else()
+    message(STATUS "cuBLAS acceleration not enabled.")
 endif()
 
 # OPENBLASライブラリを使用する

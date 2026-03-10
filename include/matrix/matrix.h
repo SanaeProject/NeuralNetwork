@@ -28,15 +28,17 @@ template<typename T>
 concept StdArray = is_std_array<std::remove_cvref_t<T>>::value;
 
 // BLAS使用判定用の型
-#ifdef USE_OPENBLAS
-	template<typename T> struct can_use_blas : std::false_type {};
+template<typename T> struct can_use_blas : std::false_type {};
+#if defined(USE_OPENBLAS)
+// OpenBlas
 	template<> struct can_use_blas<float>  : std::true_type {};
 	template<> struct can_use_blas<double> : std::true_type {};
-#else
-	template<typename T>
-	struct can_use_blas : std::false_type {};
+#elif defined(USE_CUBLAS)
+// cuBLAS
+	template<> struct can_use_blas<float> : std::true_type {};
+	template<> struct can_use_blas<double> : std::true_type {};
 #endif
-	template<typename T> concept CanUseBlas = can_use_blas<T>::value;
+template<typename T> concept CanUseBlas = can_use_blas<T>::value;
 
 /**
  * @brief 汎用的な行列クラスを提供します。
@@ -215,7 +217,6 @@ public:
 	 * @note 1次元インデックスは行優先または列優先のメモリレイアウトに基づいて解釈されます。
 	 */
 	T& operator[](size_t index);
-
 
 	/**
 	 * @brief 行列の要素にアクセスするための定数演算子を定義します。
