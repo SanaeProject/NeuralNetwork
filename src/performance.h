@@ -12,25 +12,29 @@ void benchmark(const std::string& testName, func f) {
 	std::cout << testName << " took " << duration.count() << " ms\n";
 }
 
-constexpr size_t MATRIX_SIZE = 1000;
-using Type = double;
+constexpr size_t MATRIX_SIZE = 5000;
+using Type = float;
 
 static void benchmark_exec() {
 	std::random_device seedgen;
 	std::default_random_engine engine(seedgen());
-	std::uniform_real_distribution<double> dist(0,1);
+	std::uniform_real_distribution<Type> dist(1e-6f,1);
 
 	Matrix<Type,false> matA(MATRIX_SIZE, MATRIX_SIZE, [&]() { return dist(engine); });
 	Matrix<Type,false> matB(MATRIX_SIZE, MATRIX_SIZE, [&]() { return dist(engine); });
 
 	std::cout << "Matrix Size: " << MATRIX_SIZE << "x" << MATRIX_SIZE << "\n" << std::endl;
 
-#ifdef USE_OPENBLAS
+#if defined(USE_OPENBLAS)
 		openblas_set_num_threads(std::thread::hardware_concurrency());
 		std::cout << "OPENBLAS-Config:" << openblas_get_config() << std::endl;
 		std::cout << "OPENBLAS-THREADS:" << openblas_get_num_threads() << "\n" << std::endl;
+#else defined(USE_CUBLAS)
+		cudaDeviceProp prop;
+		cudaGetDeviceProperties(&prop, 0);
+		std::cout << "CUDA Device: " << prop.name << "\n" << std::endl;
 #endif
-
+		std::cout << "BLAS disabled tests." << std::endl;
 	// 加算
 	benchmark("Addition", [&]() {
 		matA.add(matB);
