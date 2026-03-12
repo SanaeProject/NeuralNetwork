@@ -34,7 +34,7 @@ endif()
 # OpenBLASとCUBLAS/CLBLASTの両方が有効になっている場合CUBLAS/CLBLASTを優先する
 if((USE_CLBLAST OR USE_CUBLAS) AND USE_OPENBLAS)
     set(USE_OPENBLAS OFF)    
-    message(WARNING "Both CLBlast and OpenBLAS acceleration requested. This may lead to conflicts. Consider enabling only one.")
+    message("WARNING: Both OpenBLAS and cuBLAS/CLBlast acceleration requested. This may lead to conflicts. Consider enabling only one.")
 endif()
 
 # CuBLASライブラリを使用する
