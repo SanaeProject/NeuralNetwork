@@ -37,6 +37,10 @@ template<typename T> struct can_use_blas : std::false_type {};
 // cuBLAS
 	template<> struct can_use_blas<float> : std::true_type {};
 	template<> struct can_use_blas<double> : std::true_type {};
+#elif defined(USE_CLBLAST)
+// clBLAST
+	template<> struct can_use_blas<float> : std::true_type {};
+	template<> struct can_use_blas<double> : std::true_type {};
 #endif
 template<typename T> concept CanUseBlas = can_use_blas<T>::value;
 
