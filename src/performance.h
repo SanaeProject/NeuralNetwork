@@ -3,6 +3,11 @@
 #include <iostream>
 #include <random>
 
+#if defined(USE_CLBLAST)
+	#include <CL/opencl.hpp>
+	#include <vector>
+#endif
+
 template<typename func>
 void benchmark(const std::string& testName, func f) {
 	auto start = std::chrono::high_resolution_clock::now();
@@ -12,7 +17,7 @@ void benchmark(const std::string& testName, func f) {
 	std::cout << testName << " took " << duration.count() << " ms\n";
 }
 
-constexpr size_t MATRIX_SIZE = 5000;
+constexpr size_t MATRIX_SIZE = 1000;
 using Type = float;
 
 static void benchmark_exec() {
@@ -26,15 +31,29 @@ static void benchmark_exec() {
 	std::cout << "Matrix Size: " << MATRIX_SIZE << "x" << MATRIX_SIZE << "\n" << std::endl;
 
 #if defined(USE_OPENBLAS)
-		openblas_set_num_threads(std::thread::hardware_concurrency());
-		std::cout << "OPENBLAS-Config:" << openblas_get_config() << std::endl;
-		std::cout << "OPENBLAS-THREADS:" << openblas_get_num_threads() << "\n" << std::endl;
+	openblas_set_num_threads(std::thread::hardware_concurrency());
+	std::cout << "OPENBLAS-Config:" << openblas_get_config() << std::endl;
+	std::cout << "OPENBLAS-THREADS:" << openblas_get_num_threads() << "\n" << std::endl;
+
 #elif defined(USE_CUBLAS)
-		cudaDeviceProp prop;
-		cudaGetDeviceProperties(&prop, 0);
-		std::cout << "CUDA Device: " << prop.name << "\n" << std::endl;
+	cudaDeviceProp prop;
+	cudaGetDeviceProperties(&prop, 0);
+	std::cout << "CUDA Device: " << prop.name << "\n" << std::endl;
+
+#elif defined(USE_CLBLAST)
+	std::vector<cl::Platform> platforms;
+	cl::Platform::get(&platforms);
+	if (!platforms.empty()) {
+		std::vector<cl::Device> devices;
+		platforms[0].getDevices(CL_DEVICE_TYPE_GPU, &devices);
+		if (!devices.empty()) {
+			cl::Device device = devices[0];
+			std::cout << "OpenCL Device: " << device.getInfo<CL_DEVICE_NAME>() << "\n" << std::endl;
+		}
+	}
 #endif
-		std::cout << "BLAS disabled tests." << std::endl;
+	
+	std::cout << "BLAS disabled tests." << std::endl;
 	// 加算
 	benchmark("Addition", [&]() {
 		matA.add(matB);
