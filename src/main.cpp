@@ -1,14 +1,14 @@
-﻿#include "matrix/matrix"
+#include "matrix/matrix"
 #include "performance.h"
 #include <iostream>
 
 int main() {
 #ifdef USE_OPENBLAS
-	std::cout << "✅ Using OpenBLAS for matrix operations." << std::endl;
+	std::cout << "\033[32mUsing OpenBLAS for matrix operations.\033[0m" << std::endl;
 #elif defined(USE_CUBLAS)
-	std::cout << "✅ Using cuBLAS for matrix operations." << std::endl;
+	std::cout << "\033[32mUsing cuBLAS for matrix operations.\033[0m" << std::endl;
 #elif defined(USE_CLBLAST)
-	std::cout << "✅ Using clBLAST for matrix operations." << std::endl;
+	std::cout << "\033[32mUsing clBLAST for matrix operations.\033[0m" << std::endl;
 #endif
 
     using MatrixType = Matrix<float,true,std::array<float,9>>;

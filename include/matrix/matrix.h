@@ -1,4 +1,4 @@
-#ifndef SANAE_NEURALNETWORK_MATRIX  
+﻿#ifndef SANAE_NEURALNETWORK_MATRIX  
 #define SANAE_NEURALNETWORK_MATRIX  
 
 #include "../view/view.h"

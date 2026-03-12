@@ -1,4 +1,4 @@
-#ifndef SANAE_NEURALNETWORK_VIEW
+﻿#ifndef SANAE_NEURALNETWORK_VIEW
 #define SANAE_NEURALNETWORK_VIEW
 
 #include <iterator>
