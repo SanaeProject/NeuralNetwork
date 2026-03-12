@@ -1,4 +1,4 @@
-#ifndef SANAE_NEURALNETWORK_MATRIX  
+﻿#ifndef SANAE_NEURALNETWORK_MATRIX  
 #define SANAE_NEURALNETWORK_MATRIX  
 
 #include "../view/view.h"
@@ -35,6 +35,10 @@ template<typename T> struct can_use_blas : std::false_type {};
 	template<> struct can_use_blas<double> : std::true_type {};
 #elif defined(USE_CUBLAS)
 // cuBLAS
+	template<> struct can_use_blas<float> : std::true_type {};
+	template<> struct can_use_blas<double> : std::true_type {};
+#elif defined(USE_CLBLAST)
+// clBLAST
 	template<> struct can_use_blas<float> : std::true_type {};
 	template<> struct can_use_blas<double> : std::true_type {};
 #endif

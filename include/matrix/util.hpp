@@ -1,4 +1,4 @@
-#ifndef SANAE_NEURALNETWORK_MATRIX_UTIL
+ï»¿#ifndef SANAE_NEURALNETWORK_MATRIX_UTIL
 #define SANAE_NEURALNETWORK_MATRIX_UTIL
 
 #include "../view/view.h"
@@ -30,11 +30,11 @@ inline Matrix<T, !RowMajor> Matrix<T, RowMajor, Container>::convertLayout() cons
 		const size_t offset = i * cols;
 		for (size_t j = 0; j < cols; j++) {
 			if constexpr (RowMajor) {
-				// s—Dæ ¨ —ñ—Dæ: before[i,j] = before[i*cols + j] ¨ after[i,j] = after[j*rows + i]
+				// è¡Œå„ªå…ˆ â†’ åˆ—å„ªå…ˆ: before[i,j] = before[i*cols + j] â†’ after[i,j] = after[j*rows + i]
 				result[j * rows + i] = this->_data[offset + j];
 			}
 			else {
-				// —ñ—Dæ ¨ s—Dæ: before[i,j] = before[j*rows + i] ¨ after[i,j] = after[i*cols + j]
+				// åˆ—å„ªå…ˆ â†’ è¡Œå„ªå…ˆ: before[i,j] = before[j*rows + i] â†’ after[i,j] = after[i*cols + j]
 				result[offset + j] = this->_data[j * rows + i];
 			}
 		}
@@ -111,11 +111,11 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose
 		const T offset = i * cols;
 		for (size_t j = 0; j < cols; j++) {
 			if constexpr (RowMajor) {
-				// “]’u: before[i,j] ¨ after[j,i] (“¯‚¶s—DæƒŒƒCƒAƒEƒg)
+				// è»¢ç½®: before[i,j] â†’ after[j,i] (åŒã˜è¡Œå„ªå…ˆãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆ)
 				result[j * rows + i] = this->_data[offset + j];
 			}
 			else {
-				// “]’u: before[i,j] ¨ after[j,i] (“¯‚¶—ñ—DæƒŒƒCƒAƒEƒg)
+				// è»¢ç½®: before[i,j] â†’ after[j,i] (åŒã˜åˆ—å„ªå…ˆãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆ)
 				result[offset + j] = this->_data[j * rows + i];
 			}
 		}
