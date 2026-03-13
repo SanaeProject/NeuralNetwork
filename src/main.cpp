@@ -1,4 +1,4 @@
-#include "matrix/matrix"
+#include "include/matrix/matrix"
 #include "performance.h"
 #include <iostream>
 
