@@ -230,6 +230,11 @@
     { "name": "release-openblas-gcc", "configurePreset": "release-openblas-gcc" },
     { "name": "release-no-openblas-gcc", "configurePreset": "release-no-openblas-gcc" },
 
+    { "name": "debug-openblas-clang", "configurePreset": "debug-openblas-clang" },
+    { "name": "debug-no-openblas-clang", "configurePreset": "debug-no-openblas-clang" },
+    { "name": "release-openblas-clang", "configurePreset": "release-openblas-clang" },
+    { "name": "release-no-openblas-clang", "configurePreset": "release-no-openblas-clang" },
+
     { "name": "debug-cublas-vs", "configurePreset": "debug-cublas-vs" },
     { "name": "release-cublas-vs", "configurePreset": "release-cublas-vs" },
 
