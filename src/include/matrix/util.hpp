@@ -108,7 +108,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose
 	const size_t cols = this->cols();
 
 	for (size_t i = 0; i < rows; i++) {
-		const T offset = i * cols;
+		const size_t offset = i * cols;
 		for (size_t j = 0; j < cols; j++) {
 			if constexpr (RowMajor) {
 				// 転置: before[i,j] → after[j,i] (同じ行優先レイアウト)
