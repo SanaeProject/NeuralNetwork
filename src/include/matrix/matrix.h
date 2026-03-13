@@ -196,6 +196,15 @@ public:
 	* @return 自身の参照
 	*/
 	Matrix& transpose();
+	
+	/**
+	 * @brief 行列の各要素に関数を適用します。
+	 * @tparam Func 適用する関数の型
+	 * @param func 適用する関数
+	 * @return 自身の参照
+	 */
+	template<typename Func>
+	Matrix& apply(Func func) requires std::is_invocable_r_v<T, Func, T>;
 
 	// ops.hpp
 	/**
