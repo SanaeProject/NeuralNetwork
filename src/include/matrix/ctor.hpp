@@ -66,7 +66,7 @@ inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, InitFunc
         this->_data = Container(this->_rows * this->_cols);
     }
 
-    std::ranges::transform(this->_data, this->_data.begin(), func);
+    std::generate(this->_data.begin(), this->_data.end(), func);
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline Matrix<T, RowMajor, Container>::Matrix(const Container2D& data)
