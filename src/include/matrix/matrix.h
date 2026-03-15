@@ -100,21 +100,16 @@ public:
 	Matrix(size_t rows, size_t cols);
 
 	/**
-	 * @brief 行列の行数と列数、初期値を指定して初期化するコンストラクタ
-	 * @param rows 行数
-	 * @param cols 列数
-	 * @param initial 初期値
-	 */
-	Matrix(size_t rows, size_t cols, const T& initial);
-
-	/**
 	* @brief 行列の行数と列数、初期化関数を指定して初期化するコンストラクタ
 	* @param rows 行数
 	* @param cols 列数
 	* @param func 初期化関数
 	*/
-	template<typename InitFunc>
-	Matrix(size_t rows, size_t cols, InitFunc func) requires std::is_invocable_r_v<T, InitFunc>;
+	template<typename InitFunc, typename ExecPolicy = std::execution::sequenced_policy>
+	Matrix(size_t rows, size_t cols, InitFunc func, ExecPolicy execPolicy = ExecPolicy{})
+	requires
+		std::convertible_to<std::invoke_result_t<InitFunc>, T> &&
+		StdExecPolicy<ExecPolicy>;
 
 	/**
 	 * @brief 2次元コンテナから初期化するコンストラクタ
@@ -203,8 +198,11 @@ public:
 	 * @param func 適用する関数
 	 * @return 自身の参照
 	 */
-	template<typename Func>
-	Matrix& apply(Func func) requires std::is_invocable_r_v<T, Func, T>;
+	template<typename Func, typename ExecPolicy = std::execution::sequenced_policy>
+	Matrix& apply(Func func, ExecPolicy execPolicy = ExecPolicy{}) 
+	requires
+		std::convertible_to<std::invoke_result_t<Func>, T> &&
+		StdExecPolicy<ExecPolicy>;
 
 	// ops.hpp
 	/**

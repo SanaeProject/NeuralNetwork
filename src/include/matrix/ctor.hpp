@@ -1,8 +1,7 @@
 ﻿#ifndef SANAE_NEURALNETWORK_MATRIX_CTOR  
 #define SANAE_NEURALNETWORK_MATRIX_CTOR  
 
-#include "matrix.h"  
-#include <initializer_list>
+#include "matrix.h" 
 #include <algorithm>
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
@@ -27,30 +26,11 @@ inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols)
     }
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
-inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, const T& initial)
-{
-    this->_rows = rows;
-    this->_cols = cols;
-    if constexpr (is_std_array<Container>::value) {
-        // std::arrayのサイズチェックを追加
-        if (this->_rows * this->_cols > std::tuple_size_v<Container>) {
-            throw std::invalid_argument("Matrix dimensions do not match std::array size");
-        }
-        this->_data = Container();
-    }
-    else {
-        this->_data = Container(this->_rows * this->_cols, initial);
-    }
-
-    if constexpr (is_std_array<Container>::value) {
-        for (size_t i = 0; i < rows * cols; i++) {
-            this->_data[i] = initial;
-        }
-    }
-}
-template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
-template<typename InitFunc>
-inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, InitFunc func) requires std::is_invocable_r_v<T, InitFunc>
+template<typename InitFunc, typename ExecPolicy>
+inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, InitFunc func, ExecPolicy execPolicy) 
+requires
+    std::convertible_to<std::invoke_result_t<InitFunc>, T> &&
+    StdExecPolicy<ExecPolicy>
 {
     this->_rows = rows;
     this->_cols = cols;
@@ -66,7 +46,7 @@ inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, InitFunc
         this->_data = Container(this->_rows * this->_cols);
     }
 
-    std::generate(this->_data.begin(), this->_data.end(), func);
+    std::generate(execPolicy, this->_data.begin(), this->_data.end(), func);
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline Matrix<T, RowMajor, Container>::Matrix(const Container2D& data)

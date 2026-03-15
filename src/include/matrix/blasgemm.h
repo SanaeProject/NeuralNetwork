@@ -4,6 +4,7 @@
 #include "./blasgemms/clblast-gemm.hpp"
 #include "./blasgemms/cublas-gemm.hpp"
 #include "./blasgemms/openblas-gemm.hpp"
+#include <stdexcept>
 
 // BLASライブラリを一切使用しない場合のプレースホルダ
 #ifndef USE_BLAS
