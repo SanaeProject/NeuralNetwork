@@ -197,7 +197,10 @@ public:
 	/**
 	 * @brief 行列の各要素に関数を適用します。
 	 * @tparam Func 適用する関数の型
-	 * @param func 適用する関数
+	 * @tparam ExecPolicy 使用する実行ポリシーの型（例：std::execution::sequenced_policy / parallel_policy など）
+	 * @param func 各要素に適用する関数
+	 * @param execPolicy 実行ポリシー。既定では逐次実行（sequenced）になり、並列ポリシーを指定した場合は
+	 *                   関数funcがスレッドセーフであり、要素の処理順序に依存しないことが要求されます。
 	 * @return 自身の参照
 	 */
 	template<typename Func, typename ExecPolicy = std::execution::sequenced_policy>
