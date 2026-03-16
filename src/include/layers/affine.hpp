@@ -51,7 +51,10 @@ public:
      * @note dw = in^T * dout * η, db = dout * η
      */
     Matrix<ty> backward(const Matrix<ty>& dout) override{
-        // 勾配の計算
+        // 入力に対する勾配の計算: dx = dout * W^T
+        Matrix<ty> dx = dout.matrix_mul<use_blas>(this->_w.transpose());
+
+        // 勾配の計算（パラメータ更新用）
         Matrix<ty> dw = this->_in.transpose().matrix_mul<use_blas>(dout).scalar_mul<use_blas>(this->learning_rate); // in^T * dout * η
         Matrix<ty> db = dout; // dout のコピーを作成
         db.scalar_mul<use_blas>(this->learning_rate); // dout * η
@@ -60,7 +63,7 @@ public:
         this->_w.sub<use_blas>(dw);
         this->_b.sub<use_blas>(db);
 
-        return dw; // 入力に対する勾配を返す
+        return dx; // 入力に対する勾配を返す
     }
 };
 
