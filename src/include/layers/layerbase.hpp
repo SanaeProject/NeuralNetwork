@@ -5,8 +5,9 @@
 
 // ベースレイヤー
 template<typename ty, bool use_blas = true>
-class Layer_Base {
+class LayerBase {
 public:
+    virtual ~LayerBase() = default;
     virtual Matrix<ty> forward(const Matrix<ty>&) = 0;
     virtual Matrix<ty> backward(const Matrix<ty>&) = 0;
 };

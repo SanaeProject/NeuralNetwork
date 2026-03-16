@@ -2,10 +2,12 @@
 #define SANAE_NEURALNETWORK_AFFINE_HPP
 
 #include "layerbase.hpp"
+#include <math.h>
+#include <random>
 
 // アフィンレイヤー
 template<typename ty, bool use_blas = true>
-class Affine : public Layer_Base<ty, use_blas> {
+class Affine : public LayerBase<ty, use_blas> {
 private:
     Matrix<ty> _in; // 入力の保存用
     Matrix<ty> _w;
@@ -14,7 +16,20 @@ private:
 public:
     double learning_rate = 0.01;
 
-    Affine(size_t input_size, size_t output_size);
+    /**
+     * コンストラクタ
+     * @param input_size 入力の次元数
+     * @param output_size 出力の次元数
+     * @param seed 乱数生成器のシード
+     */
+    Affine(size_t input_size, size_t output_size, uint32_t seed = std::random_device{}()) {
+        std::default_random_engine engine(seed);
+        std::uniform_real_distribution<ty> dist(0, (1.0 / std::sqrt(input_size))); // Xavier初期化の範囲
+
+        // 重みとバイアスの初期化
+        _w = Matrix<ty>(input_size, output_size, [&dist, &engine]() { return dist(engine); });
+        _b = Matrix<ty>(1, output_size, [&dist, &engine]() { return dist(engine); });
+    }
 
     /**
      * 前向き伝播
@@ -26,6 +41,7 @@ public:
         this->_in = in;
         return in.matrix_mul<use_blas>(_w).add(_b);
     }
+
     /**
      * 逆伝播
      * @param dout 出力の勾配
