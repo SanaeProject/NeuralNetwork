@@ -130,10 +130,11 @@ template<typename T, bool RowMajor, typename Container> requires VectorOrArray<C
 template<typename Func, typename ExecPolicy>
 Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::apply(Func func, ExecPolicy execPolicy) 
 requires
-    std::convertible_to<std::invoke_result_t<Func>, T> &&
+    std::invocable<Func, T> &&
+    std::convertible_to<std::invoke_result_t<Func, T>, T> &&
     StdExecPolicy<ExecPolicy>
 {
-	std::ranges::transform(execPolicy, this->_data, this->_data.begin(), func);
+	std::transform(execPolicy, this->_data.begin(), this->_data.end(), this->_data.begin(), func);
 	return *this;
 }
 

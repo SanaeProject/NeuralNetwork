@@ -3,6 +3,7 @@
 
 #include "matrix.h" 
 #include <algorithm>
+#include <stdexcept>
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline Matrix<T, RowMajor, Container>::Matrix() : _rows(0), _cols(0), _data()
@@ -29,6 +30,7 @@ template<typename T, bool RowMajor, typename Container> requires VectorOrArray<C
 template<typename InitFunc, typename ExecPolicy>
 inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, InitFunc func, ExecPolicy execPolicy) 
 requires
+    std::invocable<InitFunc> &&
     std::convertible_to<std::invoke_result_t<InitFunc>, T> &&
     StdExecPolicy<ExecPolicy>
 {
@@ -46,7 +48,8 @@ requires
         this->_data = Container(this->_rows * this->_cols);
     }
 
-    std::generate(execPolicy, this->_data.begin(), this->_data.end(), func);
+    std::for_each(execPolicy, _data.begin(), _data.end(),
+              [&](T& x){ x = func(); });
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline Matrix<T, RowMajor, Container>::Matrix(const Container2D& data)

@@ -103,11 +103,12 @@ public:
 	* @brief 行列の行数と列数、初期化関数を指定して初期化するコンストラクタ
 	* @param rows 行数
 	* @param cols 列数
-	* @param func 初期化関数
+	* @param func 初期化関数 (引数なしで呼び出せる関数オブジェクトで、返り値がT型に変換可能である必要があります)
 	*/
 	template<typename InitFunc, typename ExecPolicy = std::execution::sequenced_policy>
 	Matrix(size_t rows, size_t cols, InitFunc func, ExecPolicy execPolicy = ExecPolicy{})
 	requires
+		std::invocable<InitFunc> &&
 		std::convertible_to<std::invoke_result_t<InitFunc>, T> &&
 		StdExecPolicy<ExecPolicy>;
 
@@ -201,7 +202,8 @@ public:
 	template<typename Func, typename ExecPolicy = std::execution::sequenced_policy>
 	Matrix& apply(Func func, ExecPolicy execPolicy = ExecPolicy{}) 
 	requires
-		std::convertible_to<std::invoke_result_t<Func>, T> &&
+		std::invocable<Func, T> &&
+		std::convertible_to<std::invoke_result_t<Func, T>, T> &&
 		StdExecPolicy<ExecPolicy>;
 
 	// ops.hpp
