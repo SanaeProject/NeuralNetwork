@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # インクルードディレクトリの追加
-include_directories(include)
+include_directories(src/include)
 
 file(GLOB PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB DEBUG_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*")
@@ -20,7 +20,7 @@ message(STATUS "Files in src/: ${DEBUG_SRC_FILES}")
 
 # ソースが存在するか検証
 if(PROJECT_SOURCES)
-    add_executable(NeuralNetwork ${PROJECT_SOURCES} "include/matrix/matrix.h" "include/matrix/ops.hpp" "include/matrix/ctor.hpp" "include/matrix/util.hpp" "include/matrix/matrix" "include/view/view.h" "include/matrix/blasgemm.h" "src/performance.h")
+    add_executable(NeuralNetwork ${PROJECT_SOURCES} "src/include/matrix/matrix.h" "src/include/matrix/ops.hpp" "src/include/matrix/ctor.hpp" "src/include/matrix/util.hpp" "src/include/matrix/matrix" "src/include/view/view.h" "src/include/matrix/blasgemm.h" "src/performance.h")
 else()
     message(FATAL_ERROR "No source files found in src/*.cpp. Create at least one .cpp file (e.g. src/main.cpp) or adjust CMakeLists.txt.")
 endif()

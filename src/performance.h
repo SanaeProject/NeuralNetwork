@@ -1,4 +1,4 @@
-﻿#include "matrix/matrix"
+﻿#include "include/matrix/matrix"
 #include <chrono>
 #include <iostream>
 #include <random>
@@ -52,7 +52,7 @@ static void benchmark_exec() {
 		}
 	}
 #endif
-	
+
 	std::cout << "BLAS disabled tests." << std::endl;
 	// 加算
 	benchmark("Addition", [&]() {
@@ -87,7 +87,7 @@ static void benchmark_exec() {
 	benchmark("Matrix Multiplication", [&]() {
 		matA.matrix_mul(matB);
 		});
-
+		
 	// BLAS使用版
 	if constexpr (can_use_blas<Type>::value) {
 		std::cout << "\nBLAS Enabled Tests:\n" << std::endl;

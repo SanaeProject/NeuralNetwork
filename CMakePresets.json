@@ -6,6 +6,7 @@
   },
 
   "configurePresets": [
+
     {
       "name": "base",
       "hidden": true,
@@ -16,6 +17,9 @@
         "CMAKE_CXX_STANDARD_REQUIRED": "ON"
       }
     },
+
+    
+
     {
       "name": "vs-base",
       "hidden": true,
@@ -30,187 +34,220 @@
         "CMAKE_CXX_COMPILER": "g++"
       }
     },
+    {
+      "name": "clang-base",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
 
+    
 
     {
-      "name": "debug-openblas-vs",
-      "inherits": "vs-base",
+      "name": "debug-base",
+      "hidden": true,
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release-base",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+
+    
+
+    {
+      "name": "openblas",
+      "hidden": true,
+      "cacheVariables": {
         "USE_OPENBLAS": "ON",
         "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
-      "name": "debug-no-openblas-vs",
-      "inherits": "vs-base",
+      "name": "no-openblas",
+      "hidden": true,
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
         "USE_OPENBLAS": "OFF"
       }
     },
     {
-      "name": "debug-cublas-vs",
-      "inherits": "vs-base",
+      "name": "cublas",
+      "hidden": true,
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
         "USE_CUBLAS": "ON"
       }
+    },
+    {
+      "name": "clblast",
+      "hidden": true,
+      "cacheVariables": {
+        "USE_CLBLAST": "ON",
+        "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+
+    
+
+    {
+      "name": "vs-release-flags",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "/O2 /arch:AVX2"
+      }
+    },
+    {
+      "name": "gcc-release-flags",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "-O3 -march=native"
+      }
+    },
+    {
+      "name": "clang-release-flags",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "-O3 -march=native"
+      }
+    },
+
+
+    {
+      "name": "debug-openblas-vs",
+      "inherits": ["vs-base", "debug-base", "openblas"]
+    },
+    {
+      "name": "debug-no-openblas-vs",
+      "inherits": ["vs-base", "debug-base", "no-openblas"]
+    },
+    {
+      "name": "debug-cublas-vs",
+      "inherits": ["vs-base", "debug-base", "cublas"]
     },
     {
       "name": "debug-clblast-vs",
-      "inherits": "vs-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "USE_CLBLAST": "ON",
-        "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
-      }
+      "inherits": ["vs-base", "debug-base", "clblast"]
     },
+
     {
       "name": "release-openblas-vs",
-      "inherits": "vs-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "USE_OPENBLAS": "ON",
-        "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "CMAKE_CXX_FLAGS": "/O2 /arch:AVX2"
-      }
+      "inherits": ["vs-base", "release-base", "openblas", "vs-release-flags"]
     },
     {
       "name": "release-no-openblas-vs",
-      "inherits": "vs-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "USE_OPENBLAS": "OFF",
-        "CMAKE_CXX_FLAGS": "/O2 /arch:AVX2"
-      }
+      "inherits": ["vs-base", "release-base", "no-openblas", "vs-release-flags"]
     },
     {
       "name": "release-cublas-vs",
-      "inherits": "vs-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "USE_CUBLAS": "ON",
-        "CMAKE_CXX_FLAGS": "/O2 /arch:AVX2"
-      }
+      "inherits": ["vs-base", "release-base", "cublas", "vs-release-flags"]
     },
     {
       "name": "release-clblast-vs",
-      "inherits": "vs-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "USE_CLBLAST": "ON",
-        "CMAKE_CXX_FLAGS": "/O2 /arch:AVX2",
-        "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
-      }
+      "inherits": ["vs-base", "release-base", "clblast", "vs-release-flags"]
     },
 
+    
 
     {
       "name": "debug-openblas-gcc",
-      "inherits": "gcc-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "USE_OPENBLAS": "ON",
-        "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
-      }
+      "inherits": ["gcc-base", "debug-base", "openblas"]
     },
     {
       "name": "debug-no-openblas-gcc",
-      "inherits": "gcc-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "USE_OPENBLAS": "OFF"
-      }
+      "inherits": ["gcc-base", "debug-base", "no-openblas"]
     },
     {
       "name": "debug-cublas-gcc",
-      "inherits": "gcc-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "USE_CUBLAS": "ON"
-      }
+      "inherits": ["gcc-base", "debug-base", "cublas"]
     },
+
     {
       "name": "release-openblas-gcc",
-      "inherits": "gcc-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "USE_OPENBLAS": "ON",
-        "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "CMAKE_CXX_FLAGS": "-O3 -march=native"
-      }
+      "inherits": ["gcc-base", "release-base", "openblas", "gcc-release-flags"]
     },
     {
       "name": "release-no-openblas-gcc",
-      "inherits": "gcc-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "USE_OPENBLAS": "OFF",
-        "CMAKE_CXX_FLAGS": "-O3 -march=native"
-      }
+      "inherits": ["gcc-base", "release-base", "no-openblas", "gcc-release-flags"]
     },
     {
       "name": "release-cublas-gcc",
-      "inherits": "gcc-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "USE_CUBLAS": "ON",
-        "CMAKE_CXX_FLAGS": "-O3 -march=native"
-      }
+      "inherits": ["gcc-base", "release-base", "cublas", "gcc-release-flags"]
+    },
+
+    
+
+    {
+      "name": "debug-openblas-clang",
+      "inherits": ["clang-base", "debug-base", "openblas"]
+    },
+    {
+      "name": "debug-no-openblas-clang",
+      "inherits": ["clang-base", "debug-base", "no-openblas"]
+    },
+    {
+      "name": "debug-cublas-clang",
+      "inherits": ["clang-base", "debug-base", "cublas"]
+    },
+    {
+      "name": "debug-clblast-clang",
+      "inherits": ["clang-base", "debug-base", "clblast"]
+    },
+
+    {
+      "name": "release-openblas-clang",
+      "inherits": ["clang-base", "release-base", "openblas", "clang-release-flags"]
+    },
+    {
+      "name": "release-no-openblas-clang",
+      "inherits": ["clang-base", "release-base", "no-openblas", "clang-release-flags"]
+    },
+    {
+      "name": "release-cublas-clang",
+      "inherits": ["clang-base", "release-base", "cublas", "clang-release-flags"]
+    },
+    {
+      "name": "release-clblast-clang",
+      "inherits": ["clang-base", "release-base", "clblast", "clang-release-flags"]
     }
+
   ],
 
   "buildPresets": [
-    {
-      "name": "debug-openblas-vs",
-      "configurePreset": "debug-openblas-vs"
-    },
-    {
-      "name": "debug-no-openblas-vs",
-      "configurePreset": "debug-no-openblas-vs"
-    },
-    {
-      "name": "release-openblas-vs",
-      "configurePreset": "release-openblas-vs"
-    },
-    {
-      "name": "release-no-openblas-vs",
-      "configurePreset": "release-no-openblas-vs"
-    },
+    { "name": "debug-openblas-vs", "configurePreset": "debug-openblas-vs" },
+    { "name": "debug-no-openblas-vs", "configurePreset": "debug-no-openblas-vs" },
+    { "name": "release-openblas-vs", "configurePreset": "release-openblas-vs" },
+    { "name": "release-no-openblas-vs", "configurePreset": "release-no-openblas-vs" },
 
-    {
-      "name": "debug-openblas-gcc",
-      "configurePreset": "debug-openblas-gcc"
-    },
-    {
-      "name": "debug-no-openblas-gcc",
-      "configurePreset": "debug-no-openblas-gcc"
-    },
-    {
-      "name": "release-openblas-gcc",
-      "configurePreset": "release-openblas-gcc"
-    },
-    {
-      "name": "release-no-openblas-gcc",
-      "configurePreset": "release-no-openblas-gcc"
-    },
-    {
-      "name": "debug-cublas-vs",
-      "configurePreset": "debug-cublas-vs"
-    },
-    {
-      "name": "release-cublas-vs",
-      "configurePreset": "release-cublas-vs"
-    },
+    { "name": "debug-openblas-gcc", "configurePreset": "debug-openblas-gcc" },
+    { "name": "debug-no-openblas-gcc", "configurePreset": "debug-no-openblas-gcc" },
+    { "name": "release-openblas-gcc", "configurePreset": "release-openblas-gcc" },
+    { "name": "release-no-openblas-gcc", "configurePreset": "release-no-openblas-gcc" },
 
-    {
-      "name": "debug-cublas-gcc",
-      "configurePreset": "debug-cublas-gcc"
-    },
-    {
-      "name": "release-cublas-gcc",
-      "configurePreset": "release-cublas-gcc"
-    }
+    { "name": "debug-openblas-clang", "configurePreset": "debug-openblas-clang" },
+    { "name": "debug-no-openblas-clang", "configurePreset": "debug-no-openblas-clang" },
+    { "name": "release-openblas-clang", "configurePreset": "release-openblas-clang" },
+    { "name": "release-no-openblas-clang", "configurePreset": "release-no-openblas-clang" },
+
+    { "name": "debug-cublas-vs", "configurePreset": "debug-cublas-vs" },
+    { "name": "release-cublas-vs", "configurePreset": "release-cublas-vs" },
+
+    { "name": "debug-cublas-gcc", "configurePreset": "debug-cublas-gcc" },
+    { "name": "release-cublas-gcc", "configurePreset": "release-cublas-gcc" },
+    
+    { "name": "debug-cublas-clang", "configurePreset": "debug-cublas-clang" },
+    { "name": "release-cublas-clang", "configurePreset": "release-cublas-clang" },
+
+    { "name": "debug-clblast-vs", "configurePreset": "debug-clblast-vs" },
+    { "name": "release-clblast-vs", "configurePreset": "release-clblast-vs" },
+
+    { "name": "debug-clblast-clang", "configurePreset": "debug-clblast-clang" },
+    { "name": "release-clblast-clang", "configurePreset": "release-clblast-clang" }
   ]
 }

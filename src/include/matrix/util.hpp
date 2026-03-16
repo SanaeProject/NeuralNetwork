@@ -3,6 +3,7 @@
 
 #include "../view/view.h"
 #include "matrix.h"
+#include <algorithm>
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline size_t Matrix<T, RowMajor, Container>::rows() const
@@ -99,7 +100,6 @@ inline bool Matrix<T, RowMajor, Container>::is_blas_enabled() const
 {
 	return can_use_blas<T>::value;
 }
-
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose()
 {
@@ -108,7 +108,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose
 	const size_t cols = this->cols();
 
 	for (size_t i = 0; i < rows; i++) {
-		const T offset = i * cols;
+		const size_t offset = i * cols;
 		for (size_t j = 0; j < cols; j++) {
 			if constexpr (RowMajor) {
 				// 転置: before[i,j] → after[j,i] (同じ行優先レイアウト)
@@ -124,6 +124,17 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose
 	this->_rows = cols;
 	this->_cols = rows;
 	this->_data = std::move(result);
+	return *this;
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<typename Func, typename ExecPolicy>
+Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::apply(Func func, ExecPolicy execPolicy) 
+requires
+    std::invocable<Func, T> &&
+    std::convertible_to<std::invoke_result_t<Func, T>, T> &&
+    StdExecPolicy<ExecPolicy>
+{
+	std::transform(execPolicy, this->_data.begin(), this->_data.end(), this->_data.begin(), func);
 	return *this;
 }
 
