@@ -4,7 +4,7 @@
 #include "../matrix/matrix"
 
 // ベースレイヤー
-template<typename ty, bool use_blas = true>
+template<typename ty>
 class LayerBase {
 public:
     virtual ~LayerBase() = default;

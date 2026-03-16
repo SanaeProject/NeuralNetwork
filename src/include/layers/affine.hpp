@@ -7,7 +7,7 @@
 
 // アフィンレイヤー
 template<typename ty, bool use_blas = true>
-class Affine : public LayerBase<ty, use_blas> {
+class Affine : public LayerBase<ty> {
 private:
     Matrix<ty> _in; // 入力の保存用
     Matrix<ty> _w;
