@@ -383,8 +383,9 @@ public:
 	 * @return 自身の参照
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
-	template<bool use_blas = false, bool OtherMajor, typename MCheck = std::enable_if_t<!(RowMajor == false && OtherMajor == true)>>
-	Matrix& matrix_mul(const Matrix<T, OtherMajor, Container>& other);
+	template<bool use_blas = false, bool OtherMajor, typename OtherContainer>
+	inline Matrix& matrix_mul(const Matrix<T, OtherMajor, OtherContainer>& other)
+	requires (!(RowMajor == false && OtherMajor == true));
 };
 
 #endif // SANAE_NEURALNETWORK_MATRIX

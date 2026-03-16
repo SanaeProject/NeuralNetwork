@@ -2,6 +2,7 @@
 #define SANAE_NEURALNETWORK_AFFINE_HPP
 
 #include "layerbase.hpp"
+#include <iostream>
 #include <math.h>
 #include <random>
 
@@ -38,10 +39,16 @@ public:
      * @note out = in * w + b
      */
     Matrix<ty> forward(const Matrix<ty>& in) override{
-        this->_in = in;
-        Matrix<ty> out = in;
-        out.matrix_mul<use_blas>(_w).add(_b);
-        return out;
+        try{
+            this->_in = in;
+            Matrix<ty> out = in;
+            out.template matrix_mul<use_blas>(_w).add(_b);
+            return out;
+        }
+        catch(const std::exception& e){
+            std::cerr << "Error in Affine forward: " << e.what() << std::endl;
+            throw;
+        }
     }
 
     /**
@@ -51,19 +58,31 @@ public:
      * @note dw = in^T * dout * η, db = dout * η
      */
     Matrix<ty> backward(const Matrix<ty>& dout) override{
-        // 入力に対する勾配の計算: dx = dout * W^T
-        Matrix<ty> dx = dout.matrix_mul<use_blas>(this->_w.transpose());
+        try{
+            Matrix<ty> dout_copy = dout;
 
-        // 勾配の計算（パラメータ更新用）
-        Matrix<ty> dw = this->_in.transpose().matrix_mul<use_blas>(dout).scalar_mul<use_blas>(this->learning_rate); // in^T * dout * η
-        Matrix<ty> db = dout; // dout のコピーを作成
-        db.scalar_mul<use_blas>(this->learning_rate); // dout * η
+            // 入力に対する勾配の計算: dx = dout * W^T
+            Matrix<ty> wt = this->_w;
+            wt.transpose();
+            Matrix<ty> dx = dout_copy.template matrix_mul<use_blas>(wt);
 
-        // パラメータの更新
-        this->_w.sub<use_blas>(dw);
-        this->_b.sub<use_blas>(db);
+            // 勾配の計算（パラメータ更新用）
+            Matrix<ty> in_t = this->_in;
+            in_t.transpose();
+            Matrix<ty> dw = in_t.template matrix_mul<use_blas>(dout).template scalar_mul<use_blas>(this->learning_rate); // in^T * dout * η
+            Matrix<ty> db = dout; // dout のコピーを作成
+            db.template scalar_mul<use_blas>(this->learning_rate); // dout * η
 
-        return dx; // 入力に対する勾配を返す
+            // パラメータの更新
+            this->_w.template sub<use_blas>(dw);
+            this->_b.template sub<use_blas>(db);
+
+            return dx; // 入力に対する勾配を返す
+        }
+        catch(const std::exception& e){
+            std::cerr << "Error in Affine backward: " << e.what() << std::endl;
+            throw;
+        }
     }
 };
 

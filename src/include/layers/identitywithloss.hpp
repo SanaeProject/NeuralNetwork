@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <execution>
 #include <math.h>
+#include <iostream>
 #include "layerbase.hpp"
 #include "../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
 
@@ -15,8 +16,6 @@ private:
     Matrix<ty> _out; // 出力の保存用
 
 public:
-    double learning_rate = 0.01;
-
     /**
      * 前向き伝播
      * @param in 入力
@@ -27,7 +26,7 @@ public:
         this->_out = in;
         return in;
     }
-    
+
     /**
      * 
      * @param t 教師データ
@@ -35,10 +34,16 @@ public:
      * @note dx = out - t
      */
     Matrix<ty> backward(const Matrix<ty>& t) override{
-        Matrix<ty> dx = this->_out;
-        dx.sub(t, ExecPolicy{});
-        return dx;
+        try{
+            Matrix<ty> dx = this->_out;
+            dx.sub(t, ExecPolicy{});
+            return dx;
+        }
+        catch(const std::exception& e){
+            std::cerr << "Error in IdentityWithLoss backward: " << e.what() << std::endl;
+            throw;
+        }
     }
 };
 
-#endif //SANAE_NEURALNETWORK_SOFTMAXWITHLOSS_HPP
+#endif //SANAE_NEURALNETWORK_IDENTITYWITHLOSS_HPP

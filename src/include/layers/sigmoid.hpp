@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <execution>
 #include <math.h>
+#include <iostream>
 #include "layerbase.hpp"
 #include "../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
 
@@ -15,8 +16,6 @@ private:
     Matrix<ty> _out; // 出力の保存用
 
 public:
-    double learning_rate = 0.01;
-
     /**
      * 前向き伝播
      * @param in 入力
@@ -24,11 +23,17 @@ public:
      * @note out = 1 / (1 + exp(-in))
      */
     Matrix<ty> forward(const Matrix<ty>& in) override{
-        Matrix<ty> out = in;
-        out.apply([](ty x) { return 1 / (1 + exp(-x)); }, ExecPolicy{});
-        
-        this->_out = out; // 出力を保存
-        return out;
+        try{
+            Matrix<ty> out = in;
+            out.apply([](ty x) { return 1 / (1 + exp(-x)); }, ExecPolicy{});
+            
+            this->_out = out; // 出力を保存
+            return out;
+        }
+        catch(const std::exception& e){
+            std::cerr << "Error in Sigmoid forward: " << e.what() << std::endl;
+            throw;
+        }
     }
     /**
      * 逆伝播
@@ -37,12 +42,18 @@ public:
      * @note dx = dout ⊙ (out ⊙ (1 - out))
      */
     Matrix<ty> backward(const Matrix<ty>& dout) override{
-        // 保存しておいた出力 _out からシグモイドの導関数 out * (1 - out) を要素ごとに計算
-        Matrix<ty> dx = this->_out;
-        dx.apply([](ty y) { return y * (static_cast<ty>(1) - y); }, ExecPolicy{});
-        // dx: out ⊙ (1 - out) に dout を要素ごとに掛ける
-        dx = dx.hadamard_mul(dout);
-        return dx;
+        try{
+            // 保存しておいた出力 _out からシグモイドの導関数 out * (1 - out) を要素ごとに計算
+            Matrix<ty> dx = this->_out;
+            dx.apply([](ty y) { return y * (static_cast<ty>(1) - y); }, ExecPolicy{});
+            // dx: out ⊙ (1 - out) に dout を要素ごとに掛ける
+            dx = dx.hadamard_mul(dout);
+            return dx;
+        }
+        catch(const std::exception& e){
+            std::cerr << "Error in Sigmoid backward: " << e.what() << std::endl;
+            throw;
+        }
     }
 };
 

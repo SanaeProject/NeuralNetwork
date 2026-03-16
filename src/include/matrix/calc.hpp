@@ -120,8 +120,9 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::scalar_di
 	return *this;
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
-template<bool use_blas, bool OtherMajor, typename MCheck>
-inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::matrix_mul(const Matrix<T, OtherMajor, Container>& other)
+template<bool use_blas, bool OtherMajor, typename OtherContainer>
+inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::matrix_mul(const Matrix<T, OtherMajor, OtherContainer>& other)
+requires (!(RowMajor == false && OtherMajor == true))
 {
 	if (this->cols() != other.rows()) {
 		throw std::invalid_argument("Matrix dimensions must agree for matrix multiplication.");

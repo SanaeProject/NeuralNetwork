@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <execution>
 #include <math.h>
+#include <iostream>
 #include "layerbase.hpp"
 #include "../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
 
@@ -15,8 +16,6 @@ private:
     Matrix<ty> _out; // 出力の保存用
 
 public:
-    double learning_rate = 0.01;
-
     /**
      * 前向き伝播
      * @param in 入力
@@ -24,6 +23,7 @@ public:
      * @note out = softmax(in)
      */
     Matrix<ty> forward(const Matrix<ty>& in) override{
+        try{
         ty max_val = *std::max_element(in.data().begin(), in.data().end()); // 数値安定化のために最大値を引く
         Matrix<ty> out = in;
         out.apply([max_val](ty x) { return exp(x - max_val); }, ExecPolicy{});
@@ -32,6 +32,11 @@ public:
         out.scalar_div(sum, ExecPolicy{});
         this->_out = out;
         return out;
+        }
+        catch(const std::exception& e){
+            std::cerr << "Error in SoftmaxWithLoss forward: " << e.what() << std::endl;
+            throw;
+        }
     }
     /**
      * 
@@ -40,9 +45,15 @@ public:
      * @note dx = out - t
      */
     Matrix<ty> backward(const Matrix<ty>& t) override{
-        Matrix<ty> dx = this->_out;
-        dx.sub(t, ExecPolicy{});
-        return dx;
+        try{
+            Matrix<ty> dx = this->_out;
+            dx.sub(t, ExecPolicy{});
+            return dx;
+        }
+        catch(const std::exception& e){
+            std::cerr << "Error in SoftmaxWithLoss backward: " << e.what() << std::endl;
+            throw;
+        }
     }
 };
 
