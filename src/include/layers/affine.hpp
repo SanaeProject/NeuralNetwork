@@ -39,7 +39,9 @@ public:
      */
     Matrix<ty> forward(const Matrix<ty>& in) override{
         this->_in = in;
-        return in.matrix_mul<use_blas>(_w).add(_b);
+        Matrix<ty> out = in;
+        out.matrix_mul<use_blas>(_w).add(_b);
+        return out;
     }
 
     /**
