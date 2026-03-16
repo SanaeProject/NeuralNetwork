@@ -34,11 +34,14 @@ public:
      * 逆伝播
      * @param dout 出力の勾配
      * @return 入力の勾配
-     * @note dx = dout * (out * (1 - out))
+     * @note dx = dout ⊙ (out ⊙ (1 - out))
      */
     Matrix<ty> backward(const Matrix<ty>& dout) override{
-        Matrix<ty> dx = dout;
-        dx.apply([out = this->_out](ty x) { return x * out * (1 - out); }, ExecPolicy{});
+        // 保存しておいた出力 _out からシグモイドの導関数 out * (1 - out) を要素ごとに計算
+        Matrix<ty> dx = this->_out;
+        dx.apply([](ty y) { return y * (static_cast<ty>(1) - y); }, ExecPolicy{});
+        // dx: out ⊙ (1 - out) に dout を要素ごとに掛ける
+        dx = dx.hadamard_mul(dout);
         return dx;
     }
 };
