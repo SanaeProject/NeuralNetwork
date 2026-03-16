@@ -20,7 +20,7 @@ int main() {
         std::cout << "Testing constructors..." << std::endl;
         MatrixType mat1;
         MatrixType mat2(3, 3);
-        MatrixType mat3(3, 3, 5);
+        MatrixType mat3(3, 3, []() { return 1.0f; });
         MatrixType mat4(data1);
         MatrixType mat5({ {1, 2}, {3, 4} });
 

@@ -127,9 +127,14 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose
 	return *this;
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
-template<typename Func>
-Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::apply(Func func) requires std::is_invocable_r_v<T, Func, T>{
-	std::ranges::transform(this->_data, this->_data.begin(), func);
+template<typename Func, typename ExecPolicy>
+Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::apply(Func func, ExecPolicy execPolicy) 
+requires
+    std::invocable<Func, T> &&
+    std::convertible_to<std::invoke_result_t<Func, T>, T> &&
+    StdExecPolicy<ExecPolicy>
+{
+	std::transform(execPolicy, this->_data.begin(), this->_data.end(), this->_data.begin(), func);
 	return *this;
 }
 

@@ -100,21 +100,18 @@ public:
 	Matrix(size_t rows, size_t cols);
 
 	/**
-	 * @brief 行列の行数と列数、初期値を指定して初期化するコンストラクタ
+	 * @brief 行列の行数と列数、初期化関数を指定して初期化するコンストラクタ
 	 * @param rows 行数
 	 * @param cols 列数
-	 * @param initial 初期値
+	 * @param func 初期化関数 (引数なしで呼び出せる関数オブジェクトで、返り値がT型に変換可能である必要があります)
+	 * @param execPolicy 実行ポリシー (std::execution の実行ポリシーオブジェクト)。並列実行ポリシーを指定した場合、初期化関数 func は複数スレッドから並行して呼び出される可能性があるため、スレッドセーフである必要があります。
 	 */
-	Matrix(size_t rows, size_t cols, const T& initial);
-
-	/**
-	* @brief 行列の行数と列数、初期化関数を指定して初期化するコンストラクタ
-	* @param rows 行数
-	* @param cols 列数
-	* @param func 初期化関数
-	*/
-	template<typename InitFunc>
-	Matrix(size_t rows, size_t cols, InitFunc func) requires std::is_invocable_r_v<T, InitFunc>;
+	template<typename InitFunc, typename ExecPolicy = std::execution::sequenced_policy>
+	Matrix(size_t rows, size_t cols, InitFunc func, ExecPolicy execPolicy = ExecPolicy{})
+	requires
+		std::invocable<InitFunc> &&
+		std::convertible_to<std::invoke_result_t<InitFunc>, T> &&
+		StdExecPolicy<ExecPolicy>;
 
 	/**
 	 * @brief 2次元コンテナから初期化するコンストラクタ
@@ -200,11 +197,18 @@ public:
 	/**
 	 * @brief 行列の各要素に関数を適用します。
 	 * @tparam Func 適用する関数の型
-	 * @param func 適用する関数
+	 * @tparam ExecPolicy 使用する実行ポリシーの型（例：std::execution::sequenced_policy / parallel_policy など）
+	 * @param func 各要素に適用する関数
+	 * @param execPolicy 実行ポリシー。既定では逐次実行（sequenced）になり、並列ポリシーを指定した場合は
+	 *                   関数funcがスレッドセーフであり、要素の処理順序に依存しないことが要求されます。
 	 * @return 自身の参照
 	 */
-	template<typename Func>
-	Matrix& apply(Func func) requires std::is_invocable_r_v<T, Func, T>;
+	template<typename Func, typename ExecPolicy = std::execution::sequenced_policy>
+	Matrix& apply(Func func, ExecPolicy execPolicy = ExecPolicy{}) 
+	requires
+		std::invocable<Func, T> &&
+		std::convertible_to<std::invoke_result_t<Func, T>, T> &&
+		StdExecPolicy<ExecPolicy>;
 
 	// ops.hpp
 	/**
