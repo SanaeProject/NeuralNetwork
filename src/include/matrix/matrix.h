@@ -100,11 +100,12 @@ public:
 	Matrix(size_t rows, size_t cols);
 
 	/**
-	* @brief 行列の行数と列数、初期化関数を指定して初期化するコンストラクタ
-	* @param rows 行数
-	* @param cols 列数
-	* @param func 初期化関数 (引数なしで呼び出せる関数オブジェクトで、返り値がT型に変換可能である必要があります)
-	*/
+	 * @brief 行列の行数と列数、初期化関数を指定して初期化するコンストラクタ
+	 * @param rows 行数
+	 * @param cols 列数
+	 * @param func 初期化関数 (引数なしで呼び出せる関数オブジェクトで、返り値がT型に変換可能である必要があります)
+	 * @param execPolicy 実行ポリシー (std::execution の実行ポリシーオブジェクト)。並列実行ポリシーを指定した場合、初期化関数 func は複数スレッドから並行して呼び出される可能性があるため、スレッドセーフである必要があります。
+	 */
 	template<typename InitFunc, typename ExecPolicy = std::execution::sequenced_policy>
 	Matrix(size_t rows, size_t cols, InitFunc func, ExecPolicy execPolicy = ExecPolicy{})
 	requires
