@@ -20,7 +20,7 @@ message(STATUS "Files in src/: ${DEBUG_SRC_FILES}")
 
 # ソースが存在するか検証
 if(PROJECT_SOURCES)
-    add_executable(NeuralNetwork ${PROJECT_SOURCES} "src/include/matrix/matrix.h" "src/include/matrix/ops.hpp" "src/include/matrix/ctor.hpp" "src/include/matrix/util.hpp" "src/include/matrix/matrix" "src/include/view/view.h" "src/include/matrix/blasgemm.h" "src/performance.h")
+    add_executable(NeuralNetwork ${PROJECT_SOURCES} "src/include/matrix/matrix.h" "src/include/matrix/ops.hpp" "src/include/matrix/ctor.hpp" "src/include/matrix/util.hpp" "src/include/matrix/matrix" "src/include/view/view.h" "src/include/matrix/blasgemm.h" "src/matrixtest.cpp" "src/matrixperformance.hpp" "src/NNtest.cpp")
 else()
     message(FATAL_ERROR "No source files found in src/*.cpp. Create at least one .cpp file (e.g. src/main.cpp) or adjust CMakeLists.txt.")
 endif()
