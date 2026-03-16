@@ -43,7 +43,7 @@ public:
         Matrix<ty> dx = this->_out;
         dx.apply([](ty x) { return x > static_cast<ty>(0) ? static_cast<ty>(1) : static_cast<ty>(0); }, ExecPolicy{});
         // dx: (in > 0 ? 1 : 0) に dout を要素ごとに掛ける
-        dx = dx.hadamard_mul(dout);
+        dx.hadamard_mul(dout, ExecPolicy{});
         return dx;
     }
 };
