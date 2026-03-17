@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <execution>
+#include <numeric>
 #include <math.h>
 #include <iostream>
 #include "layerbase.hpp"
@@ -39,7 +40,7 @@ public:
         }
     }
     /**
-     * 
+     * 逆伝播
      * @param t 教師データ
      * @return 入力の勾配
      * @note dx = out - t
