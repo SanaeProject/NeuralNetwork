@@ -11,19 +11,18 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# インクルードディレクトリの追加
-include_directories(src/include)
+# src以下のcppを全部取得
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+)
 
-file(GLOB PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
-file(GLOB DEBUG_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*")
-message(STATUS "Files in src/: ${DEBUG_SRC_FILES}")
+# 実行ファイル
+add_executable(NeuralNetwork ${PROJECT_SOURCES})
 
-# ソースが存在するか検証
-if(PROJECT_SOURCES)
-    add_executable(NeuralNetwork ${PROJECT_SOURCES} "src/include/matrix/matrix.h" "src/include/matrix/ops.hpp" "src/include/matrix/ctor.hpp" "src/include/matrix/util.hpp" "src/include/matrix/matrix" "src/include/view/view.h" "src/include/matrix/blasgemm.h" "src/performance.h")
-else()
-    message(FATAL_ERROR "No source files found in src/*.cpp. Create at least one .cpp file (e.g. src/main.cpp) or adjust CMakeLists.txt.")
-endif()
+# includeパス
+target_include_directories(NeuralNetwork PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/include"
+)
 
 # CUBLASとCLBlastの両方が有効になっている場合CUBLASを優先する
 if(USE_CLBLAST AND USE_CUBLAS)
