@@ -8,10 +8,10 @@
 #include "layerbase.hpp"
 #include "../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
 
-// TANHレイヤー
+// Tanhレイヤー
 template<typename ty, typename ExecPolicy = std::execution::parallel_unsequenced_policy>
 requires StdExecPolicy<ExecPolicy>
-class TANH : public LayerBase<ty> {
+class Tanh : public LayerBase<ty> {
 private:
     Matrix<ty> _out; // 出力の保存用
 
@@ -30,7 +30,7 @@ public:
             return this->_out;
         }
         catch(const std::exception& e){
-            std::cerr << "Error in tanh forward: " << e.what() << std::endl;
+            std::cerr << "Error in Tanh forward: " << e.what() << std::endl;
             throw;
         }
     }
@@ -49,7 +49,7 @@ public:
             return dx;
         }
         catch(const std::exception& e){
-            std::cerr << "Error in tanh backward: " << e.what() << std::endl;
+            std::cerr << "Error in Tanh backward: " << e.what() << std::endl;
             throw;
         }
     }
