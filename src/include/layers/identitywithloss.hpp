@@ -44,6 +44,24 @@ public:
             throw;
         }
     }
+
+    /**
+     * @param t 教師データ
+     * @return ロス値
+     * @note loss = Σ(out_i - t_i)^2 / 2
+     */
+    double loss(const Matrix<ty>& t) {
+        try{
+            ty sum = 0;
+            for (size_t i = 0; i < _out.size(); i++)
+                sum += std::pow(_out.data()[i] - t.data()[i], 2);
+            return sum/2;
+        }
+        catch(const std::exception& e){
+            std::cerr << "Error in IdentityWithLoss loss calculation: " << e.what() << std::endl;
+            throw;
+        }
+    }
 };
 
 #endif //SANAE_NEURALNETWORK_IDENTITYWITHLOSS_HPP

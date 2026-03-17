@@ -55,6 +55,23 @@ public:
             throw;
         }
     }
+
+    /**
+    * @param t 教師データ
+    * @return ロス値
+    * @note loss = -Σ(t_i * log(out_i + ε))
+    */
+    double loss(const Matrix<ty>& t) {
+        ty epsilon = static_cast<ty>(1e-15);
+        ty loss = 0;
+
+        for (size_t i = 0; i < _out.data().size(); ++i) {
+            ty y = std::max(_out.data()[i], epsilon);
+            loss -= t.data()[i] * std::log(y);
+        }
+
+        return loss;
+    }
 };
 
 #endif //SANAE_NEURALNETWORK_SOFTMAXWITHLOSS_HPP
