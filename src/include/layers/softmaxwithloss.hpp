@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <execution>
+#include <numeric>
 #include <math.h>
 #include <iostream>
 #include "layerbase.hpp"
