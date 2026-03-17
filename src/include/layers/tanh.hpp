@@ -45,7 +45,7 @@ public:
         try{
             Matrix<ty> dx = this->_out;
             dx.apply([](ty y) { return static_cast<ty>(1) - (y * y); }, ExecPolicy{});
-            dx = dx.hadamard_mul(dout, ExecPolicy{});
+            dx.hadamard_mul(dout, ExecPolicy{});
 
             return dx;
         }
