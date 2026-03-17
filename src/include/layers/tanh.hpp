@@ -24,11 +24,10 @@ public:
      */
     Matrix<ty> forward(const Matrix<ty>& in) override{
         try{
-            Matrix<ty> out = in;
-            out.apply([](ty x) { return std::tanh(x); }, ExecPolicy{});
-            
-            this->_out = out; // 出力を保存
-            return out;
+            this->_out = in;
+            this->_out.apply([](ty x) { return std::tanh(x); }, ExecPolicy{});
+
+            return this->_out;
         }
         catch(const std::exception& e){
             std::cerr << "Error in tanh forward: " << e.what() << std::endl;
