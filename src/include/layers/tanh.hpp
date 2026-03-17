@@ -39,7 +39,7 @@ public:
      * 逆伝播
      * @param dout 出力の勾配
      * @return 入力の勾配
-     * @note dx = 1 - tanh^2(x)
+     * @note dx = (1 - tanh^2(x)) ⊙ dout
      */
     Matrix<ty> backward(const Matrix<ty>& dout) override{
         try{
