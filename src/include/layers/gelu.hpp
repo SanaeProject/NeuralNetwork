@@ -3,7 +3,7 @@
 
 #include <algorithm>
 #include <execution>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include "layerbase.hpp"
 #include "../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
