@@ -103,7 +103,7 @@ public:
 	 * @brief 行列の行数と列数を指定して初期化するコンストラクタ
 	 * @param rows 行数
 	 * @param cols 列数
-	 * @param array 内部データコンテナの初期値を指定するコンテナ。サイズはrows*colsでなければなりません。
+	 * @param array 内部データコンテナの初期値を指定するコンテナ。少なくとも rows*cols 個の要素を保持している必要があります（std::array の場合は rows*cols が配列サイズ以下である必要があります）。
 	 */
 	Matrix(size_t rows, size_t cols, Container array);
 
