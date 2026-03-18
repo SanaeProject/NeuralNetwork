@@ -4,6 +4,7 @@
 #include "matrix.h"  
 #include <iosfwd>
 #include <ostream>
+#include <stdexcept>
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline T& Matrix<T, RowMajor, Container>::operator()(size_t row, size_t col)
@@ -54,6 +55,69 @@ inline bool Matrix<T, RowMajor, Container>::operator==(const Matrix& other) cons
 	}
 
 	return true;
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::operator+(const Matrix& other) const
+{
+	if (this->cols() != other.cols() || this->rows() != other.rows())
+		throw std::invalid_argument("Matrix dimensions must agree for addition.");
+
+	return this->add_copy(other);
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::operator+(const T& scalar) const
+{
+	return this->apply_copy([scalar](T x) { return x + scalar; });
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::operator-(const Matrix& other) const
+{
+	if (this->cols() != other.cols() || this->rows() != other.rows())
+		throw std::invalid_argument("Matrix dimensions must agree for subtraction.");
+
+	return this->sub_copy(other);
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::operator-(const T& scalar) const
+{
+	return this->apply_copy([scalar](T x) { return x - scalar; });
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::operator*(const Matrix& other) const
+{
+	if (this->cols() != other.rows())
+		throw std::invalid_argument("Incompatible matrix dimensions for multiplication.");
+
+	return this->matrix_mul_copy(other);
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::operator*(const T& scalar) const
+{
+	return this->apply_copy([scalar](T x) { return x * scalar; });
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::operator^(const Matrix& other) const
+{
+	if (this->cols() != other.cols() || this->rows() != other.rows())
+		throw std::invalid_argument("Matrix dimensions must agree for Hadamard multiplication.");
+
+	return this->hadamard_mul_copy(other);
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::operator/(const Matrix& other) const
+{
+	if (this->cols() != other.cols() || this->rows() != other.rows())
+		throw std::invalid_argument("Matrix dimensions must agree for Hadamard division.");
+
+	return this->hadamard_div_copy(other);
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::operator/(const T& scalar) const
+{
+	if (scalar == T(0))
+		throw std::invalid_argument("Scalar value cannot be zero for division.");
+
+	return this->apply_copy([scalar](T x) { return x / scalar; });
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline bool Matrix<T, RowMajor, Container>::operator!=(const Matrix& other) const
