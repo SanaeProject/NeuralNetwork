@@ -67,7 +67,7 @@ inline void matrix_mul_nonblas_impl(
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<typename execType, typename calcType>
-inline void Matrix<T, RowMajor, Container>::_calc(Container& to, const Container& other, execType execPolicy, calcType operation)
+inline void Matrix<T, RowMajor, Container>::_calc(Container& to, const Container& other, execType execPolicy, calcType operation) const
 	requires StdExecPolicy<execType>
 {
     if (to.size() != other.size())
@@ -82,7 +82,7 @@ inline void Matrix<T, RowMajor, Container>::_calc(Container& to, const Container
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<typename execType, typename calcType>
-inline void Matrix<T, RowMajor, Container>::_calc(Container& to, const T& other, execType execPolicy, calcType operation)
+inline void Matrix<T, RowMajor, Container>::_calc(Container& to, const T& other, execType execPolicy, calcType operation) const
 	requires StdExecPolicy<execType>
 {
     std::transform(execPolicy,

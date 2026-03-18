@@ -2,12 +2,16 @@
 #define SANAE_NEURALNETWORK_AFFINE_HPP
 
 #include "layerbase.hpp"
+#include "../../matrix/matrix"
+#include "optimizer.hpp"
+#include <execution>
 #include <iostream>
 #include <math.h>
 #include <random>
 
-// アフィンレイヤー
-template<typename ty, bool use_blas = true>
+// affine layer wx+in
+template<typename ty, ty learning_rate = 0.001f, bool use_blas = true, typename OptimizerType = SGD<ty>>
+requires DerivedOptimizer<OptimizerType, ty>
 class Affine : public LayerBase<ty> {
 private:
     Matrix<ty> _in; // 入力の保存用
@@ -15,7 +19,7 @@ private:
     Matrix<ty> _b;
 
 public:
-    double learning_rate = 0.01;
+    OptimizerType optimizer;
 
     /**
      * コンストラクタ
@@ -23,7 +27,10 @@ public:
      * @param output_size 出力の次元数
      * @param seed 乱数生成器のシード
      */
-    Affine(size_t input_size, size_t output_size, uint32_t seed = std::random_device{}()) {
+    Affine(size_t input_size, size_t output_size, uint32_t seed = std::random_device{}())
+        : _w(input_size, output_size), _b(1, output_size),
+          optimizer(_w, _b, learning_rate) 
+    {
         std::default_random_engine engine(seed);
         std::uniform_real_distribution<ty> dist(0, (1.0 / std::sqrt(input_size))); // Xavier初期化の範囲
 
@@ -69,13 +76,11 @@ public:
             // 勾配の計算（パラメータ更新用）
             Matrix<ty> in_t = this->_in;
             in_t.transpose();
-            Matrix<ty> dw = in_t.template matrix_mul<use_blas>(dout).template scalar_mul<use_blas>(this->learning_rate); // in^T * dout * η
+            Matrix<ty> dw = in_t.template matrix_mul<use_blas>(dout); // in^T * dout
             Matrix<ty> db = dout; // dout のコピーを作成
-            db.template scalar_mul<use_blas>(this->learning_rate); // dout * η
 
             // パラメータの更新
-            this->_w.template sub<use_blas>(dw);
-            this->_b.template sub<use_blas>(db);
+            optimizer.optimize(dw, db);
 
             return dx; // 入力に対する勾配を返す
         }

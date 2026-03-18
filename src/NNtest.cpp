@@ -1,22 +1,18 @@
 #include <iostream>
-#include "include/matrix/matrix"
 
-#include "include/layers/affine.hpp"
-#include "include/layers/relu.hpp"
-#include "include/layers/sigmoid.hpp"
-#include "include/layers/softmaxwithloss.hpp"
+#include "./include/neuralnetwork/layers/affine.hpp"
+#include "./include/neuralnetwork/layers/relu.hpp"
+#include "./include/neuralnetwork/layers/softmaxwithloss.hpp"
+#include "./include/neuralnetwork/layers/optimizer.hpp"
 
-void nntest() {
-    Affine<float> affine1(2, 4);
+void run_layertest() {
+    Affine<float, 0.1f, false, SGD<float>> affine1(2, 4);
     ReLU<float> relu1;
 
-    Affine<float> affine2(4, 2);
+    Affine<float, 0.1f, false, SGD<float>> affine2(4, 2);
     ReLU<float> relu2;
 
     SoftmaxWithLoss<float> softmaxwithloss;
-
-    affine1.learning_rate = 0.3f;
-    affine2.learning_rate = 0.3f;
 
     auto learn = [&](const Matrix<float>& x, const Matrix<float>& t) {
         auto out1 = affine1.forward(x);

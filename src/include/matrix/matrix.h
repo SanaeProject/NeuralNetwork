@@ -67,7 +67,7 @@ protected:
 	 * @return void
 	*/
 	template<typename execType, typename calcType>
-	void _calc(Container& to, const Container& other, execType execPolicy, calcType operation) 
+	void _calc(Container& to, const Container& other, execType execPolicy, calcType operation) const
 		requires StdExecPolicy<execType>;
 
 	/**
@@ -81,7 +81,8 @@ protected:
 	 * @return void
 	*/
 	template<typename execType, typename calcType>
-	void _calc(Container& to, const T& other, execType execPolicy, calcType operation) requires StdExecPolicy<execType>;
+	void _calc(Container& to, const T& other, execType execPolicy, calcType operation) const
+		requires StdExecPolicy<execType>;
 public:
 	using Container2D = std::vector<std::vector<T>>;
 	using InitContainer2D = std::initializer_list<std::initializer_list<T>>;
