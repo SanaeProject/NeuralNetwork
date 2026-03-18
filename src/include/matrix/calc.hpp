@@ -59,8 +59,7 @@ inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::add_copy(c
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for addition.");
 
-	Container result(this->_data.size());
-	std::copy(this->_data.begin(), this->_data.end(), result.begin());
+	Container result(this->_data);
 
 	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
@@ -95,8 +94,7 @@ inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::sub_copy(c
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for subtraction.");
 
-	Container result(this->_data.size());
-	std::copy(this->_data.begin(), this->_data.end(), result.begin());
+	Container result(this->_data);
 	if constexpr (can_use_blas<T>::value && use_blas) {
 		int n = static_cast<int>(this->_rows * this->_cols);
 		BlasGemm::Sub<T>::axpy(n, 1.0, other._data.data(), result.data());
