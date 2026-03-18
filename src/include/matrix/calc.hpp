@@ -12,6 +12,58 @@
 #include <algorithm>
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline void matrix_mul_nonblas_impl(
+	size_t result_rows,
+	size_t result_cols,
+	const std::vector<View<T>>& this_rows,
+	const std::vector<View<const T>>& other_cols,
+	Container& result_data)
+{
+	auto task = [&](size_t start, size_t end) {
+		for (size_t index = start; index < end; index++) {
+			size_t row, col;
+			if constexpr (RowMajor) {
+				row = index / result_cols;
+				col = index % result_cols;
+			}
+			else {
+				col = index / result_rows;
+				row = index % result_rows;
+			}
+
+			T value = std::transform_reduce(
+				this_rows[row].begin(), this_rows[row].end(),
+				other_cols[col].begin(),
+				T{},
+				std::plus<T>(),
+				std::multiplies<T>()
+			);
+			if constexpr (RowMajor)
+				result_data[row * result_cols + col] = value;
+			else
+				result_data[col * result_rows + row] = value;
+		}
+	};
+
+	std::vector<std::thread> threads;
+	const size_t max_threads = std::max(std::thread::hardware_concurrency(), 1u);
+	const size_t total_tasks = result_rows * result_cols;
+	const size_t tasks_per_thread = (total_tasks + max_threads - 1) / max_threads;
+
+	for (size_t t = 0; t < max_threads; t++) {
+		threads.emplace_back([&, t]() {
+			size_t start = t * tasks_per_thread;
+			size_t end = std::min(start + tasks_per_thread, total_tasks);
+			task(start, end);
+		});
+	}
+
+	for (auto& thread : threads) {
+		thread.join();
+	}
+}
+
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<typename execType, typename calcType>
 inline void Matrix<T, RowMajor, Container>::_calc(Container& to, const Container& other, execType execPolicy, calcType operation)
 	requires StdExecPolicy<execType>
@@ -360,48 +412,13 @@ requires (!(RowMajor == false && OtherMajor == true))
 		for (size_t j = 0; j < result_cols; j++)
 			other_cols.emplace_back(other.get_col(j));
 
-		auto task = [&](size_t start, size_t end) {
-			for (size_t index = start; index < end; index++) {
-				size_t row, col;
-				if constexpr (RowMajor) {
-					row = index / result_cols;
-					col = index % result_cols;
-				}
-				else {
-					col = index / result_rows;
-					row = index % result_rows;
-				}
-				
-				T value = std::transform_reduce(
-					this_rows[row].begin(), this_rows[row].end(),
-					other_cols[col].begin(),
-					T{},
-					std::plus<T>(),
-					std::multiplies<T>()
-				);
-				if constexpr (RowMajor)
-					result_data[row * result_cols + col] = value;
-				else
-					result_data[col * result_rows + row] = value;
-			}
-			};
-
-		std::vector<std::thread> threads;
-		const size_t max_threads = std::max(std::thread::hardware_concurrency(), 1u);
-		const size_t total_tasks = result_rows * result_cols;
-		const size_t tasks_per_thread = (total_tasks + max_threads - 1) / max_threads;
-
-		for (size_t t = 0; t < max_threads; t++) {
-			threads.emplace_back([&, t]() {
-				size_t start = t * tasks_per_thread;
-				size_t end = std::min(start + tasks_per_thread, total_tasks);
-				task(start, end);
-				});
-		}
-
-		for (auto& thread : threads) {
-			thread.join();
-		}
+		matrix_mul_nonblas_impl<T, RowMajor, Container>(
+			result_rows,
+			result_cols,
+			this_rows,
+			other_cols,
+			result_data
+		);
 	}
 
 	return Matrix<T, RowMajor, Container>(result_rows, result_cols, std::move(result_data));
