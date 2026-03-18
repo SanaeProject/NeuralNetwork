@@ -151,7 +151,10 @@ inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::hadamard_d
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for Hadamard division.");
 
-	Container result(this->_data.size());
+	Container result{};
+	if constexpr (requires (Container& c) { c.resize(std::size_t{}); }) {
+		result.resize(this->_data.size());
+	}
 	std::copy(this->_data.begin(), this->_data.end(), result.begin());
 	this->_calc(result, other._data, execPolicy, 
 		[](const T& a, const T& b) {
@@ -180,7 +183,10 @@ template<typename T, bool RowMajor, typename Container> requires VectorOrArray<C
 template<bool use_blas, typename execType>
 inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::scalar_mul_copy(const T& scalar, execType execPolicy) requires StdExecPolicy<execType>
 {
-	Container result(this->_data.size());
+	Container result{};
+	if constexpr (requires (Container& c) { c.resize(std::size_t{}); }) {
+		result.resize(this->_data.size());
+	}
 	std::copy(this->_data.begin(), this->_data.end(), result.begin());
 
 	if constexpr (can_use_blas<T>::value && use_blas) {
