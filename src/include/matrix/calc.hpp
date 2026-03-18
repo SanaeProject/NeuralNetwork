@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
+#include <numeric>
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline void matrix_mul_nonblas_impl(
