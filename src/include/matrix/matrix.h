@@ -311,6 +311,41 @@ public:
 	Matrix& operator=(const Matrix& other) = default;
 
 	/**
+	 * @brief 他の行列を加算します。
+	 * @param other 加算する行列
+	 * @return 新しい行列のコピー
+	 */
+	Matrix operator+(const Matrix& other) const;
+
+	/**
+	 * @brief 他の行列を減算します。
+	 * @param other 減算する行列
+	 * @return 新しい行列のコピー
+	 */
+	Matrix operator-(const Matrix& other) const;
+
+	/**
+	 * @brief 行列積を行います。
+	 * @param other 乗算する行列
+	 * @return 新しい行列のコピー
+	 */
+	Matrix operator*(const Matrix& other) const;
+
+	/**
+	 * @brief アダマール積を行います。
+	 * @param other 乗算する行列
+	 * @return 新しい行列のコピー
+	 */
+	Matrix operator^(const Matrix& other) const;
+
+	/**
+	 * @brief 行列の要素ごとの除算を行います。
+	 * @param other 除算する行列
+	 * @return 新しい行列のコピー
+	 */
+	Matrix operator/(const Matrix& other) const;
+
+	/**
 	 * @brief 他の行列との等価比較を行います。(メモリレイアウトが異なる場合)
 	 * @param other 比較する行列
 	 * @return 等価であればtrue、そうでなければfalse
