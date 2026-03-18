@@ -421,7 +421,7 @@ public:
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
 	template<bool use_blas = false, typename execType = std::execution::sequenced_policy>
-	Matrix add_copy(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
+	Matrix add_copy(const Matrix& other, execType execPolicy = execType()) const requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief 他の行列との減算を行います。
@@ -445,7 +445,7 @@ public:
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
 	template<bool use_blas = false, typename execType = std::execution::sequenced_policy>
-	Matrix sub_copy(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
+	Matrix sub_copy(const Matrix& other, execType execPolicy = execType()) const requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief 他の行列とのアダマール積を行います。
@@ -467,7 +467,7 @@ public:
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
 	template<typename execType = std::execution::sequenced_policy>
-	Matrix hadamard_mul_copy(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
+	Matrix hadamard_mul_copy(const Matrix& other, execType execPolicy = execType()) const requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief スカラーとの乗算を行います。
@@ -489,7 +489,7 @@ public:
 	 * @return 新しい行列のコピー
 	 */
 	template<bool use_blas = false, typename execType = std::execution::sequenced_policy>
-	Matrix scalar_mul_copy(const T& scalar, execType execPolicy = execType()) requires StdExecPolicy<execType>;
+	Matrix scalar_mul_copy(const T& scalar, execType execPolicy = execType()) const requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief 他の行列とのアダマール除算を行います。
@@ -511,7 +511,7 @@ public:
 	 * @throws std::invalid_argument 行列の次元が一致しない場合、またはゼロ除算が発生した場合
 	 */
 	template<typename execType = std::execution::sequenced_policy>
-	Matrix hadamard_div_copy(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
+	Matrix hadamard_div_copy(const Matrix& other, execType execPolicy = execType()) const requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief スカラーとの除算を行います。
@@ -533,7 +533,7 @@ public:
 	 * @throws std::invalid_argument ゼロ除算が発生した場合
 	 */
 	template<typename execType = std::execution::sequenced_policy>
-	Matrix scalar_div_copy(const T& scalar, execType execPolicy = execType()) requires StdExecPolicy<execType>;
+	Matrix scalar_div_copy(const T& scalar, execType execPolicy = execType()) const requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief 他の行列との行列乗算を行います。
@@ -558,7 +558,7 @@ public:
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
 	template<bool use_blas = false, bool OtherMajor, typename OtherContainer>
-	inline Matrix matrix_mul_copy(const Matrix<T, OtherMajor, OtherContainer>& other)
+	inline Matrix matrix_mul_copy(const Matrix<T, OtherMajor, OtherContainer>& other) const
 	requires (!(RowMajor == false && OtherMajor == true));
 };
 

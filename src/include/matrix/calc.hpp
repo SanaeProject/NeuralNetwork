@@ -107,7 +107,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::add(const
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<bool use_blas, typename execType>
-inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::add_copy(const Matrix& other, execType execPolicy) requires StdExecPolicy<execType>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::add_copy(const Matrix& other, execType execPolicy) const requires StdExecPolicy<execType>
 {
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for addition.");
@@ -142,7 +142,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::sub(const
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<bool use_blas, typename execType>
-inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::sub_copy(const Matrix& other, execType execPolicy) requires StdExecPolicy<execType>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::sub_copy(const Matrix& other, execType execPolicy) const requires StdExecPolicy<execType>
 {
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for subtraction.");
@@ -170,7 +170,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::hadamard_
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<typename execType>
-inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::hadamard_mul_copy(const Matrix& other, execType execPolicy) requires StdExecPolicy<execType>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::hadamard_mul_copy(const Matrix& other, execType execPolicy) const requires StdExecPolicy<execType>
 {
    if (this->_rows != other._rows || this->_cols != other._cols)
        throw std::invalid_argument("Matrix dimensions must agree for Hadamard multiplication.");
@@ -198,7 +198,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::hadamard_
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<typename execType>
-inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::hadamard_div_copy(const Matrix<T, RowMajor, Container>& other, execType execPolicy) requires StdExecPolicy<execType>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::hadamard_div_copy(const Matrix<T, RowMajor, Container>& other, execType execPolicy) const requires StdExecPolicy<execType>
 {
 	if (this->_rows != other._rows || this->_cols != other._cols)
 		throw std::invalid_argument("Matrix dimensions must agree for Hadamard division.");
@@ -233,7 +233,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::scalar_mu
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<bool use_blas, typename execType>
-inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::scalar_mul_copy(const T& scalar, execType execPolicy) requires StdExecPolicy<execType>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::scalar_mul_copy(const T& scalar, execType execPolicy) const requires StdExecPolicy<execType>
 {
 	Container result{};
 	if constexpr (requires (Container& c) { c.resize(std::size_t{}); }) {
@@ -262,7 +262,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::scalar_di
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<typename execType>
-inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::scalar_div_copy(const T& scalar, execType execPolicy) requires StdExecPolicy<execType>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::scalar_div_copy(const T& scalar, execType execPolicy) const requires StdExecPolicy<execType>
 {
 	if (scalar == T(0))
 		throw std::invalid_argument("Division by zero in scalar division.");
@@ -372,7 +372,7 @@ requires (!(RowMajor == false && OtherMajor == true))
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<bool use_blas, bool OtherMajor, typename OtherContainer>
-inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::matrix_mul_copy(const Matrix<T, OtherMajor, OtherContainer>& other)
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::matrix_mul_copy(const Matrix<T, OtherMajor, OtherContainer>& other) const
 requires (!(RowMajor == false && OtherMajor == true))
 {
 	if (this->cols() != other.rows()) {
