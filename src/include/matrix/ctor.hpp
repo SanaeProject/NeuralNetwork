@@ -35,17 +35,18 @@ inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, Containe
 
     const size_t expected = rows * cols;
 
-    // 共通チェック（vector でも array でも OK）
-    if (array.size() != expected) {
-        throw std::invalid_argument("Container size does not match matrix dimensions");
-    }
-
     if constexpr (is_std_array<Container>::value) {
-        // std::array はコピー（move してもコピー）
+        if (expected > std::tuple_size_v<Container>) {
+            throw std::invalid_argument("Matrix dimensions do not match std::array size");
+        }
+
         this->_data = array;
     }
     else {
-        // vector はムーブ可能
+        if (array.size() != expected) {
+            throw std::invalid_argument("Container size does not match matrix dimensions");
+        }
+        
         this->_data = std::move(array);
     }
 }

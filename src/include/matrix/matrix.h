@@ -204,9 +204,9 @@ public:
 
 	/**
 	* @brief 行列の転置を行います。
-	* @return 自身の参照
+	* @return 転置された新しい行列のコピー
 	*/
-	Matrix transpose_copy();
+	Matrix transpose_copy() const;
 	
 	/**
 	 * @brief 行列の各要素に関数を適用します。
@@ -234,7 +234,7 @@ public:
 	 * @return 新しい行列のコピー
 	 */
 	template<typename Func, typename ExecPolicy = std::execution::sequenced_policy>
-	Matrix apply_copy(Func func, ExecPolicy execPolicy = ExecPolicy{}) 
+	Matrix apply_copy(Func func, ExecPolicy execPolicy = ExecPolicy{}) const
 	requires
 		std::invocable<Func, T> &&
 		std::convertible_to<std::invoke_result_t<Func, T>, T> &&
@@ -402,7 +402,7 @@ public:
 	/**
 	 * @brief 他の行列との加算を行います。
 	 * @tparam use_blas BLASを使用するかどうか(デフォルトはfalse)
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param other 加算する行列
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 自身の参照
@@ -414,7 +414,7 @@ public:
 	/**
 	 * @brief 他の行列との加算を行います。
 	 * @tparam use_blas BLASを使用するかどうか(デフォルトはfalse)
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param other 加算する行列
 	* @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	* @return 新しい行列のコピー
@@ -426,7 +426,7 @@ public:
 	/**
 	 * @brief 他の行列との減算を行います。
 	 * @tparam use_blas BLASを使用するかどうか(デフォルトはfalse)
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param other 減算する行列
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 自身の参照
@@ -438,7 +438,7 @@ public:
 	/**
 	 * @brief 他の行列との減算を行います。
 	 * @tparam use_blas BLASを使用するかどうか(デフォルトはfalse)
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param other 減算する行列
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 新しい行列のコピー
@@ -449,7 +449,7 @@ public:
 
 	/**
 	 * @brief 他の行列とのアダマール積を行います。
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param other 乗算する行列
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 自身の参照

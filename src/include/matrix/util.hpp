@@ -130,7 +130,7 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose
 	return *this;
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
-inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::transpose_copy()
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::transpose_copy() const
 {
 	Container result{};
 	if constexpr (requires(Container& c) { c.resize(this->_data.size()); }) {
@@ -168,7 +168,7 @@ requires
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<typename Func, typename ExecPolicy>
-Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::apply_copy(Func func, ExecPolicy execPolicy) 
+Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::apply_copy(Func func, ExecPolicy execPolicy) const
 requires
     std::invocable<Func, T> &&
     std::convertible_to<std::invoke_result_t<Func, T>, T> &&

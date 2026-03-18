@@ -16,7 +16,7 @@ template<typename T, bool RowMajor, typename Container> requires VectorOrArray<C
 inline void matrix_mul_nonblas_impl(
 	size_t result_rows,
 	size_t result_cols,
-	const std::vector<View<T>>& this_rows,
+	const std::vector<View<const T>>& this_rows,
 	const std::vector<View<const T>>& other_cols,
 	Container& result_data)
 {
@@ -404,7 +404,7 @@ requires (!(RowMajor == false && OtherMajor == true))
 			OtherMajor
 		);
 	}else{
-		std::vector<View<T>> this_rows;
+		std::vector<View<const T>> this_rows;
 		std::vector<View<const T>> other_cols;
 
 		this_rows.reserve(result_rows);
