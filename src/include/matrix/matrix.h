@@ -318,6 +318,13 @@ public:
 	Matrix operator+(const Matrix& other) const;
 
 	/**
+	 * @brief 他の行列を加算します。
+	 * @param scalar 加算するスカラー
+	 * @return 新しい行列のコピー
+	 */
+	Matrix operator+(const T& scalar) const;
+
+	/**
 	 * @brief 他の行列を減算します。
 	 * @param other 減算する行列
 	 * @return 新しい行列のコピー
@@ -325,11 +332,25 @@ public:
 	Matrix operator-(const Matrix& other) const;
 
 	/**
+	 * @brief 他の行列を減算します。
+	 * @param scalar 減算するスカラー
+	 * @return 新しい行列のコピー
+	 */
+	Matrix operator-(const T& scalar) const;
+
+	/**
 	 * @brief 行列積を行います。
 	 * @param other 乗算する行列
 	 * @return 新しい行列のコピー
 	 */
 	Matrix operator*(const Matrix& other) const;
+
+	/**
+	 * @brief 行列積を行います。
+	 * @param scalar 乗算するスカラー
+	 * @return 新しい行列のコピー
+	 */
+	Matrix operator*(const T& scalar) const;
 
 	/**
 	 * @brief アダマール積を行います。
@@ -344,6 +365,13 @@ public:
 	 * @return 新しい行列のコピー
 	 */
 	Matrix operator/(const Matrix& other) const;
+
+	/**
+	 * @brief 行列の要素ごとの除算を行います。
+	 * @param scalar 除算するスカラー
+	 * @return 新しい行列のコピー
+	 */
+	Matrix operator/(const T& scalar) const;
 
 	/**
 	 * @brief 他の行列との等価比較を行います。(メモリレイアウトが異なる場合)
@@ -380,7 +408,7 @@ public:
 	 * @return 自身の参照
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
-	template<bool use_blas = false, typename execType = std::execution::parallel_unsequenced_policy>
+	template<bool use_blas = false, typename execType = std::execution::sequenced_policy>
 	Matrix& add(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
@@ -392,7 +420,7 @@ public:
 	* @return 新しい行列のコピー
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
-	template<bool use_blas = false, typename execType = std::execution::parallel_unsequenced_policy>
+	template<bool use_blas = false, typename execType = std::execution::sequenced_policy>
 	Matrix add_copy(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
@@ -404,7 +432,7 @@ public:
 	 * @return 自身の参照
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
-	template<bool use_blas = false, typename execType = std::execution::parallel_unsequenced_policy>
+	template<bool use_blas = false, typename execType = std::execution::sequenced_policy>
 	Matrix& sub(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
@@ -416,7 +444,7 @@ public:
 	 * @return 新しい行列のコピー
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
-	template<bool use_blas = false, typename execType = std::execution::parallel_unsequenced_policy>
+	template<bool use_blas = false, typename execType = std::execution::sequenced_policy>
 	Matrix sub_copy(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
@@ -427,84 +455,84 @@ public:
 	 * @return 自身の参照
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
-	template<typename execType = std::execution::parallel_unsequenced_policy>
+	template<typename execType = std::execution::sequenced_policy>
 	Matrix& hadamard_mul(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief 他の行列とのアダマール積を行います。
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param other 乗算する行列
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 新しい行列のコピー
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
-	template<typename execType = std::execution::parallel_unsequenced_policy>
+	template<typename execType = std::execution::sequenced_policy>
 	Matrix hadamard_mul_copy(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief スカラーとの乗算を行います。
 	 * @tparam use_blas BLASを使用するかどうか(デフォルトはfalse)
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param scalar 乗算するスカラー
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 自身の参照
 	 */
-	template<bool use_blas = false, typename execType = std::execution::parallel_unsequenced_policy>
+	template<bool use_blas = false, typename execType = std::execution::sequenced_policy>
 	Matrix& scalar_mul(const T& scalar, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief スカラーとの乗算を行います。
 	 * @tparam use_blas BLASを使用するかどうか(デフォルトはfalse)
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param scalar 乗算するスカラー
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 新しい行列のコピー
 	 */
-	template<bool use_blas = false, typename execType = std::execution::parallel_unsequenced_policy>
+	template<bool use_blas = false, typename execType = std::execution::sequenced_policy>
 	Matrix scalar_mul_copy(const T& scalar, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief 他の行列とのアダマール除算を行います。
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param other 除算する行列
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 自身の参照
 	 * @throws std::invalid_argument 行列の次元が一致しない場合、またはゼロ除算が発生した場合
 	 */
-	template<typename execType = std::execution::parallel_unsequenced_policy>
+	template<typename execType = std::execution::sequenced_policy>
 	Matrix& hadamard_div(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief 他の行列とのアダマール除算を行います。
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param other 除算する行列
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 新しい行列のコピー
 	 * @throws std::invalid_argument 行列の次元が一致しない場合、またはゼロ除算が発生した場合
 	 */
-	template<typename execType = std::execution::parallel_unsequenced_policy>
+	template<typename execType = std::execution::sequenced_policy>
 	Matrix hadamard_div_copy(const Matrix& other, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief スカラーとの除算を行います。
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param scalar 除算するスカラー
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 自身の参照
 	 * @throws std::invalid_argument ゼロ除算が発生した場合
 	 */
-	template<typename execType = std::execution::parallel_unsequenced_policy>
+	template<typename execType = std::execution::sequenced_policy>
 	Matrix& scalar_div(const T& scalar, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief スカラーとの除算を行います。
-	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::parallel_unsequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
+	 * @tparam execType 実行ポリシー(parallel_policy,parallel_unsequenced_policy,sequenced_policyから選択可能)デフォルトはstd::execution::sequenced_policy。StdExecPolicyコンセプトを満たす必要があります。
 	 * @param scalar 除算するスカラー
 	 * @param execPolicy 実行ポリシー(デフォルトはexecPolicy())
 	 * @return 新しい行列のコピー
 	 * @throws std::invalid_argument ゼロ除算が発生した場合
 	 */
-	template<typename execType = std::execution::parallel_unsequenced_policy>
+	template<typename execType = std::execution::sequenced_policy>
 	Matrix scalar_div_copy(const T& scalar, execType execPolicy = execType()) requires StdExecPolicy<execType>;
 
 	/**
