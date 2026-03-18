@@ -11,6 +11,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <tuple>
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline void matrix_mul_nonblas_impl(
@@ -384,6 +385,10 @@ requires (!(RowMajor == false && OtherMajor == true))
 
 	Container result_data;
 	if constexpr (is_std_array<Container>::value) {
+		const size_t total_elements = result_rows * result_cols;
+		if (total_elements > std::tuple_size_v<Container>) {
+			throw std::invalid_argument("Result matrix size exceeds std::array capacity.");
+		}
 		result_data = Container();
 	}else
 	{
