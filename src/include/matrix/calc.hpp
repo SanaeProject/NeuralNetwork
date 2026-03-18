@@ -267,7 +267,10 @@ inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::scalar_div
 	if (scalar == T(0))
 		throw std::invalid_argument("Division by zero in scalar division.");
 
-	Container result(this->_data.size());
+	Container result{};
+	if constexpr (requires (Container& c) { c.resize(std::size_t{}); }) {
+		result.resize(this->_data.size());
+	}
 	std::copy(this->_data.begin(), this->_data.end(), result.begin());
 	this->_calc(result, scalar, execPolicy, std::divides<T>());
 	return Matrix<T, RowMajor, Container>(this->_rows, this->_cols, std::move(result));
