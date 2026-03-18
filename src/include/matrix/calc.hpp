@@ -175,8 +175,7 @@ inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::hadamard_m
    if (this->_rows != other._rows || this->_cols != other._cols)
        throw std::invalid_argument("Matrix dimensions must agree for Hadamard multiplication.");
 
-   Container result(this->_data.size());
-   std::copy(this->_data.begin(), this->_data.end(), result.begin());
+   Container result(this->_data);
    this->_calc(result, other._data, execPolicy, std::multiplies<T>());
    return Matrix<T, RowMajor, Container>(this->_rows, this->_cols, std::move(result));
 }
