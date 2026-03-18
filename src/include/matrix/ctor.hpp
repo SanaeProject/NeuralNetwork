@@ -26,6 +26,29 @@ inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols)
         this->_data = Container(this->_rows * this->_cols);
     }
 }
+template<typename T, bool RowMajor, typename Container>
+requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, Container array)
+{
+    this->_rows = rows;
+    this->_cols = cols;
+
+    const size_t expected = rows * cols;
+
+    // 共通チェック（vector でも array でも OK）
+    if (array.size() != expected) {
+        throw std::invalid_argument("Container size does not match matrix dimensions");
+    }
+
+    if constexpr (is_std_array<Container>::value) {
+        // std::array はコピー（move してもコピー）
+        this->_data = array;
+    }
+    else {
+        // vector はムーブ可能
+        this->_data = std::move(array);
+    }
+}
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<typename InitFunc, typename ExecPolicy>
 inline Matrix<T, RowMajor, Container>::Matrix(size_t rows, size_t cols, InitFunc func, ExecPolicy execPolicy) 
