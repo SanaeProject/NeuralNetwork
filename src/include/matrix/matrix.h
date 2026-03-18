@@ -526,7 +526,7 @@ public:
 	 * @tparam OtherMajor 他の行列のメモリレイアウト
 	 * @tparam MCheck RowMajorがfalseかつOtherMajorがtrueである場合にコンパイルエラーとする(効率が非常に悪いため)
 	 * @param other 乗算する行列
-	 * @return 自身の参照
+	 * @return 新しい行列のコピー
 	 * @throws std::invalid_argument 行列の次元が一致しない場合
 	 */
 	template<bool use_blas = false, bool OtherMajor, typename OtherContainer>
