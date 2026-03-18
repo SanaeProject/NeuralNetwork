@@ -103,7 +103,10 @@ inline bool Matrix<T, RowMajor, Container>::is_blas_enabled() const
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose()
 {
-	Container result(this->_data.size());
+	Container result{};
+	if constexpr (requires(Container& c) { c.resize(this->_data.size()); }) {
+		result.resize(this->_data.size());
+	}
 	const size_t rows = this->rows();
 	const size_t cols = this->cols();
 
@@ -129,7 +132,10 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::transpose_copy()
 {
-	Container result(this->_data.size());
+	Container result{};
+	if constexpr (requires(Container& c) { c.resize(this->_data.size()); }) {
+		result.resize(this->_data.size());
+	}
 	const size_t rows = this->rows();
 	const size_t cols = this->cols();
 
@@ -168,7 +174,10 @@ requires
     std::convertible_to<std::invoke_result_t<Func, T>, T> &&
     StdExecPolicy<ExecPolicy>
 {
-	Container result(this->_data.size());
+	Container result{};
+	if constexpr (requires(Container& c) { c.resize(this->_data.size()); }) {
+		result.resize(this->_data.size());
+	}
 	std::transform(execPolicy, this->_data.begin(), this->_data.end(), result.begin(), func);
 	return Matrix<T, RowMajor, Container>(this->rows(), this->cols(), std::move(result))	;
 }
