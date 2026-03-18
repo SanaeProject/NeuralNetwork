@@ -4,6 +4,7 @@
 #include "matrix.h"  
 #include <iosfwd>
 #include <ostream>
+#include <stdexcept>
 
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline T& Matrix<T, RowMajor, Container>::operator()(size_t row, size_t col)
