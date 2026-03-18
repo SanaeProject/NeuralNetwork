@@ -179,7 +179,7 @@ requires
 		result.resize(this->_data.size());
 	}
 	std::transform(execPolicy, this->_data.begin(), this->_data.end(), result.begin(), func);
-	return Matrix<T, RowMajor, Container>(this->rows(), this->cols(), std::move(result))	;
+	return Matrix<T, RowMajor, Container>(this->rows(), this->cols(), std::move(result));
 }
 
 #endif // SANAE_NEURALNETWORK_MATRIX_UTIL
