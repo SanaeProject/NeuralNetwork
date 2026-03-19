@@ -103,7 +103,10 @@ inline bool Matrix<T, RowMajor, Container>::is_blas_enabled() const
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose()
 {
-	Container result(this->_data.size());
+	Container result{};
+	if constexpr (requires(Container& c) { c.resize(this->_data.size()); }) {
+		result.resize(this->_data.size());
+	}
 	const size_t rows = this->rows();
 	const size_t cols = this->cols();
 
@@ -127,6 +130,32 @@ inline Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::transpose
 	return *this;
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::transpose_copy() const
+{
+	Container result{};
+	if constexpr (requires(Container& c) { c.resize(this->_data.size()); }) {
+		result.resize(this->_data.size());
+	}
+	const size_t rows = this->rows();
+	const size_t cols = this->cols();
+
+	for (size_t i = 0; i < rows; i++) {
+		const size_t offset = i * cols;
+		for (size_t j = 0; j < cols; j++) {
+			if constexpr (RowMajor) {
+				// 転置: before[i,j] → after[j,i] (同じ行優先レイアウト)
+				result[j * rows + i] = this->_data[offset + j];
+			}
+			else {
+				// 転置: before[i,j] → after[j,i] (同じ列優先レイアウト)
+				result[offset + j] = this->_data[j * rows + i];
+			}
+		}
+	}
+
+	return Matrix<T, RowMajor, Container>(cols, rows, std::move(result));
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<typename Func, typename ExecPolicy>
 Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::apply(Func func, ExecPolicy execPolicy) 
 requires
@@ -136,6 +165,21 @@ requires
 {
 	std::transform(execPolicy, this->_data.begin(), this->_data.end(), this->_data.begin(), func);
 	return *this;
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<typename Func, typename ExecPolicy>
+Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::apply_copy(Func func, ExecPolicy execPolicy) const
+requires
+    std::invocable<Func, T> &&
+    std::convertible_to<std::invoke_result_t<Func, T>, T> &&
+    StdExecPolicy<ExecPolicy>
+{
+	Container result{};
+	if constexpr (requires(Container& c) { c.resize(this->_data.size()); }) {
+		result.resize(this->_data.size());
+	}
+	std::transform(execPolicy, this->_data.begin(), this->_data.end(), result.begin(), func);
+	return Matrix<T, RowMajor, Container>(this->rows(), this->cols(), std::move(result));
 }
 
 #endif // SANAE_NEURALNETWORK_MATRIX_UTIL
