@@ -112,8 +112,8 @@ public:
             // update = scale ⊙ dw * η
             Matrix<ty> updateW = scale.hadamard_mul_copy(dw, execPolicy{}).template scalar_mul<use_blas>(this->_learning_rate, execPolicy{});
 
-            // B更新
-            // b = b - update
+            // W更新
+            // w = w - update
             this->_w = this->_w - updateW;
 
             // hb = hb + db ⊙ db
