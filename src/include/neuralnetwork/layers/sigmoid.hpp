@@ -47,7 +47,7 @@ public:
             Matrix<ty> dx = this->_out;
             dx.apply([](ty y) { return y * (static_cast<ty>(1) - y); }, ExecPolicy{});
             // dx: out ⊙ (1 - out) に dout を要素ごとに掛ける
-            dx = dx.hadamard_mul(dout, ExecPolicy{});
+            dx.hadamard_mul(dout, ExecPolicy{});
             return dx;
         }
         catch(const std::exception& e){
