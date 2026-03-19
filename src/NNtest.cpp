@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 
 #include "./include/neuralnetwork/layers/affine.hpp"
 #include "./include/neuralnetwork/layers/relu.hpp"
@@ -39,8 +40,8 @@ void run_layertest() {
     };
 
     for(int i = 0; i < 2000; i++) {
-        bool d1 = rand() % 2;
-        bool d2 = rand() % 2;
+        bool d1 = std::rand() % 2;
+        bool d2 = std::rand() % 2;
         bool label = d1 ^ d2;
 
         Matrix<float> x({{(float)d1, (float)d2}});
@@ -53,8 +54,8 @@ void run_layertest() {
     }
 
     for(int i = 0; i < 10; i++) {
-        bool d1 = rand() % 2;
-        bool d2 = rand() % 2;
+        bool d1 = std::rand() % 2;
+        bool d2 = std::rand() % 2;
         bool label = d1 ^ d2;
 
         Matrix<float> prediction = predict(Matrix<float>({{(float)d1, (float)d2}}));
