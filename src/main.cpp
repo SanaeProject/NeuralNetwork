@@ -1,6 +1,7 @@
-void nntest();
-
+void run_matrix_tests();
+void run_layertest();
 int main() {
-    nntest();
+    run_matrix_tests();
+    run_layertest();
     return 0;
 }

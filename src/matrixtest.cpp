@@ -1,7 +1,6 @@
 #include "include/matrix/matrix"
 #include "matrixperformance.hpp"
 #include <iostream>
-#include "include/layers/affine.hpp"
 
 void run_matrix_tests() {
 #ifdef USE_OPENBLAS

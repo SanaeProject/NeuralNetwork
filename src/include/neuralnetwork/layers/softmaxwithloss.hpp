@@ -7,7 +7,7 @@
 #include <math.h>
 #include <iostream>
 #include "layerbase.hpp"
-#include "../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
+#include "../../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
 
 // ソフトマックス with ロスレイヤー
 template<typename ty, typename ExecPolicy = std::execution::parallel_unsequenced_policy>

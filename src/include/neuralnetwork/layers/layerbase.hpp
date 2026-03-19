@@ -1,7 +1,7 @@
 #ifndef NEURALNETWORK_LAYERBASE_HPP
 #define NEURALNETWORK_LAYERBASE_HPP
 
-#include "../matrix/matrix"
+#include "../../matrix/matrix"
 
 // ベースレイヤー
 template<typename ty>

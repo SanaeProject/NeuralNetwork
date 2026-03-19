@@ -1,22 +1,20 @@
 #include <iostream>
-#include "include/matrix/matrix"
+#include <cstdlib>
 
-#include "include/layers/affine.hpp"
-#include "include/layers/relu.hpp"
-#include "include/layers/sigmoid.hpp"
-#include "include/layers/softmaxwithloss.hpp"
+#include "./include/neuralnetwork/layers/affine.hpp"
+#include "./include/neuralnetwork/layers/relu.hpp"
+#include "./include/neuralnetwork/layers/softmaxwithloss.hpp"
+#include "./include/neuralnetwork/layers/optimizer.hpp"
 
-void nntest() {
-    Affine<float> affine1(2, 4);
+void run_layertest() {
+    float learning_rate = 0.01f;
+    Affine<float,false, Adam<float>> affine1(2, 4, learning_rate);
     ReLU<float> relu1;
 
-    Affine<float> affine2(4, 2);
+    Affine<float,false, Adam<float>> affine2(4, 2, learning_rate);
     ReLU<float> relu2;
 
     SoftmaxWithLoss<float> softmaxwithloss;
-
-    affine1.learning_rate = 0.3f;
-    affine2.learning_rate = 0.3f;
 
     auto learn = [&](const Matrix<float>& x, const Matrix<float>& t) {
         auto out1 = affine1.forward(x);
@@ -42,8 +40,8 @@ void nntest() {
     };
 
     for(int i = 0; i < 2000; i++) {
-        bool d1 = rand() % 2;
-        bool d2 = rand() % 2;
+        bool d1 = std::rand() % 2;
+        bool d2 = std::rand() % 2;
         bool label = d1 ^ d2;
 
         Matrix<float> x({{(float)d1, (float)d2}});
@@ -56,8 +54,8 @@ void nntest() {
     }
 
     for(int i = 0; i < 10; i++) {
-        bool d1 = rand() % 2;
-        bool d2 = rand() % 2;
+        bool d1 = std::rand() % 2;
+        bool d2 = std::rand() % 2;
         bool label = d1 ^ d2;
 
         Matrix<float> prediction = predict(Matrix<float>({{(float)d1, (float)d2}}));

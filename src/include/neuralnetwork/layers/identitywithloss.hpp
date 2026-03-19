@@ -6,7 +6,7 @@
 #include <math.h>
 #include <iostream>
 #include "layerbase.hpp"
-#include "../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
+#include "../../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
 
 // 恒等函数 with ロスレイヤー
 template<typename ty, typename ExecPolicy = std::execution::parallel_unsequenced_policy>
