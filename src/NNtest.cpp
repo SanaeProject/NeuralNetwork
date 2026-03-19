@@ -6,10 +6,11 @@
 #include "./include/neuralnetwork/layers/optimizer.hpp"
 
 void run_layertest() {
-    Affine<float,false, SGD<float>> affine1(2, 4, 0.3f);
+    float learning_rate = 0.01f;
+    Affine<float,false, Adam<float>> affine1(2, 4, learning_rate);
     ReLU<float> relu1;
 
-    Affine<float,false, SGD<float>> affine2(4, 2, 0.3f);
+    Affine<float,false, Adam<float>> affine2(4, 2, learning_rate);
     ReLU<float> relu2;
 
     SoftmaxWithLoss<float> softmaxwithloss;

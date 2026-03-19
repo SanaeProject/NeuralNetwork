@@ -51,7 +51,7 @@ public:
         }
     } 
 };
-template<typename ty, ty momentum = 0.9f, typename execPolicy = std::execution::sequenced_policy, bool use_blas = true>
+template<typename ty, typename execPolicy = std::execution::sequenced_policy, bool use_blas = true>
 class Momentum: public Optimizer<ty> {
 private:
     Matrix<ty>& _w;
@@ -59,6 +59,8 @@ private:
 
     Matrix<ty> _vW;
     Matrix<ty> _vB;
+
+    ty _momentum = 0.9f;
 
 public:
     Momentum(Matrix<ty>& w, Matrix<ty>& b, ty learning_rate = 0.01f)
@@ -68,13 +70,17 @@ public:
           Optimizer<ty>(learning_rate)
     {}
 
+    void set_momentum(ty momentum) {
+        this->_momentum = momentum;
+    }
+
     inline void optimize(Matrix<ty>& dw, Matrix<ty>& db) override {
         // vW = momentum * vW - lr * dW
-        _vW = _vW.template scalar_mul_copy<use_blas>(momentum, execPolicy{}) - dw.template scalar_mul_copy<use_blas>(this->_learning_rate, execPolicy{});
+        _vW = _vW.template scalar_mul_copy<use_blas>(this->_momentum, execPolicy{}) - dw.template scalar_mul_copy<use_blas>(this->_learning_rate, execPolicy{});
         _w  = _w + _vW;
 
         // vB = momentum * vB - lr * dB
-        _vB = _vB.template scalar_mul_copy<use_blas>(momentum, execPolicy{}) - db.template scalar_mul_copy<use_blas>(this->_learning_rate, execPolicy{});
+        _vB = _vB.template scalar_mul_copy<use_blas>(this->_momentum, execPolicy{}) - db.template scalar_mul_copy<use_blas>(this->_learning_rate, execPolicy{});
         _b  = _b + _vB;
     }
 };
@@ -127,7 +133,7 @@ public:
         }
     }
 };
-template<typename ty, ty momentum = 0.9f, ty rms = 0.999f, typename execPolicy = std::execution::sequenced_policy, bool use_blas = true>
+template<typename ty, typename execPolicy = std::execution::sequenced_policy, bool use_blas = true>
 requires StdExecPolicy<execPolicy>
 class Adam : public Optimizer<ty>{
 private:
@@ -137,6 +143,8 @@ private:
     Matrix<ty>& _b;
     Matrix<ty> _bm, _bv;
 
+    ty _momentum = 0.9f;
+    ty _rms = 0.999f;
     size_t _time = 0;
 
 public:
@@ -151,6 +159,13 @@ public:
           Optimizer<ty>(learning_rate)
         {}
 
+    void set_momentum(ty momentum) {
+        this->_momentum = momentum;
+    }
+    void set_rms(ty rms) {
+        this->_rms = rms;
+    }
+
     inline void optimize(Matrix<ty>& dw, Matrix<ty>& db) override {
         try{
             this->_time += 1;
@@ -159,10 +174,10 @@ public:
             // m = β1*m + (1-β1)*dw
             {
                 Matrix<ty> tmp_m = this->_wm;
-                tmp_m.template scalar_mul<use_blas>(momentum, execPolicy{}); // β1*m
+                tmp_m.template scalar_mul<use_blas>(this->_momentum, execPolicy{}); // β1*m
 
                 Matrix<ty> tmp_dw = dw;
-                tmp_dw.template scalar_mul<use_blas>((1 - momentum), execPolicy{}); // (1-β1)*dw
+                tmp_dw.template scalar_mul<use_blas>((1 - this->_momentum), execPolicy{}); // (1-β1)*dw
 
                 this->_wm = tmp_m + tmp_dw;
             }
@@ -170,22 +185,22 @@ public:
             // v = β2*v + (1-β2)*(dw ⊙ dw)
             {
                 Matrix<ty> tmp_v = this->_wv;
-                tmp_v.template scalar_mul<use_blas>(rms, execPolicy{}); // β2*v
+                tmp_v.template scalar_mul<use_blas>(this->_rms, execPolicy{}); // β2*v
 
                 Matrix<ty> dw_sq = dw;                          // copy
                 dw_sq.hadamard_mul(dw, execPolicy{});           // dw ⊙ dw
-                dw_sq.template scalar_mul<use_blas>((1 - rms), execPolicy{}); // (1-β2)*(dw^2)
+                dw_sq.template scalar_mul<use_blas>((1 - this->_rms), execPolicy{}); // (1-β2)*(dw^2)
 
                 this->_wv = tmp_v + dw_sq;
             }
 
             // m_hat = m / (1 - β1^t)
             Matrix<ty> m_hat = _wm;
-            m_hat.template scalar_mul<use_blas>(1.0 / (1 - std::pow(momentum, this->_time)), execPolicy{});
+            m_hat.template scalar_mul<use_blas>(1.0 / (1 - std::pow(this->_momentum, this->_time)), execPolicy{});
 
             // v_hat = v / (1 - β2^t)
             Matrix<ty> v_hat = _wv;
-            v_hat.template scalar_mul<use_blas>(1.0 / (1 - std::pow(rms, this->_time)), execPolicy{});
+            v_hat.template scalar_mul<use_blas>(1.0 / (1 - std::pow(this->_rms, this->_time)), execPolicy{});
 
             // update = m_hat / (sqrt(v_hat) + ε)
             Matrix<ty> updateW = m_hat;
@@ -206,10 +221,10 @@ public:
             // m = β1*m + (1-β1)*db
             {
                 Matrix<ty> tmp_m = this->_bm;
-                tmp_m.template scalar_mul<use_blas>(momentum, execPolicy{}); // β1*m
+                tmp_m.template scalar_mul<use_blas>(this->_momentum, execPolicy{}); // β1*m
 
                 Matrix<ty> tmp_db = db;
-                tmp_db.template scalar_mul<use_blas>((1 - momentum), execPolicy{}); // (1-β1)*db
+                tmp_db.template scalar_mul<use_blas>((1 - this->_momentum), execPolicy{}); // (1-β1)*db
 
                 this->_bm = tmp_m + tmp_db;
             }
@@ -217,22 +232,22 @@ public:
             // v = β2*v + (1-β2)*(db ⊙ db)
             {
                 Matrix<ty> tmp_v = this->_bv;
-                tmp_v.template scalar_mul<use_blas>(rms, execPolicy{}); // β2*v
+                tmp_v.template scalar_mul<use_blas>(this->_rms, execPolicy{}); // β2*v
 
                 Matrix<ty> db_sq = db;                          // copy
                 db_sq.hadamard_mul(db, execPolicy{});           // db ⊙ db
-                db_sq.template scalar_mul<use_blas>((1 - rms), execPolicy{}); // (1-β2)*(db^2)
+                db_sq.template scalar_mul<use_blas>((1 - this->_rms), execPolicy{}); // (1-β2)*(db^2)
 
                 this->_bv = tmp_v + db_sq;
             }
 
             // m_hat = m / (1 - β1^t)
             Matrix<ty> m_hat_b = _bm;
-            m_hat_b.template scalar_mul<use_blas>(1.0 / (1 - std::pow(momentum, this->_time)), execPolicy{});
+            m_hat_b.template scalar_mul<use_blas>(1.0 / (1 - std::pow(this->_momentum, this->_time)), execPolicy{});
 
             // v_hat = v / (1 - β2^t)
             Matrix<ty> v_hat_b = _bv;
-            v_hat_b.template scalar_mul<use_blas>(1.0 / (1 - std::pow(rms, this->_time)), execPolicy{});
+            v_hat_b.template scalar_mul<use_blas>(1.0 / (1 - std::pow(this->_rms, this->_time)), execPolicy{});
 
             // update = m_hat / (sqrt(v_hat) + ε)
             Matrix<ty> updateB = m_hat_b;
