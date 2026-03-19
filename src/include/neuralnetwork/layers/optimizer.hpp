@@ -203,8 +203,7 @@ public:
             v_hat.template scalar_mul<use_blas>(1.0 / (1 - std::pow(this->_rms, this->_time)), execPolicy{});
 
             // update = m_hat / (sqrt(v_hat) + ε)
-            Matrix<ty> updateW = m_hat;
-            updateW.apply([this](ty x){ return x; }, execPolicy{}); // no-op, just clarity
+            Matrix<ty> updateW = m_hat; // start from m_hat; will be scaled by 1 / (sqrt(v_hat) + ε)
 
             // divide by sqrt(v_hat) + ε
             {
