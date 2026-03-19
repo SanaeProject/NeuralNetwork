@@ -46,7 +46,7 @@ public:
             this->_b = this->_b - db.template scalar_mul_copy<use_blas>(this->_learning_rate, execPolicy{}); // b1 = b0 - dL/db = b0 - dout * η
         }
         catch(const std::exception& e){
-            std::cerr << "Error in Affine backward: " << e.what() << std::endl;
+            std::cerr << "Error in SGD::optimize: " << e.what() << std::endl;
             throw;
         }
     } 
