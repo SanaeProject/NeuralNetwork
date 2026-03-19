@@ -262,7 +262,7 @@ public:
             _b.template sub<use_blas>(updateB, execPolicy{});
         }
         catch(const std::exception& e){
-            std::cerr << "Error in Affine backward: " << e.what() << std::endl;
+            std::cerr << "Error in Adam::optimize: " << e.what() << std::endl;
             throw;
         }
     } 
