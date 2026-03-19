@@ -67,7 +67,7 @@ public:
         try{
             Matrix<ty> dx = this->_in;
             dx.apply([this](ty y) { return this->_gelu_grad(y); }, ExecPolicy{});
-            dx = dx.hadamard_mul(dout, ExecPolicy{});
+            dx.hadamard_mul(dout, ExecPolicy{});
             return dx;
         }
         catch(const std::exception& e){
