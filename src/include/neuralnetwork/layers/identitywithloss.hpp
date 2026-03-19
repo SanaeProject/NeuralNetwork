@@ -53,7 +53,7 @@ public:
     double loss(const Matrix<ty>& t) {
         try{
             ty sum = 0;
-            for (size_t i = 0; i < _out.size(); i++)
+            for (size_t i = 0; i < _out.data().size(); i++)
                 sum += std::pow(_out.data()[i] - t.data()[i], 2);
             return sum/2;
         }
