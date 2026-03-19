@@ -9,7 +9,16 @@
 
 template<typename ty>
 class Optimizer {
+protected:
+    ty _learning_rate = 0.01f;
 public:
+    Optimizer(ty lr = 0.01f) {
+        this->_learning_rate = lr;
+    }
+    void set_learning_rate(ty lr) {
+        this->_learning_rate = lr;
+    }
+
     virtual ~Optimizer() = default;
     virtual void optimize(Matrix<ty>&, Matrix<ty>&) = 0;
 };
@@ -23,19 +32,18 @@ class SGD : public Optimizer<ty>{
 private:
     Matrix<ty>& _w;
     Matrix<ty>& _b;
-    ty _learning_rate;
 
 public:
-    SGD(Matrix<ty>& w, Matrix<ty>& b, ty learning_rate)
+    SGD(Matrix<ty>& w, Matrix<ty>& b, ty learning_rate = 0.01f)
         : _w(w), _b(b), 
-          _learning_rate(learning_rate)
+          Optimizer<ty>(learning_rate)
     {}
 
     inline void optimize(Matrix<ty>& dw, Matrix<ty>& db) override {
         try{
             // パラメータの更新
-            this->_w = this->_w - dw.template scalar_mul_copy<use_blas>(_learning_rate, execPolicy{}); // w1 = w0 - dL/dw = w0 - in^T * dout * η
-            this->_b = this->_b - db.template scalar_mul_copy<use_blas>(_learning_rate, execPolicy{}); // b1 = b0 - dL/db = b0 - dout * η
+            this->_w = this->_w - dw.template scalar_mul_copy<use_blas>(this->_learning_rate, execPolicy{}); // w1 = w0 - dL/dw = w0 - in^T * dout * η
+            this->_b = this->_b - db.template scalar_mul_copy<use_blas>(this->_learning_rate, execPolicy{}); // b1 = b0 - dL/db = b0 - dout * η
         }
         catch(const std::exception& e){
             std::cerr << "Error in Affine backward: " << e.what() << std::endl;
@@ -52,22 +60,21 @@ private:
     Matrix<ty> _vW;
     Matrix<ty> _vB;
 
-    ty _learning_rate;
 public:
-    Momentum(Matrix<ty>& w, Matrix<ty>& b, ty learning_rate)
+    Momentum(Matrix<ty>& w, Matrix<ty>& b, ty learning_rate = 0.01f)
         : _w(w), _b(b),
           _vW(w.rows(), w.cols(), [](){return 0;}),
           _vB(b.rows(), b.cols(), [](){return 0;}),
-          _learning_rate(learning_rate)
+          Optimizer<ty>(learning_rate)
     {}
 
     inline void optimize(Matrix<ty>& dw, Matrix<ty>& db) override {
         // vW = momentum * vW - lr * dW
-        _vW = _vW.template scalar_mul_copy<use_blas>(momentum, execPolicy{}) - dw.template scalar_mul_copy<use_blas>(_learning_rate, execPolicy{});
+        _vW = _vW.template scalar_mul_copy<use_blas>(momentum, execPolicy{}) - dw.template scalar_mul_copy<use_blas>(this->_learning_rate, execPolicy{});
         _w  = _w + _vW;
 
         // vB = momentum * vB - lr * dB
-        _vB = _vB.template scalar_mul_copy<use_blas>(momentum, execPolicy{}) - db.template scalar_mul_copy<use_blas>(_learning_rate, execPolicy{});
+        _vB = _vB.template scalar_mul_copy<use_blas>(momentum, execPolicy{}) - db.template scalar_mul_copy<use_blas>(this->_learning_rate, execPolicy{});
         _b  = _b + _vB;
     }
 };
@@ -78,14 +85,13 @@ private:
     Matrix<ty>& _b;
     Matrix<ty> _hw;
     Matrix<ty> _hb;
-    ty _learning_rate;
 
 public:
-    AdaGrad(Matrix<ty>& w, Matrix<ty>& b, ty learning_rate)
+    AdaGrad(Matrix<ty>& w, Matrix<ty>& b, ty learning_rate = 0.01f)
         : _w(w), _b(b), 
           _hw(w.rows(), w.cols(), [](){ return 0;}),
           _hb(b.rows(), b.cols(), [](){ return 0;}),
-          _learning_rate(learning_rate)
+          Optimizer<ty>(learning_rate)
     {}
 
     inline void optimize(Matrix<ty>& dw, Matrix<ty>& db) override {
@@ -131,11 +137,10 @@ private:
     Matrix<ty>& _b;
     Matrix<ty> _bm, _bv;
 
-    ty _learning_rate;
     size_t _time = 0;
 
 public:
-    Adam(Matrix<ty>& w, Matrix<ty>& b, ty learning_rate)
+    Adam(Matrix<ty>& w, Matrix<ty>& b, ty learning_rate = 0.01f)
         : _w(w), _b(b), 
 
           _wm(w.rows(),w.cols(),[](){ return 0;}),
@@ -143,7 +148,7 @@ public:
 
           _bm(b.rows(),b.cols(),[](){ return 0;}),
           _bv(b.rows(),b.cols(),[](){ return 0;}),
-          _learning_rate(learning_rate)
+          Optimizer<ty>(learning_rate)
         {}
 
     inline void optimize(Matrix<ty>& dw, Matrix<ty>& db) override {
@@ -193,7 +198,7 @@ public:
                 updateW.hadamard_mul(denom, execPolicy{});
             }
 
-            updateW.template scalar_mul<use_blas>(_learning_rate, execPolicy{});
+            updateW.template scalar_mul<use_blas>(this->_learning_rate, execPolicy{});
             _w.template sub<use_blas>(updateW, execPolicy{});
 
             // ---- B ----

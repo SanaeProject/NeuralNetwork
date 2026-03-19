@@ -10,26 +10,37 @@
 #include <random>
 
 // affine layer wx+in
-template<typename ty, ty learning_rate = 0.001f, bool use_blas = true, typename OptimizerType = SGD<ty>>
+template<typename ty, bool use_blas = true, typename OptimizerType = SGD<ty>>
 requires DerivedOptimizer<OptimizerType, ty>
 class Affine : public LayerBase<ty> {
 private:
     Matrix<ty> _in; // 入力の保存用
     Matrix<ty> _w;
     Matrix<ty> _b;
+    ty _learning_rate = 0.01f;
 
 public:
     OptimizerType optimizer;
 
     /**
+     * 学習率を設定する
+     * @param lr 学習率
+     */
+    void set_learning_rate(ty lr) {
+        this->_learning_rate = lr;
+        optimizer.set_learning_rate(lr);
+    }
+
+    /**
      * コンストラクタ
      * @param input_size 入力の次元数
      * @param output_size 出力の次元数
+     * @param lr 学習率
      * @param seed 乱数生成器のシード
      */
-    Affine(size_t input_size, size_t output_size, uint32_t seed = std::random_device{}())
+    Affine(size_t input_size, size_t output_size, ty lr = 0.01f, uint32_t seed = std::random_device{}())
         : _w(input_size, output_size), _b(1, output_size),
-          optimizer(_w, _b, learning_rate) 
+          optimizer(_w, _b, lr)
     {
         std::default_random_engine engine(seed);
         std::uniform_real_distribution<ty> dist(0, (1.0 / std::sqrt(input_size))); // Xavier初期化の範囲
