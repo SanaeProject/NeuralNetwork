@@ -208,6 +208,22 @@ public:
 	View<const T> get_col(size_t col) const;
 
 	/**
+	 * @brief 指定された行の定数ポインタを取得します。
+	 * @param row 取得する行のインデックス
+	 * @return 指定された行のポインタ
+	 * @note この関数は行優先レイアウトの場合にのみ有効で、列優先レイアウトの場合はコンパイルエラーになります。
+	 */
+	const T* get_row_ptr(size_t row) const requires RowMajor;
+
+	/**
+	 * @brief 指定された列の定数ポインタを取得します。
+	 * @param col 取得する列のインデックス
+	 * @return 指定された列のポインタ
+	 * @note この関数は列優先レイアウトの場合にのみ有効で、行優先レイアウトの場合はコンパイルエラーになります。
+	 */
+	const T* get_col_ptr(size_t col) const requires (!RowMajor);
+
+	/**
 	 * @brief BLASのGEMMを使用するかどうかを判定します。
 	 * @return 使用する場合はtrue、使用しない場合はfalse
 	 */
@@ -264,6 +280,7 @@ public:
 	 * @param operation 各要素に適用する関数 (a,b) -> a operation b の形で呼び出せる関数オブジェクトで、返り値がT型に変換可能である必要があります)
 	 * @param execPolicy 実行ポリシー。既定では逐次実行（sequenced）になり、並列ポリシーを指定した場合は
 	 *                   関数operationがスレッドセーフであり、要素の処理順序に依存しないことが要求されます。
+	 * @note 行優先の場合はExecPolicyが反映されますが、列優先の場合は逐次実行になります。
 	 * @return 自身の参照
 	 */
 	template<typename CalcType, typename ExecPolicy = std::execution::sequenced_policy>
@@ -280,6 +297,7 @@ public:
 	 * @param operation 各要素に適用する関数
 	 * @param execPolicy 実行ポリシー。既定では逐次実行（sequenced）になり、並列ポリシーを指定した場合は
 	 *                   関数operationがスレッドセーフであり、要素の処理順序に依存しないことが要求されます。
+	 * @note 行優先の場合はExecPolicyが反映されますが、列優先の場合は逐次実行になります。
 	 * @return 新しい行列のコピー
 	 */
 	template<typename CalcType, typename ExecPolicy = std::execution::sequenced_policy>

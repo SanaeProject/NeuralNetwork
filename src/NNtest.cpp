@@ -1,3 +1,4 @@
+#include <execution>
 #include <iostream>
 #include <cstdlib>
 
@@ -8,12 +9,12 @@
 
 void run_layertest() {
     float learning_rate = 0.3f;
-    uint32_t batch_size = 100;
+    uint32_t batch_size = 40;
 
-    Affine<float, true, SGD<float>> affine1(2, 4, learning_rate);
+    Affine<float, true, SGD<float>, std::execution::parallel_unsequenced_policy> affine1(2, 4, learning_rate);
     ReLU<float> relu1;
 
-    Affine<float,true, SGD<float>> affine2(4, 2, learning_rate);
+    Affine<float,true, SGD<float>, std::execution::parallel_unsequenced_policy> affine2(4, 2, learning_rate);
     ReLU<float> relu2;
 
     SoftmaxWithLoss<float> softmaxwithloss;
@@ -40,7 +41,7 @@ void run_layertest() {
         return out5;
     };
 
-    for(int i = 0; i < 100; i++) {
+    for(int i = 0; i < 1000; i++) {
         Matrix<float> x(batch_size, 2, [&]() { return std::rand() % 2; }); // 0 or 1
         Matrix<float> t(batch_size, 2, [&]() { return 0.0f; });
         for (size_t j = 0; j < batch_size; j++) {

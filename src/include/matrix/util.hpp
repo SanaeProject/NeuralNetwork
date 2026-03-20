@@ -106,6 +106,16 @@ inline View<const T> Matrix<T, RowMajor, Container>::get_col(size_t col) const
 	}
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline const T* Matrix<T, RowMajor, Container>::get_row_ptr(size_t row) const requires RowMajor
+{
+	return &this->_data[row * this->cols()];
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline const T* Matrix<T, RowMajor, Container>::get_col_ptr(size_t col) const requires (!RowMajor)
+{
+	return &this->_data[col * this->rows()];
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline bool Matrix<T, RowMajor, Container>::is_blas_enabled() const
 {
 	return can_use_blas<T>::value;
@@ -199,14 +209,28 @@ requires
 	&& std::invocable<CalcType, T, T>
 	&& std::convertible_to<std::invoke_result_t<CalcType, T, T>, T>
 {
-	std::transform(execPolicy, this->_data.begin(), this->_data.end(), this->_data.begin(),
-		[&, col = 0](const T& val) mutable {
-			T result = operation(val, data[col]);
-			col = (col + 1) % this->cols();
-			return result;
-		}
-	);
-	return *this;
+    const size_t rowCount = this->rows();
+    const size_t colCount = this->cols();
+
+    for (size_t r = 0; r < rowCount; r++) {
+		// 行優先のみExecPolicyを反映
+        if constexpr (RowMajor) {
+            T* rowPtr = this->get_row_ptr(r); // 行優先のみ
+            std::transform(execPolicy, rowPtr, rowPtr + colCount, data.begin(), rowPtr, operation);
+        }
+		// 列優先は逐次実行
+        else {
+			for (size_t c = 0; c < colCount; c++) {
+				const T* colPtr = this->get_col_ptr(c); // 列優先のみ
+
+				for (size_t r = 0; r < rowCount; r++) {
+					this->_data[r * colCount + c] = operation(colPtr[r], data[c]);
+				}
+			}
+        }
+    }
+
+    return *this;
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<typename CalcType, typename ExecPolicy>
@@ -220,13 +244,26 @@ requires
 	if constexpr (requires(Container& c) { c.resize(this->_data.size()); }) {
 		result.resize(this->_data.size());
 	}
-	std::transform(execPolicy, this->_data.begin(), this->_data.end(), result.begin(),
-		[&, col = 0](const T& val) mutable {
-			T result = operation(val, data[col]);
-			col = (col + 1) % this->cols();
-			return result;
+	const size_t rowCount = this->rows();
+	const size_t colCount = this->cols();
+
+	// 行優先はExecPolicyを反映
+	if constexpr (RowMajor) {
+		for (size_t r = 0; r < rowCount; r++) {
+			const T* rowPtr = this->get_row_ptr(r); // 行優先のみ
+			std::transform(execPolicy, rowPtr, rowPtr + colCount, data.begin(), &result[r * colCount], operation);
 		}
-	);
+	}
+	// 列優先は逐次実行
+	else {
+		for (size_t c = 0; c < colCount; c++) {
+			const T* colPtr = this->get_col_ptr(c); // 列優先のみ
+
+			for (size_t r = 0; r < rowCount; r++) {
+				result[r * colCount + c] = operation(colPtr[r], data[c]);
+			}
+		}
+	}
 	return Matrix<T, RowMajor, Container>(this->rows(), this->cols(), std::move(result));
 }
 
