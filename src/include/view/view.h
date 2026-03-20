@@ -130,9 +130,9 @@ public:
         */
         inline iterator& operator+=(difference_type n) { _index += n; return *this; }
         /**
-         * @brief �C�e���[�^�̌��Z���Z�q
-         * @param n ���Z����I�t�Z�b�g
-         * @return �V�����C�e���[�^
+         * @brief イテレータの減算演算子
+         * @param n 減算するオフセット
+         * @return 新しいイテレータ
          */
         inline iterator& operator-=(difference_type n) { _index -= n; return *this; }
         /**

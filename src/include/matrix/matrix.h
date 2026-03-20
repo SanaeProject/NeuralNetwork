@@ -178,6 +178,22 @@ public:
 	View<T> get_col(size_t col);
 
 	/**
+	 * @brief 指定された行のポインタを取得します。
+	 * @param row 取得する行のインデックス
+	 * @return 指定された行のポインタ
+	 * @note この関数は行優先レイアウトの場合にのみ有効で、列優先レイアウトの場合はコンパイルエラーになります。
+	 */
+	T* get_row_ptr(size_t row) requires RowMajor;
+
+	/**
+	 * @brief 指定された列のポインタを取得します。
+	 * @param col 取得する列のインデックス
+	 * @return 指定された列のポインタ
+	 * @note この関数は列優先レイアウトの場合にのみ有効で、行優先レイアウトの場合はコンパイルエラーになります。
+	 */
+	T* get_col_ptr(size_t col) requires (!RowMajor);
+
+	/**
 	 * @brief 指定された行の定数ビューを取得します。(const版)
 	 * @param row 取得する行のインデックス
 	 * @return 指定された行の定数ビュー
@@ -240,6 +256,38 @@ public:
 		std::invocable<Func, T> &&
 		std::convertible_to<std::invoke_result_t<Func, T>, T> &&
 		StdExecPolicy<ExecPolicy>;
+
+	/**
+	 * @brief 行列の各行にdataを加算するなどの関数を適用します。
+	 * @tparam CalcType 適用する関数の型
+	 * @tparam ExecPolicy 使用する実行ポリシーの型（例：std::execution::sequenced_policy / parallel_policy など）
+	 * @param operation 各要素に適用する関数 (a,b) -> a operation b の形で呼び出せる関数オブジェクトで、返り値がT型に変換可能である必要があります)
+	 * @param execPolicy 実行ポリシー。既定では逐次実行（sequenced）になり、並列ポリシーを指定した場合は
+	 *                   関数operationがスレッドセーフであり、要素の処理順序に依存しないことが要求されます。
+	 * @return 自身の参照
+	 */
+	template<typename CalcType, typename ExecPolicy = std::execution::sequenced_policy>
+	Matrix& apply_row(const Container& data, CalcType operation, ExecPolicy execPolicy = ExecPolicy{}) 
+	requires
+		StdExecPolicy<ExecPolicy>
+		&& std::invocable<CalcType, T, T>
+		&& std::convertible_to<std::invoke_result_t<CalcType, T, T>, T>;
+
+	/**
+	 * @brief 行列の各行にdataを加算するなどの関数を適用します。
+	 * @tparam CalcType 適用する関数の型
+	 * @tparam ExecPolicy 使用する実行ポリシーの型（例：std::execution::sequenced_policy / parallel_policy など）
+	 * @param operation 各要素に適用する関数
+	 * @param execPolicy 実行ポリシー。既定では逐次実行（sequenced）になり、並列ポリシーを指定した場合は
+	 *                   関数operationがスレッドセーフであり、要素の処理順序に依存しないことが要求されます。
+	 * @return 新しい行列のコピー
+	 */
+	template<typename CalcType, typename ExecPolicy = std::execution::sequenced_policy>
+	Matrix apply_row_copy(const Container& data, CalcType operation, ExecPolicy execPolicy = ExecPolicy{}) const
+	requires
+		StdExecPolicy<ExecPolicy>
+		&& std::invocable<CalcType, T, T>
+		&& std::convertible_to<std::invoke_result_t<CalcType, T, T>, T>;
 
 	// ops.hpp
 	/**
@@ -535,6 +583,12 @@ public:
 	 */
 	template<typename execType = std::execution::sequenced_policy>
 	Matrix scalar_div_copy(const T& scalar, execType execPolicy = execType()) const requires StdExecPolicy<execType>;
+
+	/**
+	 * @brief 行の和を計算します。
+	 * @return 新しい行列のコピー
+	 */
+	Matrix sum_rows() const;
 
 	/**
 	 * @brief 他の行列との行列乗算を行います。

@@ -8,7 +8,9 @@
 
 void run_layertest() {
     float learning_rate = 0.3f;
-    Affine<float,true, SGD<float>> affine1(2, 4, learning_rate);
+    uint32_t batch_size = 100;
+
+    Affine<float, true, SGD<float>> affine1(2, 4, learning_rate);
     ReLU<float> relu1;
 
     Affine<float,true, SGD<float>> affine2(4, 2, learning_rate);
@@ -19,7 +21,6 @@ void run_layertest() {
     auto learn = [&](const Matrix<float>& x, const Matrix<float>& t) {
         auto out1 = affine1.forward(x);
         auto out2 = relu1.forward(out1);
-
         auto out3 = affine2.forward(out2);
         auto out5 = softmaxwithloss.forward(out3);
         auto dout5 = softmaxwithloss.backward(t);
@@ -39,17 +40,20 @@ void run_layertest() {
         return out5;
     };
 
-    for(int i = 0; i < 2000; i++) {
-        bool d1 = std::rand() % 2;
-        bool d2 = std::rand() % 2;
-        bool label = d1 ^ d2;
+    for(int i = 0; i < 100; i++) {
+        Matrix<float> x(batch_size, 2, [&]() { return std::rand() % 2; }); // 0 or 1
+        Matrix<float> t(batch_size, 2, [&]() { return 0.0f; });
+        for (size_t j = 0; j < batch_size; j++) {
+            bool d1 = x(j, 0);
+            bool d2 = x(j, 1);
+            bool label = d1 ^ d2; // XOR
 
-        Matrix<float> x({{(float)d1, (float)d2}});
-        Matrix<float> t({{(float)label, (float)!label}});
+            t(j, label ? 1 : 0) = 1.0f; // 正解ラベルをone-hotエンコード
+        }
 
         learn(x, t);
 
-        if(i%200==0)
+        if(i%10==0)
             std::cout << softmaxwithloss.loss(t) << std::endl;
     }
 
@@ -60,7 +64,7 @@ void run_layertest() {
 
         Matrix<float> prediction = predict(Matrix<float>({{(float)d1, (float)d2}}));
 
-        int result = prediction.data()[0] > prediction.data()[1] ? 1 : 0;
+        int result = prediction.data()[0] > prediction.data()[1] ? 0 : 1;
 
         std::cout
             << "Input: " << d1 << ", " << d2
