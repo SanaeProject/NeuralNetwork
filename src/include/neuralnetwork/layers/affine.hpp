@@ -29,7 +29,7 @@ public:
 template<typename ty>
 concept StdDeviation = std::derived_from<ty, StandardDeviation>;
 
-template<typename ty, bool use_blas = true, typename OptimizerType = SGD<ty>, typename ExecType = std::execution::sequenced_policy, typename DeviationType = Xavier>
+template<typename ty, bool use_blas = true, typename ExecType = std::execution::sequenced_policy, typename DeviationType = Xavier, typename OptimizerType = SGD<ty, ExecType, use_blas>>
 requires DerivedOptimizer<OptimizerType, ty> && StdExecPolicy<ExecType> && StdDeviation<DeviationType>
 class Affine : public LayerBase<ty> {
 private:

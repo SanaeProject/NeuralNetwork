@@ -10,7 +10,7 @@
 #include "../../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
 
 // ソフトマックス with ロスレイヤー
-template<typename ty, typename ExecPolicy = std::execution::parallel_unsequenced_policy>
+template<typename ty, typename ExecPolicy = std::execution::sequenced_policy>
 requires StdExecPolicy<ExecPolicy>
 class SoftmaxWithLoss : public LayerBase<ty> {
 private:
@@ -27,7 +27,7 @@ public:
         // in: (batch, classes)
         Matrix<ty> out = in;
 
-        // 行ごとに softmax
+        // 行ごとに softmax を適用
         for (size_t i = 0; i < out.rows(); ++i) {
             ty* row = out.get_row_ptr(i);
 
