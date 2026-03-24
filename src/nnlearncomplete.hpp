@@ -33,17 +33,6 @@ size_t run_nnlearn(float lr, uint32_t batch_size) {
         auto dout1 = affine1.backward(dout2);
     };
 
-    // 予測関数
-    auto predict = [&](const Matrix<float>& x) {
-        auto out1 = affine1.forward(x);
-        auto out2 = relu1.forward(out1);
-
-        auto out3 = affine2.forward(out2);
-        auto out5 = softmaxwithloss.forward(out3);
-
-        return out5;
-    };
-
     // 最大学習回数 10000回
     for(int i = 0; i < 10000; i++) {
         Matrix<float> x(batch_size, 2, [&]() { return std::rand() % 2; }); // 0 or 1
