@@ -13,12 +13,12 @@
 template<typename execType = std::execution::parallel_unsequenced_policy, bool use_blas = true>
 size_t run_nnlearn(float lr, uint32_t batch_size) {
     Affine<float, use_blas, execType, He> affine1(2, 4, lr);
-    ReLU<float> relu1;
+    ReLU<float, execType> relu1;
 
     Affine<float, use_blas, execType, He> affine2(4, 2, lr);
-    ReLU<float> relu2;
+    ReLU<float, execType> relu2;
 
-    SoftmaxWithLoss<float> softmaxwithloss;
+    SoftmaxWithLoss<float, execType> softmaxwithloss;
 
     // 学習ループ
     auto learn = [&](const Matrix<float>& x, const Matrix<float>& t) {
