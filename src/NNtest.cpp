@@ -17,7 +17,6 @@ void run_layertest() {
     ReLU<float> relu1;
 
     Affine<float, use_blas, execType, He> affine2(4, 2, learning_rate);
-    ReLU<float> relu2;
 
     std::cout << "lr: " << learning_rate << ",batch_size: " << batch_size << ", ReLU layers" << std::endl;
 
