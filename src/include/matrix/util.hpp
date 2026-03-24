@@ -212,23 +212,17 @@ requires
     const size_t rowCount = this->rows();
     const size_t colCount = this->cols();
 
-    for (size_t r = 0; r < rowCount; r++) {
-		// 行優先のみExecPolicyを反映
-        if constexpr (RowMajor) {
-            T* rowPtr = this->get_row_ptr(r); // 行優先のみ
-            std::transform(execPolicy, rowPtr, rowPtr + colCount, data.begin(), rowPtr, operation);
+	if constexpr (RowMajor){
+		for (size_t r = 0; r < rowCount; r++) {
+			T* rowPtr = this->get_row_ptr(r); // 行優先のみ
+			std::transform(execPolicy, rowPtr, rowPtr + colCount, data.begin(), rowPtr, operation);
         }
-		// 列優先は逐次実行
-        else {
-			for (size_t c = 0; c < colCount; c++) {
-				const T* colPtr = this->get_col_ptr(c); // 列優先のみ
-
-				for (size_t r = 0; r < rowCount; r++) {
-					this->_data[r * colCount + c] = operation(colPtr[r], data[c]);
-				}
-			}
-        }
-    }
+	}else{
+		for (size_t c = 0; c < colCount; c++){
+			T* colPtr = this->get_col_ptr(c); // 列優先のみ
+			std::for_each(execPolicy, colPtr, colPtr + rowCount, [&](T& a){ a = operation(a, data[c]); });
+		}
+	}
 
     return *this;
 }
@@ -244,26 +238,27 @@ requires
 	if constexpr (requires(Container& c) { c.resize(this->_data.size()); }) {
 		result.resize(this->_data.size());
 	}
+
 	const size_t rowCount = this->rows();
 	const size_t colCount = this->cols();
 
-	// 行優先はExecPolicyを反映
+	// 行優先
 	if constexpr (RowMajor) {
 		for (size_t r = 0; r < rowCount; r++) {
 			const T* rowPtr = this->get_row_ptr(r); // 行優先のみ
 			std::transform(execPolicy, rowPtr, rowPtr + colCount, data.begin(), &result[r * colCount], operation);
 		}
 	}
-	// 列優先は逐次実行
+	// 列優先
 	else {
 		for (size_t c = 0; c < colCount; c++) {
-			const T* colPtr = this->get_col_ptr(c); // 列優先のみ
+			const T* colPtr = this->get_col_ptr(c);
+			T* outPtr = &result[c * rowCount];
 
-			for (size_t r = 0; r < rowCount; r++) {
-				result[r * colCount + c] = operation(colPtr[r], data[c]);
-			}
+			std::transform(execPolicy, colPtr, colPtr + rowCount, outPtr, [&](const T& a){ return operation(a, data[c]); });
 		}
 	}
+
 	return Matrix<T, RowMajor, Container>(this->rows(), this->cols(), std::move(result));
 }
 

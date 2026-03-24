@@ -280,7 +280,6 @@ public:
 	 * @param operation 各要素に適用する関数 (a,b) -> a operation b の形で呼び出せる関数オブジェクトで、返り値がT型に変換可能である必要があります)
 	 * @param execPolicy 実行ポリシー。既定では逐次実行（sequenced）になり、並列ポリシーを指定した場合は
 	 *                   関数operationがスレッドセーフであり、要素の処理順序に依存しないことが要求されます。
-	 * @note 行優先の場合はExecPolicyが反映されますが、列優先の場合は逐次実行になります。
 	 * @return 自身の参照
 	 */
 	template<typename CalcType, typename ExecPolicy = std::execution::sequenced_policy>
@@ -297,7 +296,6 @@ public:
 	 * @param operation 各要素に適用する関数
 	 * @param execPolicy 実行ポリシー。既定では逐次実行（sequenced）になり、並列ポリシーを指定した場合は
 	 *                   関数operationがスレッドセーフであり、要素の処理順序に依存しないことが要求されます。
-	 * @note 行優先の場合はExecPolicyが反映されますが、列優先の場合は逐次実行になります。
 	 * @return 新しい行列のコピー
 	 */
 	template<typename CalcType, typename ExecPolicy = std::execution::sequenced_policy>

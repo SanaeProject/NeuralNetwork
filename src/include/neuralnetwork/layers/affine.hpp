@@ -13,6 +13,7 @@
 class StandardDeviation {
 public:
     virtual double operator()(size_t input_size) const = 0;
+    ~StandardDeviation() = default;
 };
 class Xavier : public StandardDeviation {
 public:    
