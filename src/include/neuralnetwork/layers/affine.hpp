@@ -38,8 +38,6 @@ private:
     Matrix<ty> _w;  // (in_dim, out_dim)
     Matrix<ty> _b;  // (1, out_dim)
 
-    ty _learning_rate = 0.01f;
-
 public:
     OptimizerType optimizer;
 
