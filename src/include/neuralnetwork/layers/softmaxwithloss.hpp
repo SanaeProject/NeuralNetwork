@@ -7,6 +7,7 @@
 #include <math.h>
 #include <iostream>
 #include "layerbase.hpp"
+#include <stdexcept>
 #include "../../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
 
 // ソフトマックス with ロスレイヤー
@@ -47,7 +48,7 @@ public:
      * 逆伝播
      * @param t 教師データ
      * @return 入力の勾配
-     * @note dx = out - t
+     * @note dx = (y - t) / batch_size
      */
     Matrix<ty> backward(const Matrix<ty>& t) override{
         try{
@@ -80,6 +81,10 @@ public:
                 ty y = std::max(_out(i, j), epsilon);
                 total -= t(i, j) * std::log(y);
             }
+        }
+
+        if(_out.rows() == 0){
+            throw std::runtime_error("Error in SoftmaxWithLoss loss calculation: batch size is zero.");
         }
 
         return static_cast<double>(total / _out.rows()); // バッチ平均

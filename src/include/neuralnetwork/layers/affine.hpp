@@ -13,7 +13,7 @@
 class StandardDeviation {
 public:
     virtual double operator()(size_t input_size) const = 0;
-    ~StandardDeviation() = default;
+    virtual ~StandardDeviation() = default;
 };
 class Xavier : public StandardDeviation {
 public:    
@@ -49,7 +49,7 @@ public:
           optimizer(_w, _b, lr)
     {
         std::default_random_engine engine(seed);
-        std::uniform_real_distribution<ty> dist(0, dev(input_size));
+        std::normal_distribution<ty> dist(0, dev(input_size));
 
         _w = Matrix<ty>(input_size, output_size, [&](){ return dist(engine); });
         _b = Matrix<ty>(1, output_size, [&](){ return dist(engine); });

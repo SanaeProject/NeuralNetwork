@@ -1,3 +1,6 @@
+#ifndef SANAE_NNLEARNCOMPLETE_HPP
+#define SANAE_NNLEARNCOMPLETE_HPP
+
 #include <execution>
 #include <iostream>
 #include <cstdlib>
@@ -65,3 +68,5 @@ size_t run_nnlearn(float lr, uint32_t batch_size) {
 
     return 10000; // 最大イテレーション数を返す
 }
+
+#endif

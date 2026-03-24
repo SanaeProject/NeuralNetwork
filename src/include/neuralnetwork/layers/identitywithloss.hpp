@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <execution>
+#include <stdexcept>
 #include <math.h>
 #include <iostream>
 #include "layerbase.hpp"
@@ -57,6 +58,9 @@ public:
     double loss(const Matrix<ty>& t) {
         try{
             const size_t batch_size = this->_out.rows();
+            if(batch_size == 0){
+                throw std::runtime_error("Error in IdentityWithLoss loss calculation: batch size is zero.");
+            }
 
             ty sum = 0;
             for (size_t i = 0; i < _out.data().size(); i++)
