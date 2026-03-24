@@ -70,6 +70,16 @@ inline View<T> Matrix<T, RowMajor, Container>::get_col(size_t col)
 	}
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline T* Matrix<T, RowMajor, Container>::get_row_ptr(size_t row) requires RowMajor
+{
+	return &this->_data[row * this->cols()];
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline T* Matrix<T, RowMajor, Container>::get_col_ptr(size_t col) requires (!RowMajor)
+{
+	return &this->_data[col * this->rows()];
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline View<const T> Matrix<T, RowMajor, Container>::get_row(size_t row) const
 {
 	if constexpr (RowMajor) {
@@ -94,6 +104,16 @@ inline View<const T> Matrix<T, RowMajor, Container>::get_col(size_t col) const
 		View<const T> view(&this->_data[col], this->rows(), this->cols());
 		return view;
 	}
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline const T* Matrix<T, RowMajor, Container>::get_row_ptr(size_t row) const requires RowMajor
+{
+	return &this->_data[row * this->cols()];
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline const T* Matrix<T, RowMajor, Container>::get_col_ptr(size_t col) const requires (!RowMajor)
+{
+	return &this->_data[col * this->rows()];
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 inline bool Matrix<T, RowMajor, Container>::is_blas_enabled() const
@@ -179,6 +199,66 @@ requires
 		result.resize(this->_data.size());
 	}
 	std::transform(execPolicy, this->_data.begin(), this->_data.end(), result.begin(), func);
+	return Matrix<T, RowMajor, Container>(this->rows(), this->cols(), std::move(result));
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<typename CalcType, typename ExecPolicy>
+Matrix<T, RowMajor, Container>& Matrix<T, RowMajor, Container>::apply_row(const Container& data, CalcType operation, ExecPolicy execPolicy) 
+requires
+	StdExecPolicy<ExecPolicy>
+	&& std::invocable<CalcType, T, T>
+	&& std::convertible_to<std::invoke_result_t<CalcType, T, T>, T>
+{
+    const size_t rowCount = this->rows();
+    const size_t colCount = this->cols();
+
+	if constexpr (RowMajor){
+		for (size_t r = 0; r < rowCount; r++) {
+			T* rowPtr = this->get_row_ptr(r); // 行優先のみ
+			std::transform(execPolicy, rowPtr, rowPtr + colCount, data.begin(), rowPtr, operation);
+        }
+	}else{
+		for (size_t c = 0; c < colCount; c++){
+			T* colPtr = this->get_col_ptr(c); // 列優先のみ
+			std::for_each(execPolicy, colPtr, colPtr + rowCount, [&](T& a){ a = operation(a, data[c]); });
+		}
+	}
+
+    return *this;
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<typename CalcType, typename ExecPolicy>
+Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::apply_row_copy(const Container& data, CalcType operation, ExecPolicy execPolicy) const
+requires
+	StdExecPolicy<ExecPolicy>
+	&& std::invocable<CalcType, T, T>
+	&& std::convertible_to<std::invoke_result_t<CalcType, T, T>, T>
+{
+	Container result{};
+	if constexpr (requires(Container& c) { c.resize(this->_data.size()); }) {
+		result.resize(this->_data.size());
+	}
+
+	const size_t rowCount = this->rows();
+	const size_t colCount = this->cols();
+
+	// 行優先
+	if constexpr (RowMajor) {
+		for (size_t r = 0; r < rowCount; r++) {
+			const T* rowPtr = this->get_row_ptr(r); // 行優先のみ
+			std::transform(execPolicy, rowPtr, rowPtr + colCount, data.begin(), &result[r * colCount], operation);
+		}
+	}
+	// 列優先
+	else {
+		for (size_t c = 0; c < colCount; c++) {
+			const T* colPtr = this->get_col_ptr(c);
+			T* outPtr = &result[c * rowCount];
+
+			std::transform(execPolicy, colPtr, colPtr + rowCount, outPtr, [&](const T& a){ return operation(a, data[c]); });
+		}
+	}
+
 	return Matrix<T, RowMajor, Container>(this->rows(), this->cols(), std::move(result));
 }
 
