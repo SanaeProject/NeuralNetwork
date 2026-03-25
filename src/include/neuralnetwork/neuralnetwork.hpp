@@ -34,10 +34,6 @@ class LayerPack{};
 /**
  * @tparam ty データ型
  * @tparam LayerPackT レイヤのパック
- * @tparam use_blas BLASを使用するかどうか
- * @tparam ExecType 実行ポリシーの型
- * @tparam DeviationType 標準偏差の計算方法の型
- * @tparam OptimizerType オプティマイザの型
  */
 template<
     typename ty, 
@@ -54,9 +50,15 @@ class NeuralNetwork<ty, LayerPack<Layers...>>
     protected:
     std::vector<std::unique_ptr<LayerBase<ty>>> _layers;
 
+    /**
+     * @brief レイヤを追加するための再帰的な関数
+     * @tparam size レイヤの総数
+     * @tparam count 現在のレイヤのインデックス
+     * @tparam LayerHead 現在のレイヤの型
+     * @tparam LayerTail 残りのレイヤの型
+    */
     template<size_t size, size_t count>
     void _add_layer(size_t in_size, size_t hidden_size, size_t out_size, ty learning_rate, uint32_t seed){}
-
     template<size_t size, size_t count, class LayerHead, class... LayerTail> requires std::derived_from<LayerHead, LayerBase<ty>>
     void _add_layer(size_t in_size, size_t hidden_size, size_t out_size, ty learning_rate, uint32_t seed){
         // 最初のaffineレイヤ
@@ -86,6 +88,13 @@ public:
         this->_add_layer<sizeof...(Layers), 0, Layers...>(in_size, hidden_size, out_size, learning_rate, seed);
     }
 
+    /*
+     * @brief 学習を行う関数
+     * @tparam use_loss ロス値を計算するかどうか。デフォルトはtrue。falseの場合、ロス値は常に0を返す。
+     * @param in 入力データ
+     * @param t 教師データ
+     * @return ロス値（use_lossがtrueの場合）。use_lossがfalseの場合は常に0を返す。
+    */
     template<bool use_loss = true>
     double learn(const Matrix<ty>& in, const Matrix<ty>& t){
         Matrix<ty> out = in;
@@ -110,6 +119,19 @@ public:
         }else{
             return 0;
         }
+    }
+
+    /**
+     * @brief 推論を行う関数
+     * @param in 入力データ
+     * @return 推論結果
+     */
+    Matrix<ty> predict(const Matrix<ty>& in){
+        Matrix<ty> out = in;
+        for(size_t i = 0; i < this->_layers.size(); i++){
+            out = _layers.at(i)->forward(out);
+        }
+        return out;
     }
 };
 
