@@ -18,6 +18,8 @@ private:
     Matrix<ty> _out; // 出力の保存用
 
 public:
+    static constexpr bool has_loss = true; // loss関数を所有
+
     /**
      * 前向き伝播
      * @param in 入力
