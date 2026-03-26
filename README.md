@@ -9,7 +9,7 @@
 - [OpenBLAS の利用ポリシー](#openblas-の利用ポリシー)
 - [ビルド手順](#ビルド手順)
 - [ビルドコマンド例](#ビルドコマンド例)
-- [Matrix 実装方針](#matrix-実装方針)
+- [テストコード](#テストコード)
 - [API](#api)
 - [ライセンス](#ライセンス)
 
@@ -88,6 +88,66 @@ cmake --build --preset=debug-no-blas-clang
 
 ```
 
+## テストコード
+
+```cpp
+#include "include/matrix/matrix"
+#include "include/neuralnetwork/neuralnetwork.hpp"
+#include "include/neuralnetwork/layers/affine.hpp"
+#include "include/neuralnetwork/layers/relu.hpp"
+#include "include/neuralnetwork/layers/softmaxwithloss.hpp"
+
+int main(){
+  // レイヤ構成を定義 (Affine -> ReLU -> Affine -> SoftmaxWithLoss)
+  // * 4層以上で最終レイヤは 損失関数 であり、かつ偶数層である必要があります。
+  using MyLayers = LayerPack<
+    Affine<float>,
+    ReLU<float>,
+    Affine<float>,
+    SoftmaxWithLoss<float>
+  >;
+
+  // 高速化バージョン
+  using MyLayersFaster = LayerPack<
+    Affine<float, true>, // OpenBLASを使用するAffineレイヤー、デフォルト(std::execution::sequenced_policy)で実行
+    ReLU<float>,
+    Affine<float, true, std::execution::parallel_policy>, // OpenBLASを使用し、並列実行ポリシーを指定したAffineレイヤー
+    SoftmaxWithLoss<float>
+  >;
+
+  // 初期化戦略
+  using MyLayersHe = LayerPack<
+    Affine<float, true, std::execution::sequenced_policy, He>, // OpenBLASを使用し、He初期化を指定したAffineレイヤー
+    ReLU<float>,
+    Affine<float, true, std::execution::sequenced_policy, He>, // OpenBLASを使用し、He初期化を指定したAffineレイヤー
+    SoftmaxWithLoss<float>
+  >;
+
+  // オプティマイザにAdamを使用（デフォルトではSGDが使用される）
+  using MyLayersAdam = LayerPack<
+    Affine<float, true, std::execution::sequenced_policy, Xavier, Adam<float>>,
+    ReLU<float>,
+    Affine<float, true, std::execution::sequenced_policy, Xavier, 
+      Adam<float, true, std::execution::parallel_policy> // OpenBLASを使用し、並列実行ポリシーを指定したAdamオプティマイザを使用するAffineレイヤー
+    >,
+    SoftmaxWithLoss<float>
+  >;
+
+  NeuralNetwork<float, MyLayers> nn(2,4,2,0.1f); // 入力サイズ2、隠れ層サイズ4、出力サイズ2、学習率0.1
+
+  // ダミーデータ バッチサイズ2、特徴量2、クラス数2
+  Matrix<float> X = {{0.5f, 0.2f}, {0.9f, 0.7f}}; // 2サンプル、2特徴
+  Matrix<float> T = {{1.0f, 0.0f}, {0.0f, 1.0f}}; // 2サンプル、2クラスの正解ラベル（one-hot）
+
+  double loss = nn.learn<true>(X, T); // 学習実行 （損失計算あり）
+  nn.learn<false>(X, T); // 学習実行 （損失計算なし）
+
+  std::cout << "prediction:\n" << nn.predict(X) << std::endl;
+
+  return 0;
+}
+```
+
 ## API
 
 - Matrix
@@ -110,7 +170,7 @@ cmake --build --preset=debug-no-blas-clang
       - `use_blas`: 行列積でBLASを利用するかどうか
       - `ExecType`: 実行ポリシー（既定: `std::execution::sequenced_policy`）
       - `DeviationType`: 重み初期化の標準偏差戦略（既定: `Xavier`）
-      - `OptimizerType`: 最適化器（既定: `SGD<ty, ExecType, use_blas>`）
+      - `OptimizerType`: 最適化器（既定: `SGD<ty, use_blas, ExecType>`）
     - コンストラクタ: `Affine(size_t input_size, size_t output_size, ty lr = 0.01f, uint32_t seed = std::random_device{}(), DeviationType dev = DeviationType{})`
       - `_w` (in_dim, out_dim), `_b` (1, out_dim) を正規分布で初期化
       - `optimizer(_w, _b, lr)` を内部で保持
