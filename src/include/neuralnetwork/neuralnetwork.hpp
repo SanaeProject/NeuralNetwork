@@ -9,6 +9,7 @@
 #include <vector>
 #include <concepts>
 #include <stdexcept>
+#include <random>
 
 /**
  * LastType: 可変長テンプレートパラメータの最後の型を取得するための構造体
@@ -75,17 +76,17 @@ class NeuralNetwork<ty, LayerPack<Layers...>>
         // 最後のaffineレイヤ
         if constexpr (sizeof...(LayerTail) == 1){
             static_assert(LayerHead::is_affine, "The last layer must be an affine layer.");
-            _layers.emplace_back(std::make_unique<LayerHead>(hidden_size, out_size, learning_rate, seed));
+            _layers.emplace_back(std::make_unique<LayerHead>(hidden_size, out_size, learning_rate, seed+count));
         }
         else
         // 中間のaffineレイヤ
         if constexpr (LayerHead::is_affine){
-            _layers.emplace_back(std::make_unique<LayerHead>(hidden_size, hidden_size, learning_rate, seed));
+            _layers.emplace_back(std::make_unique<LayerHead>(hidden_size, hidden_size, learning_rate, seed+count));
         }else{
             _layers.emplace_back(std::make_unique<LayerHead>());
         }
 
-        this->_add_layer<size, count+1, LayerTail...>(in_size, hidden_size, out_size, learning_rate, seed);
+        this->_add_layer<size, count+1, LayerTail...>(in_size, hidden_size, out_size, learning_rate, seed+count);
     }
 
 public:
@@ -117,7 +118,7 @@ public:
         if constexpr(use_loss){
             using Last = typename LastType<Layers...>::type;
 
-            Last* last = static_cast<Last*>(_layers.back().get());
+            Last* last = dynamic_cast<Last*>(_layers.back().get());
             if (!last) {
                 throw std::runtime_error("Last layer type mismatch");
             }
