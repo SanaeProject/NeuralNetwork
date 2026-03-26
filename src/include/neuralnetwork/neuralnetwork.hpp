@@ -20,7 +20,7 @@ template<class Head, class... Tail>
 struct LastType<Head, Tail...> {
     using type = typename LastType<Tail...>::type;
 };
-template<class Last> requires (Last::has_loss == true) // 最後のレイヤはloss関数が必須
+template<class Last>
 struct LastType<Last> {
     using type = Last;
 };
@@ -29,7 +29,11 @@ struct LastType<Last> {
  * LayerPack: レイヤのパック。偶数層かつ4層以上必須
 */
 template<class... Layers>
-requires (sizeof...(Layers) % 2 == 0 && 4 <= sizeof...(Layers)) // 偶数層かつ4層以上必須
+requires (
+    sizeof...(Layers) % 2 == 0 && 
+    4 <= sizeof...(Layers) &&
+    LastType<Layers...>::type::has_loss == true
+) // 偶数層かつ4層以上かつ最後のレイヤはloss関数が必須
 class LayerPack{};
 
 /**
