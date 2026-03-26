@@ -1,5 +1,7 @@
+#ifndef MATRIXTEST_HPP
+#define MATRIXTEST_HPP
+
 #include "include/matrix/matrix"
-#include "matrixperformance.hpp"
 #include <iostream>
 
 void run_matrix_tests() {
@@ -208,7 +210,6 @@ void run_matrix_tests() {
         std::cout << "sum_rows result:\n" << summed << std::endl;
         std::cout << "sum_rows tested.\n" << std::endl;
     }
-
-    // パフォーマンステスト
-    benchmark_exec();
 }
+
+#endif // MATRIXTEST_HPP

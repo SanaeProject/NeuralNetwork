@@ -20,7 +20,7 @@ void benchmark(const std::string& testName, func f) {
 constexpr size_t MATRIX_SIZE = 1000;
 using Type = float;
 
-static void benchmark_exec() {
+static void run_benchmarks() {
 	std::random_device seedgen;
 	std::default_random_engine engine(seedgen());
 	std::uniform_real_distribution<Type> dist(1e-6f,1);
