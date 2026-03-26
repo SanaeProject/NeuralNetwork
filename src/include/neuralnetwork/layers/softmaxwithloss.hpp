@@ -43,7 +43,7 @@ public:
             std::transform(policy, row, row + out.cols(), row,
                            [max_val](ty x) { return std::exp(x - max_val); });
 
-            ty sum = std::accumulate(policy, row, row + out.cols(), static_cast<ty>(0));
+            ty sum = std::reduce(policy, row, row + out.cols(), static_cast<ty>(0));
             if(sum <= 0){
                 throw std::runtime_error("Error in SoftmaxWithLoss forward: sum of exponentials is non-positive.");
             }

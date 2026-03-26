@@ -68,11 +68,13 @@ class NeuralNetwork<ty, LayerPack<Layers...>>
     void _add_layer(size_t in_size, size_t hidden_size, size_t out_size, ty learning_rate, uint32_t seed){
         // 最初のaffineレイヤ
         if constexpr (count == 0){
+            static_assert(LayerHead::is_affine, "The first layer must be an affine layer.");
             _layers.emplace_back(std::make_unique<LayerHead>(in_size, hidden_size, learning_rate, seed));
         }
         else
         // 最後のaffineレイヤ
         if constexpr (sizeof...(LayerTail) == 1){
+            static_assert(LayerHead::is_affine, "The last layer must be an affine layer.");
             _layers.emplace_back(std::make_unique<LayerHead>(hidden_size, out_size, learning_rate, seed));
         }
         else

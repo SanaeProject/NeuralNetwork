@@ -8,6 +8,7 @@
 #include <iostream>
 #include <math.h>
 #include <random>
+#include <functional>
 
 class StandardDeviation {
 public:
