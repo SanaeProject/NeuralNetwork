@@ -215,7 +215,11 @@ requires
 	if constexpr (RowMajor){
 		for (size_t r = 0; r < rowCount; r++) {
 			T* rowPtr = this->get_row_ptr(r); // 行優先のみ
-			std::transform(execPolicy, rowPtr, rowPtr + colCount, data.begin(), rowPtr, operation);
+			
+			std::for_each(execPolicy, rowPtr, rowPtr + colCount, [&](T& a){  
+                const std::size_t idx = static_cast<std::size_t>(&a - rowPtr);  
+                a = operation(a, data[idx]);  
+            });  
         }
 	}else{
 		for (size_t c = 0; c < colCount; c++){
