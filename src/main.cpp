@@ -38,7 +38,7 @@ int main() {
             else {
                 a.learn<false>(x, t);
             }
-        }catch(std::exception e){
+        }catch(const std::exception& e){
             std::cout << e.what();
         }
     }

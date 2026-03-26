@@ -33,16 +33,22 @@ public:
             throw std::runtime_error("Error in SoftmaxWithLoss forward: input matrix is empty.");
         }
 
+        const ExecPolicy policy = ExecPolicy{};
+
         // 行ごとに softmax を適用
         for (size_t i = 0; i < out.rows(); ++i) {
             ty* row = out.get_row_ptr(i);
 
-            ty max_val = *std::max_element(row, row + out.cols());
-            std::transform(row, row + out.cols(), row,
+            ty max_val = *std::max_element(policy, row, row + out.cols());
+            std::transform(policy, row, row + out.cols(), row,
                            [max_val](ty x) { return std::exp(x - max_val); });
 
-            ty sum = std::accumulate(row, row + out.cols(), static_cast<ty>(0));
-            std::transform(row, row + out.cols(), row,
+            ty sum = std::accumulate(policy, row, row + out.cols(), static_cast<ty>(0));
+            if(sum <= 0){
+                throw std::runtime_error("Error in SoftmaxWithLoss forward: sum of exponentials is non-positive.");
+            }
+
+            std::transform(policy, row, row + out.cols(), row,
                            [sum](ty x) { return x / sum; });
         }
 
