@@ -8,97 +8,81 @@
 #include <iostream>
 #include <math.h>
 #include <random>
+#include <functional>
 
-// affine layer wx+in
-template<typename ty, bool use_blas = true, typename OptimizerType = SGD<ty>>
-requires DerivedOptimizer<OptimizerType, ty>
+class StandardDeviation {
+public:
+    virtual double operator()(size_t input_size) const = 0;
+    virtual ~StandardDeviation() = default;
+};
+class Xavier : public StandardDeviation {
+public:    
+    double operator()(size_t input_size) const override {
+        return 1.0 / std::sqrt(input_size);
+    }
+};
+class He : public StandardDeviation {
+public:
+    double operator()(size_t input_size) const override {
+        return std::sqrt(2.0 / input_size);
+    }
+};
+template<typename ty>
+concept StdDeviation = std::derived_from<ty, StandardDeviation>;
+
+template<typename ty, bool use_blas = true, typename ExecType = std::execution::sequenced_policy, typename DeviationType = Xavier, typename OptimizerType = SGD<ty, ExecType, use_blas>>
+requires DerivedOptimizer<OptimizerType, ty> && StdExecPolicy<ExecType> && StdDeviation<DeviationType>
 class Affine : public LayerBase<ty> {
 private:
-    Matrix<ty> _in; // 入力の保存用
-    Matrix<ty> _w;
-    Matrix<ty> _b;
-    ty _learning_rate = 0.01f;
+    Matrix<ty> _in; // (batch, in_dim)
+    Matrix<ty> _w;  // (in_dim, out_dim)
+    Matrix<ty> _b;  // (1, out_dim)
 
 public:
+    static constexpr bool is_affine = true;
     OptimizerType optimizer;
 
-    /**
-     * 学習率を設定する
-     * @param lr 学習率
-     */
-    void set_learning_rate(ty lr) {
-        this->_learning_rate = lr;
-        optimizer.set_learning_rate(lr);
-    }
-
-    /**
-     * コンストラクタ
-     * @param input_size 入力の次元数
-     * @param output_size 出力の次元数
-     * @param lr 学習率
-     * @param seed 乱数生成器のシード
-     */
-    Affine(size_t input_size, size_t output_size, ty lr = 0.01f, uint32_t seed = std::random_device{}())
-        : _w(input_size, output_size), _b(1, output_size),
+    Affine(size_t input_size, size_t output_size, ty lr = 0.01f, uint32_t seed = std::random_device{}(), DeviationType dev = DeviationType{})
+        : _w(input_size, output_size),
+          _b(1, output_size),
           optimizer(_w, _b, lr)
     {
         std::default_random_engine engine(seed);
-        std::uniform_real_distribution<ty> dist(0, (1.0 / std::sqrt(input_size))); // Xavier初期化の範囲
+        std::normal_distribution<ty> dist(0, dev(input_size));
 
-        // 重みとバイアスの初期化
-        _w = Matrix<ty>(input_size, output_size, [&dist, &engine]() { return dist(engine); });
-        _b = Matrix<ty>(1, output_size, [&dist, &engine]() { return dist(engine); });
+        _w = Matrix<ty>(input_size, output_size, [&](){ return dist(engine); });
+        _b = Matrix<ty>(1, output_size, [&](){ return dist(engine); });
     }
 
-    /**
-     * 前向き伝播
-     * @param in 入力
-     * @return 出力
-     * @note out = in * w + b
-     */
-    Matrix<ty> forward(const Matrix<ty>& in) override{
+    Matrix<ty> forward(const Matrix<ty>& in) override {
+        _in = in; // (batch, in_dim)
+
+        Matrix<ty> out = in;
+
         try{
-            this->_in = in;
-            Matrix<ty> out = in;
-            out.template matrix_mul<use_blas>(_w).add(_b);
-            return out;
-        }
-        catch(const std::exception& e){
-            std::cerr << "Error in Affine forward: " << e.what() << std::endl;
+            out.template matrix_mul<use_blas>(_w);
+            out.apply_row(_b.data(), std::plus<ty>(), ExecType{}); // 各行にバイアスを加算
+
+            return out; // (batch, out_dim)
+        } catch (const std::exception& e) {
+            std::cerr << "Error in Affine::forward: " << e.what() << std::endl;
             throw;
         }
     }
+    Matrix<ty> backward(const Matrix<ty>& dout) override {
+        // dx = dout * W^T
+        Matrix<ty> wt = _w.transpose_copy();
+        Matrix<ty> dx = dout.template matrix_mul_copy<use_blas>(wt);
 
-    /**
-     * 逆伝播
-     * @param dout 出力の勾配
-     * @return 入力の勾配
-     * @note dw = in^T * dout * η, db = dout * η
-     */
-    Matrix<ty> backward(const Matrix<ty>& dout) override{
-        try{
-            Matrix<ty> dout_copy = dout;
+        // dW = X^T * dout
+        Matrix<ty> in_t = _in.transpose_copy();
+        Matrix<ty> dw = in_t.template matrix_mul_copy<use_blas>(dout);
 
-            // 入力に対する勾配の計算: dx = dout * W^T
-            Matrix<ty> wt = this->_w;
-            wt.transpose();
-            Matrix<ty> dx = dout_copy.template matrix_mul<use_blas>(wt);
+        // db = sum(dout, axis=0)
+        Matrix<ty> db = dout.sum_rows(); // (1, out_dim)
 
-            // 勾配の計算（パラメータ更新用）
-            Matrix<ty> in_t = this->_in;
-            in_t.transpose();
-            Matrix<ty> dw = in_t.template matrix_mul<use_blas>(dout); // in^T * dout
-            Matrix<ty> db = dout; // dout のコピーを作成
-
-            // パラメータの更新
-            optimizer.optimize(dw, db);
-
-            return dx; // 入力に対する勾配を返す
-        }
-        catch(const std::exception& e){
-            std::cerr << "Error in Affine backward: " << e.what() << std::endl;
-            throw;
-        }
+        optimizer.optimize(dw, db);
+        return dx;
     }
 };
 

@@ -1,5 +1,7 @@
+#ifndef MATRIXTEST_HPP
+#define MATRIXTEST_HPP
+
 #include "include/matrix/matrix"
-#include "matrixperformance.hpp"
 #include <iostream>
 
 void run_matrix_tests() {
@@ -162,6 +164,52 @@ void run_matrix_tests() {
         std::cout << "Matrix multiplication performed.\n" << std::endl;
     }
 
-    // パフォーマンステスト
-    benchmark_exec();
+    // 転置
+    {
+        std::cout << "Testing transpose methods...\n";
+        MatrixType mat(data1);
+        auto transposed_copy = mat.transpose_copy();
+
+        std::cout << "Original Matrix:\n" << mat << std::endl;
+        std::cout << "transpose_copy result:\n" << transposed_copy << std::endl;
+        std::cout << "transpose in-place result:\n" << mat.transpose() << std::endl;
+        std::cout << "Transpose methods tested.\n" << std::endl;
+    }
+
+    // 要素への関数適用
+    {
+        std::cout << "Testing apply and apply_copy...\n";
+        MatrixType mat(data1);
+        auto applied_copy = mat.apply_copy([](float x) { return x + 0.5f; });
+
+        std::cout << "apply_copy result (+0.5):\n" << applied_copy << std::endl;
+        std::cout << "apply in-place result (*2):\n" << mat.apply([](float x) { return x * 2.0f; }) << std::endl;
+        std::cout << "Apply methods tested.\n" << std::endl;
+    }
+
+    // 行ごとの演算適用
+    {
+        std::cout << "Testing apply_row and apply_row_copy...\n";
+        MatrixType mat(data1);
+        std::array<float, 9> row_delta = { 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+        auto applied_row_copy = mat.apply_row_copy(row_delta, [](float a, float b) { return a + b; });
+        std::cout << "apply_row_copy result (add [1,0,-1]):\n" << applied_row_copy << std::endl;
+
+        std::cout << "apply_row in-place result (sub [1,0,-1]):\n"
+            << mat.apply_row(row_delta, [](float a, float b) { return a - b; }) << std::endl;
+        std::cout << "apply_row methods tested.\n" << std::endl;
+    }
+
+    // 行方向の合計
+    {
+        std::cout << "Testing sum_rows...\n";
+        MatrixType mat(data1);
+        auto summed = mat.sum_rows();
+        std::cout << "Input Matrix:\n" << mat << std::endl;
+        std::cout << "sum_rows result:\n" << summed << std::endl;
+        std::cout << "sum_rows tested.\n" << std::endl;
+    }
 }
+
+#endif // MATRIXTEST_HPP

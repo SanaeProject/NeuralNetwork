@@ -1,7 +1,11 @@
-void run_matrix_tests();
-void run_layertest();
-int main() {
+#include "matrixtest.hpp"
+#include "nntest.hpp"
+#include "matrixbenchmark.hpp"
+
+int main(){
     run_matrix_tests();
-    run_layertest();
+    run_benchmarks();
+    run_nntest();
+    
     return 0;
 }

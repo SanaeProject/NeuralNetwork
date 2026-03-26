@@ -4,6 +4,7 @@
 #include "../view/view.h"
 #include "blasgemm.h"
 #include "matrix.h"
+#include <execution>
 #include <functional>
 #include <stdexcept>
 #include <thread>
@@ -275,6 +276,19 @@ inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::scalar_div
 	std::copy(this->_data.begin(), this->_data.end(), result.begin());
 	this->_calc(result, scalar, execPolicy, std::divides<T>());
 	return Matrix<T, RowMajor, Container>(this->_rows, this->_cols, std::move(result));
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::sum_rows() const {
+	Matrix<T, RowMajor, Container> result(1, this->cols());
+
+	for (size_t j = 0; j < this->cols(); j++) {
+		View<const T> col = this->get_col(j);
+		T sum = std::reduce(col.begin(), col.end(), static_cast<T>(0), std::plus<T>());
+
+		result(0, j) = sum;
+	}
+
+	return result;
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
 template<bool use_blas, bool OtherMajor, typename OtherContainer>

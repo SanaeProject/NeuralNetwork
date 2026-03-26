@@ -26,7 +26,7 @@ public:
 template<typename T, typename ty>
 concept DerivedOptimizer = std::derived_from<T, Optimizer<ty>>;
 
-template<typename ty, typename execPolicy = std::execution::sequenced_policy, bool use_blas = true>
+template<typename ty, typename execPolicy = std::execution::sequenced_policy, bool use_blas = false>
 requires StdExecPolicy<execPolicy>
 class SGD : public Optimizer<ty>{
 private:
@@ -51,7 +51,7 @@ public:
         }
     } 
 };
-template<typename ty, typename execPolicy = std::execution::sequenced_policy, bool use_blas = true>
+template<typename ty, typename execPolicy = std::execution::sequenced_policy, bool use_blas = false>
 class Momentum: public Optimizer<ty> {
 private:
     Matrix<ty>& _w;
@@ -84,7 +84,7 @@ public:
         _b  = _b + _vB;
     }
 };
-template<typename ty, typename execPolicy = std::execution::sequenced_policy, bool use_blas = true>
+template<typename ty, typename execPolicy = std::execution::sequenced_policy, bool use_blas = false>
 class AdaGrad: public Optimizer<ty> {
 private:
     Matrix<ty>& _w;
@@ -133,7 +133,7 @@ public:
         }
     }
 };
-template<typename ty, typename execPolicy = std::execution::sequenced_policy, bool use_blas = true>
+template<typename ty, typename execPolicy = std::execution::sequenced_policy, bool use_blas = false>
 requires StdExecPolicy<execPolicy>
 class Adam : public Optimizer<ty>{
 private:

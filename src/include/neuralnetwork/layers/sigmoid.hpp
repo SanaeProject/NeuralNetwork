@@ -9,7 +9,7 @@
 #include "../../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
 
 // シグモイドレイヤー
-template<typename ty, typename ExecPolicy = std::execution::parallel_unsequenced_policy>
+template<typename ty, typename ExecPolicy = std::execution::sequenced_policy>
 requires StdExecPolicy<ExecPolicy>
 class Sigmoid : public LayerBase<ty> {
 private:
