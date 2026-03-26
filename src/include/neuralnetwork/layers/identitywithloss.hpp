@@ -42,6 +42,10 @@ public:
             dx.sub(t, ExecPolicy{});
 
             ty batch_size = static_cast<ty>(dx.rows());
+            if(batch_size == 0){
+                throw std::runtime_error("Error in IdentityWithLoss backward: batch size is zero.");
+            }
+            
             dx.scalar_div(batch_size, ExecPolicy{});
 
             return dx;

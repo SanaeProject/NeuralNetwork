@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include <concepts>
+#include <stdexcept>
 
 /**
  * LastType: 可変長テンプレートパラメータの最後の型を取得するための構造体
