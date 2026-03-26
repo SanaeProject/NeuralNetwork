@@ -72,7 +72,7 @@
       }
     },
     {
-      "name": "no-openblas",
+      "name": "no-blas",
       "hidden": true,
       "cacheVariables": {
         "USE_OPENBLAS": "OFF"
@@ -124,8 +124,8 @@
       "inherits": ["vs-base", "debug-base", "openblas"]
     },
     {
-      "name": "debug-no-openblas-vs",
-      "inherits": ["vs-base", "debug-base", "no-openblas"]
+      "name": "debug-no-blas-vs",
+      "inherits": ["vs-base", "debug-base", "no-blas"]
     },
     {
       "name": "debug-cublas-vs",
@@ -141,8 +141,8 @@
       "inherits": ["vs-base", "release-base", "openblas", "vs-release-flags"]
     },
     {
-      "name": "release-no-openblas-vs",
-      "inherits": ["vs-base", "release-base", "no-openblas", "vs-release-flags"]
+      "name": "release-no-blas-vs",
+      "inherits": ["vs-base", "release-base", "no-blas", "vs-release-flags"]
     },
     {
       "name": "release-cublas-vs",
@@ -160,8 +160,8 @@
       "inherits": ["gcc-base", "debug-base", "openblas"]
     },
     {
-      "name": "debug-no-openblas-gcc",
-      "inherits": ["gcc-base", "debug-base", "no-openblas"]
+      "name": "debug-no-blas-gcc",
+      "inherits": ["gcc-base", "debug-base", "no-blas"]
     },
     {
       "name": "debug-cublas-gcc",
@@ -173,8 +173,8 @@
       "inherits": ["gcc-base", "release-base", "openblas", "gcc-release-flags"]
     },
     {
-      "name": "release-no-openblas-gcc",
-      "inherits": ["gcc-base", "release-base", "no-openblas", "gcc-release-flags"]
+      "name": "release-no-blas-gcc",
+      "inherits": ["gcc-base", "release-base", "no-blas", "gcc-release-flags"]
     },
     {
       "name": "release-cublas-gcc",
@@ -188,8 +188,8 @@
       "inherits": ["clang-base", "debug-base", "openblas"]
     },
     {
-      "name": "debug-no-openblas-clang",
-      "inherits": ["clang-base", "debug-base", "no-openblas"]
+      "name": "debug-no-blas-clang",
+      "inherits": ["clang-base", "debug-base", "no-blas"]
     },
     {
       "name": "debug-cublas-clang",
@@ -205,8 +205,8 @@
       "inherits": ["clang-base", "release-base", "openblas", "clang-release-flags"]
     },
     {
-      "name": "release-no-openblas-clang",
-      "inherits": ["clang-base", "release-base", "no-openblas", "clang-release-flags"]
+      "name": "release-no-blas-clang",
+      "inherits": ["clang-base", "release-base", "no-blas", "clang-release-flags"]
     },
     {
       "name": "release-cublas-clang",
@@ -221,19 +221,19 @@
 
   "buildPresets": [
     { "name": "debug-openblas-vs", "configurePreset": "debug-openblas-vs" },
-    { "name": "debug-no-openblas-vs", "configurePreset": "debug-no-openblas-vs" },
+    { "name": "debug-no-blas-vs", "configurePreset": "debug-no-blas-vs" },
     { "name": "release-openblas-vs", "configurePreset": "release-openblas-vs" },
-    { "name": "release-no-openblas-vs", "configurePreset": "release-no-openblas-vs" },
+    { "name": "release-no-blas-vs", "configurePreset": "release-no-blas-vs" },
 
     { "name": "debug-openblas-gcc", "configurePreset": "debug-openblas-gcc" },
-    { "name": "debug-no-openblas-gcc", "configurePreset": "debug-no-openblas-gcc" },
+    { "name": "debug-no-blas-gcc", "configurePreset": "debug-no-blas-gcc" },
     { "name": "release-openblas-gcc", "configurePreset": "release-openblas-gcc" },
-    { "name": "release-no-openblas-gcc", "configurePreset": "release-no-openblas-gcc" },
+    { "name": "release-no-blas-gcc", "configurePreset": "release-no-blas-gcc" },
 
     { "name": "debug-openblas-clang", "configurePreset": "debug-openblas-clang" },
-    { "name": "debug-no-openblas-clang", "configurePreset": "debug-no-openblas-clang" },
+    { "name": "debug-no-blas-clang", "configurePreset": "debug-no-blas-clang" },
     { "name": "release-openblas-clang", "configurePreset": "release-openblas-clang" },
-    { "name": "release-no-openblas-clang", "configurePreset": "release-no-openblas-clang" },
+    { "name": "release-no-blas-clang", "configurePreset": "release-no-blas-clang" },
 
     { "name": "debug-cublas-vs", "configurePreset": "debug-cublas-vs" },
     { "name": "release-cublas-vs", "configurePreset": "release-cublas-vs" },
