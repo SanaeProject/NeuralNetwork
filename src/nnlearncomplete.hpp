@@ -16,8 +16,6 @@ size_t run_nnlearn(float lr, uint32_t batch_size) {
     ReLU<float, execType> relu1;
 
     Affine<float, use_blas, execType, He> affine2(4, 2, lr);
-    ReLU<float, execType> relu2;
-
     SoftmaxWithLoss<float, execType> softmaxwithloss;
 
     // 学習ループ
