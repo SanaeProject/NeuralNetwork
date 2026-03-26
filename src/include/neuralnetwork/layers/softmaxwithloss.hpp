@@ -29,6 +29,9 @@ public:
     Matrix<ty> forward(const Matrix<ty>& in) override {
         // in: (batch, classes)
         Matrix<ty> out = in;
+        if (out.rows() == 0 || out.cols() == 0) {
+            throw std::runtime_error("Error in SoftmaxWithLoss forward: input matrix is empty.");
+        }
 
         // 行ごとに softmax を適用
         for (size_t i = 0; i < out.rows(); ++i) {
@@ -62,7 +65,7 @@ public:
             if(batch_size == 0){
                 throw std::runtime_error("Error in SoftmaxWithLoss backward: batch size is zero.");
             }
-            
+
             dx.scalar_div(batch_size, ExecPolicy{});
 
             return dx;

@@ -115,7 +115,7 @@ public:
         if constexpr(use_loss){
             using Last = typename LastType<Layers...>::type;
 
-            Last* last = dynamic_cast<Last*>(_layers.back().get());
+            Last* last = static_cast<Last*>(_layers.back().get());
             if (!last) {
                 throw std::runtime_error("Last layer type mismatch");
             }
