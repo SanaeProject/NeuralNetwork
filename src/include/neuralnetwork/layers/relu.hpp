@@ -16,6 +16,8 @@ private:
     Matrix<ty> _out; // 出力の保存用（ReLU適用後）
 
 public:
+    static constexpr std::string_view name() { return "ReLU"; }
+
     /**
      * 前向き伝播
      * @param in 入力

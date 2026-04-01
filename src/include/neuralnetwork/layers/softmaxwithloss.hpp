@@ -18,6 +18,7 @@ private:
     Matrix<ty> _out; // 出力の保存用
 
 public:
+    static constexpr std::string_view name() { return "SoftmaxWithLoss"; }
     static constexpr bool has_loss = true; // loss関数を所有
 
     /**

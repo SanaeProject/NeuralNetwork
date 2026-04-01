@@ -4,6 +4,7 @@
 #include "../matrix/matrix"
 #include "./layers/layerbase.hpp"
 #include "./layers/affine.hpp"
+#include "layers/batchnormalization.hpp"
 
 #include <memory>
 #include <vector>
@@ -27,14 +28,13 @@ struct LastType<Last> {
 };
 
 /**
- * LayerPack: レイヤのパック。偶数層かつ4層以上必須
+ * LayerPack: レイヤのパック。4層以上必須
 */
 template<class... Layers>
 requires (
-    sizeof...(Layers) % 2 == 0 && 
     4 <= sizeof...(Layers) &&
     LastType<Layers...>::type::has_loss == true
-) // 偶数層かつ4層以上かつ最後のレイヤはloss関数が必須
+) // 4層以上かつ最後のレイヤはloss関数が必須
 class LayerPack{};
 
 /**
@@ -71,21 +71,38 @@ class NeuralNetwork<ty, LayerPack<Layers...>>
         if constexpr (count == 0){
             static_assert(LayerHead::is_affine, "The first layer must be an affine layer.");
             _layers.emplace_back(std::make_unique<LayerHead>(in_size, hidden_size, learning_rate, seed));
-        }
-        else
+        
         // 最後のaffineレイヤ
-        if constexpr (sizeof...(LayerTail) == 1){
+        } else if constexpr (sizeof...(LayerTail) == 1){
+            
             static_assert(LayerHead::is_affine, "The last layer must be an affine layer.");
             _layers.emplace_back(std::make_unique<LayerHead>(hidden_size, out_size, learning_rate, seed+count));
-        }
-        else
+
         // 中間のaffineレイヤ
-        if constexpr (LayerHead::is_affine){
+        } else if constexpr (LayerHead::is_affine){
+            
             _layers.emplace_back(std::make_unique<LayerHead>(hidden_size, hidden_size, learning_rate, seed+count));
-        }else{
+        
+        // 活性化レイヤー
+        } else {
             _layers.emplace_back(std::make_unique<LayerHead>());
+
+            // lrパラメータを持っている場合共有
+            if constexpr (requires (LayerHead& l) { l.lr; }) {
+                LayerHead* layer = dynamic_cast<LayerHead*>(_layers.back().get());
+                if (layer)
+                    layer->lr = learning_rate;
+            }
+
+            // set_cols関数を持っている場合、列数を設定
+            if constexpr (requires (LayerHead& l) { l.set_cols(hidden_size); }) {
+                LayerHead* layer = dynamic_cast<LayerHead*>(_layers.back().get());
+                if (layer)
+                    layer->set_cols(hidden_size);
+            }
         }
 
+        // 次のレイヤを追加
         this->_add_layer<size, count+1, LayerTail...>(in_size, hidden_size, out_size, learning_rate, seed+count);
     }
 
@@ -107,6 +124,7 @@ public:
     double learn(const Matrix<ty>& in, const Matrix<ty>& t){
         Matrix<ty> out = in;
         for(size_t i = 0; i < this->_layers.size(); i++){
+            this->_layers.at(i)->training = true;
             out = _layers.at(i)->forward(out);
         }
 
@@ -137,6 +155,7 @@ public:
     Matrix<ty> predict(const Matrix<ty>& in){
         Matrix<ty> out = in;
         for(size_t i = 0; i < this->_layers.size(); i++){
+            _layers.at(i)->training = false;
             out = _layers.at(i)->forward(out);
         }
         return out;

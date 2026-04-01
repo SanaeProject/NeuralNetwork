@@ -278,14 +278,50 @@ inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::scalar_div
 	return Matrix<T, RowMajor, Container>(this->_rows, this->_cols, std::move(result));
 }
 template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
-inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::sum_rows() const {
+template<typename execType>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::sum_rows(execType execPolicy) const requires StdExecPolicy<execType>{
 	Matrix<T, RowMajor, Container> result(1, this->cols());
+	const size_t cols = this->cols();
 
-	for (size_t j = 0; j < this->cols(); j++) {
-		View<const T> col = this->get_col(j);
-		T sum = std::reduce(col.begin(), col.end(), static_cast<T>(0), std::plus<T>());
+	if constexpr (RowMajor){
+		for (size_t j = 0; j < this->cols(); j++) {
+			View<const T> col = this->get_col(j);
+			T sum = std::reduce(col.begin(), col.end(), static_cast<T>(0), std::plus<T>());
 
-		result(0, j) = sum;
+			result(0, j) = sum;
+		}
+	}else{
+		for (size_t j = 0; j < this->cols(); j++) {
+			const T* col = this->get_col_ptr(j);
+			T sum = std::reduce(execPolicy ,col, col + cols, static_cast<T>(0), std::plus<T>());
+
+			result(0, j) = sum;
+		}
+	}
+
+	return result;
+}
+template<typename T, bool RowMajor, typename Container> requires VectorOrArray<Container>
+template<typename execType>
+inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::sum_cols(execType execPolicy) const requires StdExecPolicy<execType>{
+	Matrix<T, RowMajor, Container> result(this->rows(), 1);
+	const size_t rows = this->rows();
+	const size_t cols = this->cols();
+
+	if constexpr (RowMajor){
+		for (size_t i = 0; i < this->rows(); i++) {
+			const T* row = this->get_row_ptr(i);
+			T sum = std::reduce(execPolicy, row, row + cols, static_cast<T>(0), std::plus<T>());
+
+			result(i, 0) = sum;
+		}
+	}else{
+		for (size_t i = 0; i < this->rows(); i++) {
+			View<const T> row = this->get_row(i);
+			T sum = std::reduce(row.begin(), row.end(), static_cast<T>(0), std::plus<T>());
+
+			result(i, 0) = sum;
+		}
 	}
 
 	return result;
