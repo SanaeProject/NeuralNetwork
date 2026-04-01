@@ -83,6 +83,11 @@ public:
                     out(i,j) = gamma[j] * xhat(i,j) + beta[j];
 
         } else {
+            inv.resize(cols);
+            if(gamma.size() != cols || beta.size() != cols || running_mean.size() != cols || running_var.size() != cols){
+                throw std::runtime_error("Error in BatchNormalization forward: gamma, beta, running_mean, and running_var must be initialized with the correct number of columns.");
+            }
+
             // 推論
             for (size_t j = 0; j < cols; j++)
                 inv[j] = static_cast<ty>(1) / std::sqrt(running_var[j] + eps);
