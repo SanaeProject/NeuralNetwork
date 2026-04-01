@@ -3,6 +3,7 @@
 
 #include "../../matrix/matrix"
 #include <string>
+#include <string_view>
 
 // ベースレイヤー
 template<typename ty>
