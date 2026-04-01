@@ -1,10 +1,8 @@
 #ifndef SANAE_NEURALNETWORK_DROPOUT_HPP
 #define SANAE_NEURALNETWORK_DROPOUT_HPP
 
-#include <algorithm>
 #include <cstdint>
 #include <execution>
-#include <math.h>
 #include <iostream>
 #include <random>
 #include "layerbase.hpp"
