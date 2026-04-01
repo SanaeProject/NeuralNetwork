@@ -3,7 +3,7 @@
 
 #include <algorithm>
 #include <execution>
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <vector>
 #include "layerbase.hpp"
