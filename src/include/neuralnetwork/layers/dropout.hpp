@@ -5,6 +5,7 @@
 #include <execution>
 #include <iostream>
 #include <random>
+#include <stdexcept>
 #include "layerbase.hpp"
 #include "../../matrix/matrix" // MatrixクラスとStdExecPolicyコンセプト
 
