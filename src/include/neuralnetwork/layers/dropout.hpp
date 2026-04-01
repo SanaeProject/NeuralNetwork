@@ -27,6 +27,7 @@ public:
         }
 
         this->_dropout_ratio = dropout_ratio;
+        this->_seed = seed;
     }
     
     /**
@@ -42,7 +43,7 @@ public:
                 std::bernoulli_distribution dist(1.0 - this->_dropout_ratio);
 
                 _mask = Matrix<ty>(in.rows(), in.cols(), [&](){ return dist(engine) ? static_cast<ty>(1) : static_cast<ty>(0); });
-                return in.hadamard_mul(_mask, ExecPolicy{});
+                return in.hadamard_mul_copy(_mask, ExecPolicy{});
             }else{
                 return in.template scalar_mul_copy<true>(1.0f - this->_dropout_ratio, ExecPolicy{});
             }
@@ -63,7 +64,7 @@ public:
             if(!this->training)
                 throw std::runtime_error("Error in DROPOUT backward: backward called during inference mode.");
 
-            return dout.hadamard_mul(_mask, ExecPolicy{});
+            return dout.hadamard_mul_copy(_mask, ExecPolicy{});
         }
         catch(const std::exception& e){
             std::cerr << "Error in DROPOUT backward: " << e.what() << std::endl;
