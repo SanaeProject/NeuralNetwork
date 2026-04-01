@@ -18,6 +18,10 @@ private:
     Matrix<ty> _mask; // ドロップアウトマスク
     uint32_t _seed; // 乱数シード
     ty _dropout_ratio;
+
+    std::default_random_engine _engine;
+    std::bernoulli_distribution _dist;
+
 public:
     static constexpr std::string_view name() { return "Dropout"; }
     
@@ -28,6 +32,9 @@ public:
 
         this->_dropout_ratio = dropout_ratio;
         this->_seed = seed;
+
+        this->_engine = std::default_random_engine(this->_seed);
+        this->_dist = std::bernoulli_distribution(1.0 - this->_dropout_ratio);
     }
     
     /**
@@ -39,10 +46,7 @@ public:
     Matrix<ty> forward(const Matrix<ty>& in) override{
         try{
             if(this->training){
-                std::default_random_engine engine(this->_seed);
-                std::bernoulli_distribution dist(1.0 - this->_dropout_ratio);
-
-                _mask = Matrix<ty>(in.rows(), in.cols(), [&](){ return dist(engine) ? static_cast<ty>(1) : static_cast<ty>(0); });
+               _mask = Matrix<ty>(in.rows(), in.cols(), [&](){ return _dist(_engine) ? static_cast<ty>(1) : static_cast<ty>(0); });
                 return in.hadamard_mul_copy(_mask, ExecPolicy{});
             }else{
                 return in.template scalar_mul_copy<true>(1.0f - this->_dropout_ratio, ExecPolicy{});
