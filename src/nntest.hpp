@@ -7,16 +7,18 @@
 #include "./include/neuralnetwork/neuralnetwork.hpp"
 #include "include/neuralnetwork/layers/affine.hpp"
 #include "include/neuralnetwork/layers/relu.hpp"
+#include "include/neuralnetwork/layers/batchnormalization.hpp"
 #include "include/neuralnetwork/layers/softmaxwithloss.hpp"
 
 void run_nntest() {
     using MyLayers = LayerPack<
         Affine<float>,
+        BatchNormalization<float>,
         ReLU<float>,
         Affine<float>,
         SoftmaxWithLoss<float>
     >;
-    size_t batch_size = 1;
+    size_t batch_size = 15;
     
     NeuralNetwork<float, MyLayers> a(2,4,2,0.1f);
 

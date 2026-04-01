@@ -16,6 +16,8 @@ private:
     Matrix<ty> _out; // 出力の保存用
 
 public:
+    static constexpr std::string_view name() { return "Tanh"; }
+    
     /**
      * 前向き伝播
      * @param in 入力

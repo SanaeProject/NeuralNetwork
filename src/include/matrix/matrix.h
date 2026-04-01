@@ -598,13 +598,24 @@ public:
 	 * @throws std::invalid_argument ゼロ除算が発生した場合
 	 */
 	template<typename execType = std::execution::sequenced_policy>
-	Matrix scalar_div_copy(const T& scalar, execType execPolicy = execType()) const requires StdExecPolicy<execType>;
+	Matrix scalar_div_copy(const T& scalar, execType execPolicy = execType{}) const requires StdExecPolicy<execType>;
 
 	/**
-	 * @brief 行の和を計算します。
+	 * @brief 各列の和を計算します。{{1,2,3},{4,5,6}} -> {{5,7,9}}
 	 * @return 新しい行列のコピー
+	 * @note 結果の行列は1行cols列の行列になります。
+	 * @note execPolicyは実行ポリシーを指定します。列優先レイアウトの場合のみ有効です。
 	 */
-	Matrix sum_rows() const;
+	template<typename execType = std::execution::sequenced_policy>
+	Matrix sum_rows(execType execPolicy = execType{}) const requires StdExecPolicy<execType>;
+
+	/**
+	 * @brief 列の和を計算します。{{1,2,3},{4,5,6}} -> {{6},{15}}
+	 * @return 新しい行列のコピー
+	 * @note execPolicyは実行ポリシーを指定します。列優先レイアウトの場合のみ有効です。
+	 */
+	template<typename execType = std::execution::sequenced_policy>
+	Matrix sum_cols(execType execPolicy = execType{}) const requires StdExecPolicy<execType>;
 
 	/**
 	 * @brief 他の行列との行列乗算を行います。

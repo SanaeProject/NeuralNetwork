@@ -40,6 +40,8 @@ private:
 
 public:
     static constexpr bool is_affine = true;
+    static constexpr std::string_view name() { return "Affine"; }
+    
     OptimizerType optimizer;
 
     Affine(size_t input_size, size_t output_size, ty lr = 0.01f, uint32_t seed = std::random_device{}(), DeviationType dev = DeviationType{})
