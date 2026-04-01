@@ -306,11 +306,12 @@ template<typename execType>
 inline Matrix<T, RowMajor, Container> Matrix<T, RowMajor, Container>::sum_cols(execType execPolicy) const requires StdExecPolicy<execType>{
 	Matrix<T, RowMajor, Container> result(this->rows(), 1);
 	const size_t rows = this->rows();
+	const size_t cols = this->cols();
 
 	if constexpr (RowMajor){
 		for (size_t i = 0; i < this->rows(); i++) {
 			const T* row = this->get_row_ptr(i);
-			T sum = std::reduce(execPolicy, row, row + rows, static_cast<T>(0), std::plus<T>());
+			T sum = std::reduce(execPolicy, row, row + cols, static_cast<T>(0), std::plus<T>());
 
 			result(i, 0) = sum;
 		}
