@@ -7,7 +7,7 @@
 
 class FontColor {
 public:
-    static constexpr const char* CLEAR  = "\033[0m";
+    static constexpr const char* CLEAR  = "\033[39m";
     static constexpr const char* BLACK  = "\033[30m";
     static constexpr const char* RED    = "\033[31m";
     static constexpr const char* GREEN  = "\033[32m";
@@ -27,7 +27,7 @@ public:
 
 class BgColor {
 public:
-    static constexpr const char* CLEAR  = "\033[0m";
+    static constexpr const char* CLEAR  = "\033[49m";
     static constexpr const char* BLACK  = "\033[40m";
     static constexpr const char* RED    = "\033[41m";
     static constexpr const char* GREEN  = "\033[42m";
@@ -44,5 +44,14 @@ public:
         return buf.str();
     }
 };
+
+template<typename ColorType>
+requires std::same_as<ColorType,std::string> || std::same_as<ColorType, const char*>
+static std::string highlight(ColorType color, std::string text){
+    std::stringstream buf;
+    buf << color << text << FontColor::CLEAR << BgColor::CLEAR;
+
+    return buf.str();
+}
 
 #endif // SANAE_COLOR_HPP
