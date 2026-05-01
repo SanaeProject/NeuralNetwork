@@ -251,6 +251,12 @@ public:
 
         return *this;
     }
+
+    /**
+     * @brief BitArrayの末尾にビットを追加します。
+     * @param val 追加するビットの値
+     * @return 自身の参照
+     */
     BitArray& emplace_back(const bool& val){
         size_t new_bits = this->_bits + 1;
         size_t req_size = _get_pack_size(new_bits);
@@ -271,6 +277,13 @@ public:
 
         return *this;
     }
+
+    /**
+     * @brief BitArrayを出力ストリームに書き込みます。
+     * @param os 出力ストリーム
+     * @param ba 書き込むBitArray
+     * @return 出力ストリーム
+     */
     friend std::ostream& operator << (std::ostream& os, const BitArray& ba){
         size_t total_bits = ba.size();
         for(size_t i = 0; i < ba.pack_size(); i++){
