@@ -57,9 +57,9 @@ private:
      * @throws std::out_of_range ビットインデックスが範囲外の場合
      */
     bool _get_bit(size_t n) const {
-        if (n >= _bits) throw std::out_of_range("...");
+        if (n >= _bits) throw std::out_of_range("not enough bits to get");
         const size_t pack_idx = n / _PACKBITS;
-        const size_t bit_idx = n % _PACKBITS;
+        const size_t bit_idx = _PACKBITS - 1 - n % _PACKBITS;
         return (this->_data[pack_idx] >> bit_idx) & 1;
     }
 
@@ -70,9 +70,9 @@ private:
      * @throws std::out_of_range ビットインデックスが範囲外の場合
      */
     void _set_bit(size_t n, bool val) {
-        if (n >= _bits) throw std::out_of_range("...");
+        if (n >= this->_bits) throw std::out_of_range("not enough bits to set");
         const size_t pack_idx = n / _PACKBITS;
-        const size_t bit_idx = n % _PACKBITS;
+        const size_t bit_idx = _PACKBITS - 1 - n % _PACKBITS;
         if (val) {
             this->_data[pack_idx] |= (PackType(1) << bit_idx);
         } else {
@@ -251,13 +251,38 @@ public:
 
         return *this;
     }
-};
-template<typename PackType, typename Container>
-std::ostream& operator << (std::ostream& os, const BitArray<PackType, Container>& ba){
-    size_t total_bits = ba.size();
-    for(size_t i = 0; i < ba.pack_size(); i++){
-        os << std::bitset<sizeof(PackType) * 8>(ba.pack_at(i)) << " ";
-    }
+    BitArray& emplace_back(const bool& val){
+        size_t new_bits = this->_bits + 1;
+        size_t req_size = _get_pack_size(new_bits);
 
-    return os;
-}
+        if(this->_data.max_size() < req_size)
+            throw std::runtime_error("Container max_size is too small for the specified number of bits."); 
+
+        if constexpr (ResizableContainerConcept<Container, PackType>) {
+            if(req_size > this->_data.size())
+                this->_data.emplace_back(static_cast<PackType>(0));
+        } else {
+            if(req_size > this->_data.size())
+                throw std::runtime_error("Container size is too small for the specified number of bits.");
+        }
+
+        this->_bits = new_bits;
+        this->_set_bit(this->_bits-1, val);
+
+        return *this;
+    }
+    friend std::ostream& operator << (std::ostream& os, const BitArray& ba){
+        size_t total_bits = ba.size();
+        for(size_t i = 0; i < ba.pack_size(); i++){
+            if(total_bits < (i+1)*_PACKBITS){
+                std::string b = std::bitset<sizeof(PackType) * 8>(ba.pack_at(i)).to_string();
+                size_t remain = (i+1)*_PACKBITS - total_bits;
+                
+                os << b.substr(0, _PACKBITS - remain);
+            }else{
+                os << std::bitset<sizeof(PackType) * 8>(ba.pack_at(i)) << " ";
+            }
+        }
+        return os;
+    }
+};
