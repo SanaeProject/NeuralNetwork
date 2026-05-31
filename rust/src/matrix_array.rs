@@ -25,7 +25,6 @@ impl<T, const ROW_MAJOR: bool> MatrixArray<T, ROW_MAJOR> {
 impl<T> MatrixArray<T, true> {
     pub fn with_data<const ROW: usize, const COL: usize>(array_2d: [[T; COL]; ROW]) -> Self {
         Self {
-            // 💡 into_iter() を使っているので ToOwned の制約自体を削除できます！
             data: array_2d.into_iter().flatten().collect::<Vec<T>>(),
             row: ROW,
             col: COL,
@@ -33,22 +32,28 @@ impl<T> MatrixArray<T, true> {
     }
 
     pub fn get(&self, row: usize, col: usize) -> Option<&T> {
+        if row >= self.row || col >= self.col { return None; }
+
         let idx = row * self.col + col;
         self.data.get(idx)
     }
 
-    pub fn get_mut_row(&mut self, row: usize) -> impl Iterator<Item = &mut T> {
-        self.data.iter_mut().skip(self.col * row).take(self.col)
+    pub fn get_mut_row(&mut self, row: usize) -> Option<impl Iterator<Item = &mut T>> {
+        if self.row <= row { return None; }
+        Some(self.data.iter_mut().skip(self.col * row).take(self.col))
     }
-    pub fn get_mut_column(&mut self, col: usize) -> impl Iterator<Item = &mut T> {
-        self.data.iter_mut().skip(col).step_by(self.col).take(self.row)
+    pub fn get_mut_column(&mut self, col: usize) -> Option<impl Iterator<Item = &mut T>> {
+        if self.col <= col { return None; }
+        Some(self.data.iter_mut().skip(col).step_by(self.col).take(self.row))
     }
 
-    pub fn get_row(&self, row: usize) -> impl Iterator<Item = &T> {
-        self.data.iter().skip(self.col * row).take(self.col)
+    pub fn get_row(&self, row: usize) -> Option<impl Iterator<Item = &T>> {
+        if self.row <= row { return None; }
+        Some(self.data.iter().skip(self.col * row).take(self.col))
     }
-    pub fn get_column(&self, col: usize) -> impl Iterator<Item = &T> {
-        self.data.iter().skip(col).step_by(self.col).take(self.row)
+    pub fn get_column(&self, col: usize) -> Option<impl Iterator<Item = &T>> {
+        if self.col <= col { return None; }
+        Some(self.data.iter().skip(col).step_by(self.col).take(self.row))
     }
 }
 
@@ -73,22 +78,28 @@ impl<T> MatrixArray<T, false> {
     }
 
     pub fn get(&self, row: usize, col: usize) -> Option<&T> {
+        if row >= self.row || col >= self.col { return None; }
+
         let idx = col * self.row + row;
         self.data.get(idx)
     }
 
-    pub fn get_mut_row(&mut self, row: usize) -> impl Iterator<Item = &mut T> {
-        self.data.iter_mut().skip(row).step_by(self.row).take(self.col)
+    pub fn get_mut_row(&mut self, row: usize) -> Option<impl Iterator<Item = &mut T>> {
+        if self.row <= row { return None; }
+        Some(self.data.iter_mut().skip(row).step_by(self.row).take(self.col))
     }
-    pub fn get_mut_column(&mut self, col: usize) -> impl Iterator<Item = &mut T> {
-        self.data.iter_mut().skip(col * self.row).take(self.row)
+    pub fn get_mut_column(&mut self, col: usize) -> Option<impl Iterator<Item = &mut T>> {
+        if self.col <= col { return None; }
+        Some(self.data.iter_mut().skip(col * self.row).take(self.row))
     }
 
-    pub fn get_row(&self, row: usize) -> impl Iterator<Item = &T> {
-        self.data.iter().skip(row).step_by(self.row).take(self.col)
+    pub fn get_row(&self, row: usize) -> Option<impl Iterator<Item = &T>> {
+        if self.row <= row { return None; }
+        Some(self.data.iter().skip(row).step_by(self.row).take(self.col))
     }
-    pub fn get_column(&self, col: usize) -> impl Iterator<Item = &T> {
-        self.data.iter().skip(col * self.row).take(self.row)
+    pub fn get_column(&self, col: usize) -> Option<impl Iterator<Item = &T>> {
+        if self.col <= col { return None; }
+        Some(self.data.iter().skip(col * self.row).take(self.row))
     }
 }
 
@@ -100,8 +111,10 @@ impl<T: fmt::Display> fmt::Display for MatrixArray<T, true> {
         let mut result = String::new();
 
         for r in 0..self.row {
-            for c in self.get_row(r) {
-                result.push_str(&format!("{}\t", c));
+            if let Some(row_iter) = self.get_row(r) {
+                for c in row_iter {
+                    result.push_str(&format!("{}\t", c));
+                }
             }
             result.push('\n');
         }
@@ -114,8 +127,10 @@ impl<T: fmt::Display> fmt::Display for MatrixArray<T, false> {
         let mut result = String::new();
 
         for r in 0..self.row {
-            for c in self.get_row(r) {
-                result.push_str(&format!("{}\t", c));
+            if let Some(row_iter) = self.get_row(r) {
+                for c in row_iter {
+                    result.push_str(&format!("{}\t", c));
+                }
             }
             result.push('\n');
         }
