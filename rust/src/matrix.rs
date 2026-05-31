@@ -1,14 +1,14 @@
 use core::fmt;
 use crate::matrix_layout::{ RowMajor, MatrixLayout};
 
-pub struct MatrixArray<T, L: MatrixLayout = RowMajor> {
+pub struct Matrix<T, L: MatrixLayout = RowMajor> {
     data: Vec<T>,
     row: usize,
     col: usize,
     _marker: std::marker::PhantomData<L>,
 }
 
-impl<T, L: MatrixLayout> MatrixArray<T, L> {
+impl<T, L: MatrixLayout> Matrix<T, L> {
     pub fn with_size(row: usize, col: usize) -> Self
     where
         T: Default + Clone,
@@ -22,6 +22,8 @@ impl<T, L: MatrixLayout> MatrixArray<T, L> {
     }
 
     pub fn get(&self, row: usize, col: usize) -> Option<&T> {
+        if row >= self.row || col >= self.col { return None; }
+
         let idx = L::get_index(row, col, self.row, self.col);
         self.data.get(idx)
     }
@@ -37,7 +39,7 @@ impl<T, L: MatrixLayout> MatrixArray<T, L> {
     }
 }
 
-impl<T: std::fmt::Display, L: MatrixLayout> std::fmt::Display for MatrixArray<T, L> {
+impl<T: std::fmt::Display, L: MatrixLayout> std::fmt::Display for Matrix<T, L> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         (0..self.row).for_each(|r| {
             self.get_row(r).for_each(|c| {
