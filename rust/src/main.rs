@@ -1,3 +1,6 @@
+use NeuralNetwork::matrix_array;
+
 fn main() {
-    println!("Hello, world!");
+    let mtx = matrix_array::MatrixArray::<i32, false>::with_size(3, 4);
+    println!("{}", mtx);
 }
