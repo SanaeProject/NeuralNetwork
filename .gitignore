@@ -523,3 +523,5 @@ Thumbs.db
 # IDE設定（任意で除外）
 .vscode/
 .idea/
+
+rust/Cargo.lock
