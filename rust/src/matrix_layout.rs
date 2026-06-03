@@ -18,7 +18,7 @@ pub trait MatrixLayout {
     /// - (開始位置, ステップ)のタプル
     fn row_stride(row: usize, matrix_row: usize, matrix_col: usize) -> Option<(usize, usize)>;
 
-    /// row, colから行・列のstrideを取得する
+    /// colから列のstrideを取得する
     /// # 引数
     /// - `col`: 列番号
     /// - `matrix_row`: 行数
