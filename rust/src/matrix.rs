@@ -1,6 +1,6 @@
 use core::fmt;
-use std::marker::PhantomData;
-use crate::matrix_layout::{ RowMajor, MatrixLayout };
+use std::{marker::PhantomData, ops::Mul};
+use crate::{matrix_algorithm::{MatrixAlgorithm, NaiveAlgorithm}, matrix_layout::{ MatrixLayout, RowMajor }};
 
 pub struct Matrix<T, L: MatrixLayout = RowMajor> {
     data    : Vec<T>,
@@ -158,6 +158,71 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
         let (start, step) = L::col_stride(col, self.rows, self.cols)?;
         Some(self.data.iter_mut().skip(start).step_by(step).take(self.rows))
     }
+
+    pub fn add(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
+    where 
+        T: std::ops::AddAssign + Copy 
+    {
+        NaiveAlgorithm::add(self, other)
+    }
+    pub fn add_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
+    where 
+        T: std::ops::AddAssign + Copy 
+    {
+        Calc::add(self, other)
+    }
+
+    pub fn sub(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
+    where 
+        T: std::ops::SubAssign + Copy 
+    {
+        NaiveAlgorithm::sub(self, other)
+    }
+    pub fn sub_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
+    where 
+        T: std::ops::SubAssign + Copy 
+    {
+        Calc::sub(self, other)
+    }
+
+    pub fn mul(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
+    where 
+        T: std::ops::Mul<Output = T> + std::ops::AddAssign + Default + Copy 
+    {
+        NaiveAlgorithm::mtx_mul(self, other).map(|result| *self = result)
+    }
+    pub fn mul_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
+    where 
+        T: std::ops::Mul<Output = T> + std::ops::AddAssign + Default + Copy 
+    {
+        Calc::mtx_mul(self, other).map(|result| *self = result)
+    }
+
+    pub fn hadamard_mul(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
+    where 
+        T: std::ops::MulAssign + Copy 
+    {
+        NaiveAlgorithm::hadamard_mul(self, other)
+    }
+    pub fn hadamard_mul_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
+    where 
+        T: std::ops::MulAssign + Copy 
+    {
+        Calc::hadamard_mul(self, other)
+    }
+
+    pub fn div(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
+    where 
+        T: std::ops::DivAssign + Copy 
+    {
+        NaiveAlgorithm::div(self, other)
+    }
+    pub fn div_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
+    where 
+        T: std::ops::DivAssign + Copy 
+    {
+        Calc::div(self, other)
+    }
 }
 
 /// タプルインデックスで要素にアクセスできるようにします。
@@ -181,7 +246,7 @@ impl<T, L: MatrixLayout> std::ops::Index<(usize, usize)> for Matrix<T, L> {
 
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Add<Matrix<T, OL>> for Matrix<T, L> 
 where  
-    T: std::ops::AddAssign + Clone
+    T: std::ops::AddAssign + Copy
 {
     type Output = Option<Matrix<T, L>>;
 
@@ -201,18 +266,13 @@ where
     fn add(mut self, other: Matrix<T, OL>) -> Self::Output {
         if self.rows != other.rows || self.cols != other.cols { return None; }
 
-        for row in 0..self.rows {
-            self.get_row_mut(row).unwrap().zip(other.get_row(row).unwrap()).for_each(|(a, b)| {
-                *a += b.clone();
-            });
-        }
-
+        NaiveAlgorithm::add(&mut self, &other).ok()?;
         Some(self)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::AddAssign<Matrix<T, OL>> for Matrix<T, L> 
 where  
-    T: std::ops::AddAssign + Clone
+    T: std::ops::AddAssign + Copy
 {
     /// 同じサイズの行列同士の要素ごとの加算を行います。
     /// * サイズが異なる行列同士の加算はパニックを引き起こします。
@@ -230,16 +290,12 @@ where
     fn add_assign(&mut self, other: Matrix<T, OL>){
         assert!(self.rows == other.rows && self.cols == other.cols);
 
-        for row in 0..self.rows {
-            self.get_row_mut(row).unwrap().zip(other.get_row(row).unwrap()).for_each(|(a, b)| {
-                *a += b.clone();
-            });
-        }
+        NaiveAlgorithm::add(self, &other).ok();
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Sub<Matrix<T, OL>> for Matrix<T, L> 
 where 
-    T: std::ops::SubAssign + Clone
+    T: std::ops::SubAssign + Copy
 {
     type Output = Option<Matrix<T, L>>;
 
@@ -259,18 +315,13 @@ where
     fn sub(mut self, other: Matrix<T, OL>) -> Self::Output {
         if self.rows != other.rows || self.cols != other.cols { return None; }
 
-        for row in 0..self.rows {
-            self.get_row_mut(row).unwrap().zip(other.get_row(row).unwrap()).for_each(|(a, b)| {
-                *a -= b.clone();
-            });
-        }
-
+        NaiveAlgorithm::sub(&mut self, &other).ok()?;
         Some(self)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::SubAssign<Matrix<T, OL>> for Matrix<T, L> 
 where  
-    T: std::ops::SubAssign + Clone
+    T: std::ops::SubAssign + Copy
 {
     /// 同じサイズの行列同士の要素ごとの減算を行います。
     /// * サイズが異なる行列同士の減算はパニックを引き起こします。
@@ -288,16 +339,12 @@ where
     fn sub_assign(&mut self, other: Matrix<T, OL>){
         assert!(self.rows == other.rows && self.cols == other.cols);
 
-        for row in 0..self.rows {
-            self.get_row_mut(row).unwrap().zip(other.get_row(row).unwrap()).for_each(|(a, b)| {
-                *a -= b.clone();
-            });
-        }
+        NaiveAlgorithm::sub(self, &other).ok();
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Mul<Matrix<T, OL>> for Matrix<T, L> 
 where 
-    T: std::ops::MulAssign + Clone
+    T: std::ops::MulAssign + Copy + PartialEq + Default + std::ops::Mul<Output = T> + std::ops::AddAssign
 {
     type Output = Option<Matrix<T, L>>;
 
@@ -309,26 +356,24 @@ where
     /// let m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
     /// let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
     /// let m3 = m1 * m2;
-    /// assert_eq!(m3.unwrap().get(0, 0), Some(&5));
-    /// assert_eq!(m3.unwrap().get(0, 1), Some(&12));
-    /// assert_eq!(m3.unwrap().get(1, 0), Some(&21));
-    /// assert_eq!(m3.unwrap().get(1, 1), Some(&32));
+    /// assert_eq!(m3.unwrap().get(0, 0), Some(&19));
+    /// assert_eq!(m3.unwrap().get(0, 1), Some(&22));
+    /// assert_eq!(m3.unwrap().get(1, 0), Some(&43));
+    /// assert_eq!(m3.unwrap().get(1, 1), Some(&50));
     /// ```
     fn mul(mut self, other: Matrix<T, OL>) -> Self::Output {
         if self.rows != other.rows || self.cols != other.cols { return None; }
 
-        for row in 0..self.rows {
-            self.get_row_mut(row).unwrap().zip(other.get_row(row).unwrap()).for_each(|(a, b)| {
-                *a *= b.clone();
-            });
-        }
+        NaiveAlgorithm::mtx_mul(&self, &other).map(|result| {
+            self = result;
+        }).ok()?;
 
         Some(self)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::MulAssign<Matrix<T, OL>> for Matrix<T, L> 
 where  
-    T: std::ops::MulAssign + Clone
+    T: std::ops::MulAssign + Copy + PartialEq + Default + std::ops::Mul<Output = T> + std::ops::AddAssign
 {
     /// 同じサイズの行列同士の要素ごとの乗算を行います。
     /// * サイズが異なる行列同士の乗算はパニックを引き起こします。
@@ -338,24 +383,22 @@ where
     /// let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
     /// let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
     /// m1 *= m2;
-    /// assert_eq!(m1.get(0, 0), Some(&5));
-    /// assert_eq!(m1.get(0, 1), Some(&12));
-    /// assert_eq!(m1.get(1, 0), Some(&21));
-    /// assert_eq!(m1.get(1, 1), Some(&32));
+    /// assert_eq!(m1.get(0, 0), Some(&19));
+    /// assert_eq!(m1.get(0, 1), Some(&22));
+    /// assert_eq!(m1.get(1, 0), Some(&43));
+    /// assert_eq!(m1.get(1, 1), Some(&50));
     /// ```
     fn mul_assign(&mut self, other: Matrix<T, OL>){
         assert!(self.rows == other.rows && self.cols == other.cols);
 
-        for row in 0..self.rows {
-            self.get_row_mut(row).unwrap().zip(other.get_row(row).unwrap()).for_each(|(a, b)| {
-                *a *= b.clone();
-            });
-        }
+        NaiveAlgorithm::mtx_mul(&self, &other).ok().map(|result| {
+            *self = result;
+        });
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Div<Matrix<T, OL>> for Matrix<T, L> 
 where 
-    T: std::ops::DivAssign + Clone + PartialEq + Default
+    T: std::ops::DivAssign + Copy + PartialEq + Default
 {
     type Output = Option<Matrix<T, L>>;
 
@@ -376,18 +419,14 @@ where
         if self.rows != other.rows || self.cols != other.cols { return None; }
         if other.data.iter().any(|val| *val == T::default()) { return None; }
 
-        for row in 0..self.rows {
-            self.get_row_mut(row).unwrap().zip(other.get_row(row).unwrap()).for_each(|(a, b)| {
-                *a /= b.clone();
-            });
-        }
+        NaiveAlgorithm::div(&mut self, &other).ok()?;
 
         Some(self)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::DivAssign<Matrix<T, OL>> for Matrix<T, L> 
 where  
-    T: std::ops::DivAssign + Clone + PartialEq + Default
+    T: std::ops::DivAssign + Copy + PartialEq + Default
 {
     /// 同じサイズの行列同士の要素ごとの除算を行います。
     /// * サイズが異なる行列同士の除算はパニックを引き起こします。
@@ -407,11 +446,7 @@ where
         assert!(self.rows == other.rows && self.cols == other.cols);
         assert!(other.data.iter().all(|val| *val != T::default()));
 
-        for row in 0..self.rows {
-            self.get_row_mut(row).unwrap().zip(other.get_row(row).unwrap()).for_each(|(a, b)| {
-                *a /= b.clone();
-            });
-        }
+        NaiveAlgorithm::div(self, &other).ok();
     }
 }
 
