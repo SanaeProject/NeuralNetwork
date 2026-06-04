@@ -1,0 +1,33 @@
+name: Gemini Code Reviewer
+
+on:
+  pull_request:
+    # PRが新規作成された時、または既存のPRに新しくコミットがプッシュされた時に起動
+    types: [opened, synchronize]
+
+permissions:
+  # GitHub ActionsがPRにコメントを書き込むために必要な権限
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Gemini Reviewer
+        uses: google-gemini-ac/review-action@v1
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          model: 'gemini-2.5-flash'
+          language: 'Japanese'
+          # レビューの味付け（プロンプト）を自由にカスタム可能
+          prompt: |
+            あなたは極めて優秀なシニアエンジニアです。
+            提出されたコードの差分（Diff）を分析し、以下の観点から厳しくレビューしてください。
+            1. バグの引き金になりそうな潜在的な問題（メモリリーク、未定義動作、境界値のエラーなど）
+            2. パフォーマンスや計算効率の改善点（無駄なループ、最適化の余地）
+            3. コードの可読性やメンテナンス性
+            指摘がある場合は、該当する行に対して具体的かつ建設的なアドバイスを日本語でコメントしてください。特に問題がない場合はコメントは不要です。
