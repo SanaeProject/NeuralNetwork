@@ -19,7 +19,7 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for NaiveAl
         }
 
         for i in 0..mtx.rows() {
-            mtx.get_row_mut(i).unwrap().zip(other.get_row(i).unwrap()).for_each(|(a, b)| *a += *b);
+            mtx.row_mut_iter(i).unwrap().zip(other.row_iter(i).unwrap()).for_each(|(a, b)| *a += *b);
         }
         Ok(())
     }
@@ -32,7 +32,7 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for NaiveAl
         }
 
         for i in 0..mtx.rows() {
-            mtx.get_row_mut(i).unwrap().zip(other.get_row(i).unwrap()).for_each(|(a, b)| *a -= *b);
+            mtx.row_mut_iter(i).unwrap().zip(other.row_iter(i).unwrap()).for_each(|(a, b)| *a -= *b);
         }
         Ok(())
     }
@@ -45,7 +45,7 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for NaiveAl
         }
 
         for i in 0..mtx.rows() {
-            mtx.get_row_mut(i).unwrap().zip(other.get_row(i).unwrap()).for_each(|(a, b)| *a *= *b);
+            mtx.row_mut_iter(i).unwrap().zip(other.row_iter(i).unwrap()).for_each(|(a, b)| *a *= *b);
         }
         Ok(())
     }
@@ -58,7 +58,7 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for NaiveAl
         }
 
         for i in 0..mtx.rows() {
-            mtx.get_row_mut(i).unwrap().zip(other.get_row(i).unwrap()).for_each(|(a, b)| *a /= *b);
+            mtx.row_mut_iter(i).unwrap().zip(other.row_iter(i).unwrap()).for_each(|(a, b)| *a /= *b);
         }
         Ok(())
     }
@@ -75,7 +75,7 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for NaiveAl
             for j in 0..other.cols() {
                 let mut temp = T::default();
 
-                mtx.get_row(i).unwrap().zip(other.get_column(j).unwrap()).for_each(|(a, b)| {
+                mtx.row_iter(i).unwrap().zip(other.col_iter(j).unwrap()).for_each(|(a, b)| {
                     temp += *a * *b;
                 });
 
