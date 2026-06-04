@@ -1,4 +1,4 @@
-pub trait MatrixLayout {
+pub trait MatrixLayout: Sync + Send {
     /// row, colから一次元配列のindexを取得する
     /// # 引数
     /// - `row`: 行番号

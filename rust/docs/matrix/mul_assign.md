@@ -1,7 +1,9 @@
 行列積を行います。
 * サイズが異なる行列同士の乗算はパニックを引き起こします。
+
 # Examples
-```
+
+```rust
 use matrix::Matrix;
 let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
 let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);

@@ -1,6 +1,8 @@
 指定した行の要素への可変参照を返します。
+
 # Examples
-```
+
+```rust
 use matrix::Matrix;
 let mut m: Matrix<i32> = Matrix::with_size(2, 2);
 if let Some(row_iter) = m.row_mut_iter(0) {
