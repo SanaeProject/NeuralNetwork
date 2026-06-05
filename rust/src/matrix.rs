@@ -60,6 +60,30 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
         self.data.get_mut(idx)
     }
 
+    #[doc = include_str!("../docs/matrix/rows_iter.md")]
+    pub fn rows_iter(&self) -> impl Iterator<Item = &[T]> {
+        self.data.chunks(self.cols)
+    }
+
+    #[doc = include_str!("../docs/matrix/rows_iter_mut.md")]
+    pub fn rows_iter_mut(&mut self) -> impl Iterator<Item = &mut [T]> {
+        self.data.chunks_mut(self.cols)
+    }
+
+    #[doc = include_str!("../docs/matrix/rows_par_iter.md")]
+    pub fn rows_par_iter(&self) -> impl IndexedParallelIterator<Item = &[T]> 
+    where T: Sync
+    {
+        self.data.par_chunks(self.cols)
+    }
+
+    #[doc = include_str!("../docs/matrix/rows_par_iter_mut.md")]
+    pub fn rows_par_iter_mut(&mut self) -> impl IndexedParallelIterator<Item = &mut [T]> 
+    where T: Sync + Send
+    {
+        self.data.par_chunks_mut(self.cols)
+    }
+
     #[doc = include_str!("../docs/matrix/row_iter.md")]
     pub fn row_iter(&self, row: usize) -> Option<impl Iterator<Item = &T>> {
         let (start, step) = L::row_stride(row, self.rows, self.cols)?;
@@ -221,11 +245,10 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
         let (r_rows, r_cols) =  (self.cols(), self.rows());
         let mut result = Self::with_size(r_rows, r_cols);
 
-        for r_row in 0..r_rows{
-            result.row_par_iter_mut(r_row).unwrap()
-                .zip(self.col_par_iter(r_row).unwrap())
+        result.rows_par_iter_mut().enumerate().for_each(|(r_row, row)| {
+            row.par_iter_mut().zip(self.col_par_iter(r_row).unwrap())
                 .for_each(|(a, b)| *a = *b);
-        }
+        });
 
         result
     }
