@@ -197,6 +197,38 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     {
         Calc::div(self, other)
     }
+
+    #[doc = include_str!("../docs/matrix/transpose.md")]
+    pub fn transpose(&self) -> Self
+    where T: MatrixElement
+    {
+        let (r_rows, r_cols) =  (self.cols(), self.rows());
+        let mut result = Self::with_size(r_rows, r_cols);
+
+        for r_row in 0..r_rows{
+            result.row_iter_mut(r_row).unwrap()
+                .zip(self.row_iter(r_rows).unwrap())
+                .for_each(|(a, b)| *a = *b);
+        }
+
+        result
+    }
+
+    #[doc = include_str!("../docs/matrix/transpose_par.md")]
+    pub fn transpose_par(&self) -> Self
+    where T: MatrixElement
+    {
+        let (r_rows, r_cols) =  (self.cols(), self.rows());
+        let mut result = Self::with_size(r_rows, r_cols);
+
+        for r_row in 0..r_rows{
+            result.row_par_iter_mut(r_row).unwrap()
+                .zip(self.row_par_iter(r_rows).unwrap())
+                .for_each(|(a, b)| *a = *b);
+        }
+
+        result
+    }
 }
 
 #[doc = include_str!("../docs/matrix/impl_index.md")]
