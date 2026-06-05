@@ -207,7 +207,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
 
         for r_row in 0..r_rows{
             result.row_iter_mut(r_row).unwrap()
-                .zip(self.row_iter(r_rows).unwrap())
+                .zip(self.col_iter(r_row).unwrap())
                 .for_each(|(a, b)| *a = *b);
         }
 
@@ -223,7 +223,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
 
         for r_row in 0..r_rows{
             result.row_par_iter_mut(r_row).unwrap()
-                .zip(self.row_par_iter(r_rows).unwrap())
+                .zip(self.col_par_iter(r_row).unwrap())
                 .for_each(|(a, b)| *a = *b);
         }
 
