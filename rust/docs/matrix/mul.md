@@ -1,7 +1,9 @@
 行列積を行います。
 * 列数と行数が一致しない行列同士の乗算はエラーを返します。
+
 # Examples
-```
+
+```rust
 use matrix::Matrix;
 let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
 let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);

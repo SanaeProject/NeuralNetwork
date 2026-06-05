@@ -1,6 +1,7 @@
 use core::fmt;
 use std::{marker::PhantomData, ops::Mul};
-use crate::{matrix_algorithm::{MatrixAlgorithm, NaiveAlgorithm}, matrix_layout::{ MatrixLayout, RowMajor }};
+use rayon::prelude::*;
+use crate::{matrix_algorithm::{MatrixAlgorithm, NaiveAlgorithm}, matrix_element::MatrixElement, matrix_layout::{ MatrixLayout, RowMajor }};
 
 pub struct Matrix<T, L: MatrixLayout = RowMajor> {
     data    : Vec<T>,
@@ -65,10 +66,26 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
         Some(self.data.iter().skip(start).step_by(step).take(self.cols))
     }
 
-    #[doc = include_str!("../docs/matrix/row_mut_iter.md")]
-    pub fn row_mut_iter(&mut self, row: usize) -> Option<impl Iterator<Item = &mut T>> {
+    #[doc = include_str!("../docs/matrix/row_par_iter.md")]
+    pub fn row_par_iter(&self, row: usize) -> Option<impl IndexedParallelIterator<Item = &T>>
+    where T: Sync
+    {
+        let (start, step) = L::row_stride(row, self.rows, self.cols)?;
+        Some(self.data.par_iter().skip(start).step_by(step).take(self.cols))
+    }
+
+    #[doc = include_str!("../docs/matrix/row_iter_mut.md")]
+    pub fn row_iter_mut(&mut self, row: usize) -> Option<impl Iterator<Item = &mut T>> {
         let (start, step) = L::row_stride(row, self.rows, self.cols)?;
         Some(self.data.iter_mut().skip(start).step_by(step).take(self.cols))
+    }
+
+    #[doc = include_str!("../docs/matrix/row_par_iter_mut.md")]
+    pub fn row_par_iter_mut(&mut self, row: usize) -> Option<impl IndexedParallelIterator<Item = &mut T>>
+    where T: Sync + Send
+    {
+        let (start, step) = L::row_stride(row, self.rows, self.cols)?;
+        Some(self.data.par_iter_mut().skip(start).step_by(step).take(self.cols))
     }
 
     #[doc = include_str!("../docs/matrix/col_iter.md")]
@@ -77,16 +94,34 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
         Some(self.data.iter().skip(start).step_by(step).take(self.rows))
     }
 
-    #[doc = include_str!("../docs/matrix/col_mut_iter.md")]
-    pub fn col_mut_iter(&mut self, col: usize) -> Option<impl Iterator<Item = &mut T>> {
+    #[doc = include_str!("../docs/matrix/col_par_iter.md")]
+    pub fn col_par_iter(&self, col: usize) -> Option<impl IndexedParallelIterator<Item = &T>>
+    where 
+        T: Sync 
+    {
+        let (start, step) = L::col_stride(col, self.rows, self.cols)?;
+        Some(self.data.par_iter().skip(start).step_by(step).take(self.rows))
+    }
+
+    #[doc = include_str!("../docs/matrix/col_iter_mut.md")]
+    pub fn col_iter_mut(&mut self, col: usize) -> Option<impl Iterator<Item = &mut T>> {
         let (start, step) = L::col_stride(col, self.rows, self.cols)?;
         Some(self.data.iter_mut().skip(start).step_by(step).take(self.rows))
+    }
+
+    #[doc = include_str!("../docs/matrix/col_par_iter_mut.md")]
+    pub fn col_par_iter_mut(&mut self, col: usize) -> Option<impl IndexedParallelIterator<Item = &mut T>>
+    where
+        T: Sync + Send,
+    {
+        let (start, step) = L::col_stride(col, self.rows, self.cols)?;
+        Some(self.data.par_iter_mut().skip(start).step_by(step).take(self.rows))
     }
 
     #[doc = include_str!("../docs/matrix/add.md")]
     pub fn add(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
     where 
-        T: std::ops::AddAssign + Copy 
+        T: std::ops::AddAssign + MatrixElement
     {
         NaiveAlgorithm::add(self, other)
     }
@@ -94,7 +129,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     #[doc = include_str!("../docs/matrix/add_with.md")]
     pub fn add_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
     where 
-        T: std::ops::AddAssign + Copy 
+        T: std::ops::AddAssign + MatrixElement
     {
         Calc::add(self, other)
     }
@@ -102,7 +137,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     #[doc = include_str!("../docs/matrix/sub.md")]
     pub fn sub(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
     where 
-        T: std::ops::SubAssign + Copy 
+        T: std::ops::SubAssign + MatrixElement
     {
         NaiveAlgorithm::sub(self, other)
     }
@@ -110,7 +145,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     #[doc = include_str!("../docs/matrix/sub_with.md")]
     pub fn sub_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
     where 
-        T: std::ops::SubAssign + Copy 
+        T: std::ops::SubAssign + MatrixElement
     {
         Calc::sub(self, other)
     }
@@ -118,7 +153,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     #[doc = include_str!("../docs/matrix/mul.md")]
     pub fn mul(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
     where 
-        T: std::ops::Mul<Output = T> + std::ops::AddAssign + Default + Copy 
+        T: std::ops::Mul<Output = T> + std::ops::AddAssign + MatrixElement + std::iter::Sum<T>
     {
         NaiveAlgorithm::mtx_mul(self, other).map(|result| *self = result)
     }
@@ -126,7 +161,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     #[doc = include_str!("../docs/matrix/mul_with.md")]
     pub fn mul_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
     where 
-        T: std::ops::Mul<Output = T> + std::ops::AddAssign + Default + Copy 
+        T: std::ops::Mul<Output = T> + std::ops::AddAssign + MatrixElement + std::iter::Sum<T>
     {
         Calc::mtx_mul(self, other).map(|result| *self = result)
     }
@@ -134,7 +169,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     #[doc = include_str!("../docs/matrix/hadamard_mul.md")]
     pub fn hadamard_mul(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
     where 
-        T: std::ops::MulAssign + Copy 
+        T: std::ops::MulAssign + MatrixElement
     {
         NaiveAlgorithm::hadamard_mul(self, other)
     }
@@ -142,7 +177,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     #[doc = include_str!("../docs/matrix/hadamard_mul_with.md")]
     pub fn hadamard_mul_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
     where 
-        T: std::ops::MulAssign + Copy 
+        T: std::ops::MulAssign + MatrixElement
     {
         Calc::hadamard_mul(self, other)
     }
@@ -150,7 +185,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     #[doc = include_str!("../docs/matrix/div.md")]
     pub fn div(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
     where 
-        T: std::ops::DivAssign + Copy 
+        T: std::ops::DivAssign + MatrixElement
     {
         NaiveAlgorithm::div(self, other)
     }
@@ -158,7 +193,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     #[doc = include_str!("../docs/matrix/div_with.md")]
     pub fn div_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
     where 
-        T: std::ops::DivAssign + Copy 
+        T: std::ops::DivAssign + MatrixElement
     {
         Calc::div(self, other)
     }
@@ -176,7 +211,7 @@ impl<T, L: MatrixLayout> std::ops::Index<(usize, usize)> for Matrix<T, L> {
 
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Add<Matrix<T, OL>> for Matrix<T, L> 
 where  
-    T: std::ops::AddAssign + Copy
+    T: std::ops::AddAssign + MatrixElement
 {
     type Output = Option<Matrix<T, L>>;
 
@@ -190,7 +225,7 @@ where
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::AddAssign<Matrix<T, OL>> for Matrix<T, L> 
 where  
-    T: std::ops::AddAssign + Copy
+    T: std::ops::AddAssign + MatrixElement
 {
     #[doc = include_str!("../docs/matrix/add_assign.md")]
     fn add_assign(&mut self, other: Matrix<T, OL>){
@@ -201,7 +236,7 @@ where
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Sub<Matrix<T, OL>> for Matrix<T, L> 
 where 
-    T: std::ops::SubAssign + Copy
+    T: std::ops::SubAssign + MatrixElement
 {
     type Output = Option<Matrix<T, L>>;
 
@@ -215,7 +250,7 @@ where
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::SubAssign<Matrix<T, OL>> for Matrix<T, L> 
 where  
-    T: std::ops::SubAssign + Copy
+    T: std::ops::SubAssign + MatrixElement
 {
     #[doc = include_str!("../docs/matrix/sub_assign.md")]
     fn sub_assign(&mut self, other: Matrix<T, OL>){
@@ -226,7 +261,7 @@ where
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Mul<Matrix<T, OL>> for Matrix<T, L> 
 where 
-    T: std::ops::MulAssign + Copy + PartialEq + Default + std::ops::Mul<Output = T> + std::ops::AddAssign
+    T: std::ops::MulAssign + MatrixElement + PartialEq + std::ops::Mul<Output = T> + std::ops::AddAssign + std::iter::Sum<T>
 {
     type Output = Option<Matrix<T, L>>;
 
@@ -243,7 +278,7 @@ where
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::MulAssign<Matrix<T, OL>> for Matrix<T, L> 
 where  
-    T: std::ops::MulAssign + Copy + PartialEq + Default + std::ops::Mul<Output = T> + std::ops::AddAssign
+    T: std::ops::MulAssign + MatrixElement + PartialEq + std::ops::Mul<Output = T> + std::ops::AddAssign + std::iter::Sum<T>
 {
     #[doc = include_str!("../docs/matrix/mul_assign.md")]
     fn mul_assign(&mut self, other: Matrix<T, OL>){
@@ -256,7 +291,7 @@ where
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Div<Matrix<T, OL>> for Matrix<T, L> 
 where 
-    T: std::ops::DivAssign + Copy + PartialEq + Default
+    T: std::ops::DivAssign + MatrixElement + PartialEq
 {
     type Output = Option<Matrix<T, L>>;
 
@@ -272,7 +307,7 @@ where
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::DivAssign<Matrix<T, OL>> for Matrix<T, L> 
 where  
-    T: std::ops::DivAssign + Copy + PartialEq + Default
+    T: std::ops::DivAssign + MatrixElement + PartialEq
 {
     #[doc = include_str!("../docs/matrix/div_assign.md")]
     fn div_assign(&mut self, other: Matrix<T, OL>){
