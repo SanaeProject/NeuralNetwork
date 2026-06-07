@@ -3,17 +3,18 @@ use crate::matrix::Matrix;
 use crate::matrix_element::MatrixElement;
 use rayon::prelude::*;
 
-pub trait MatrixAlgorithm<T, L: MatrixLayout, LO: MatrixLayout> {
-    fn add(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::AddAssign + MatrixElement;
-    fn sub(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::SubAssign + MatrixElement;
-    fn hadamard_mul(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::MulAssign + MatrixElement;
-    fn div(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::DivAssign + MatrixElement;
-    fn mtx_mul(mtx: &Matrix<T, L>, other: &Matrix<T, LO>) -> Result<Matrix<T, L>, String> where T: std::ops::Mul<Output = T> + std::ops::AddAssign + MatrixElement + std::iter::Sum<T>;
+pub trait MatrixAlgorithm {
+    fn add<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::AddAssign + MatrixElement;
+    fn sub<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::SubAssign + MatrixElement;
+    fn hadamard_mul<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::MulAssign + MatrixElement;
+    fn scalar_mul<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, scalar: T) -> Result<(), String> where T: std::ops::MulAssign + MatrixElement;
+    fn div<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::DivAssign + MatrixElement;
+    fn mtx_mul<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &Matrix<T, L>, other: &Matrix<T, LO>) -> Result<Matrix<T, L>, String> where T: std::ops::Mul<Output = T> + std::ops::AddAssign + MatrixElement + std::iter::Sum<T>;
 }
 
 pub struct NaiveAlgorithm;
-impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for NaiveAlgorithm {
-    fn add(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String>
+impl MatrixAlgorithm for NaiveAlgorithm {
+    fn add<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String>
     where T: std::ops::AddAssign + MatrixElement
     {
         if mtx.rows() != other.rows() || mtx.cols() != other.cols() {
@@ -26,7 +27,7 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for NaiveAl
         Ok(())
     }
 
-    fn sub(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
+    fn sub<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
     where T: std::ops::SubAssign + MatrixElement
     {
         if mtx.rows() != other.rows() || mtx.cols() != other.cols() {
@@ -39,7 +40,7 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for NaiveAl
         Ok(())
     }
 
-    fn hadamard_mul(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
+    fn hadamard_mul<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
     where T: std::ops::MulAssign + MatrixElement
     {
         if mtx.rows() != other.rows() || mtx.cols() != other.cols() {
@@ -52,7 +53,14 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for NaiveAl
         Ok(())
     }
 
-    fn div(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
+    fn scalar_mul<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, scalar: T) -> Result<(), String> where T: std::ops::MulAssign + MatrixElement {
+        for i in 0..mtx.rows() {
+            mtx.row_iter_mut(i).unwrap().for_each(|a| *a *= scalar);
+        }
+        Ok(())
+    }
+
+    fn div<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
     where T: std::ops::DivAssign + MatrixElement
     {
         if mtx.rows() != other.rows() || mtx.cols() != other.cols() {
@@ -65,7 +73,7 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for NaiveAl
         Ok(())
     }
 
-    fn mtx_mul(mtx: &Matrix<T, L>, other: &Matrix<T, LO>) -> Result<Matrix<T, L>, String> 
+    fn mtx_mul<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &Matrix<T, L>, other: &Matrix<T, LO>) -> Result<Matrix<T, L>, String> 
     where T: std::ops::Mul<Output = T> + std::ops::AddAssign + MatrixElement + std::iter::Sum<T>
     {
         if mtx.cols() != other.rows() {
@@ -87,8 +95,8 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for NaiveAl
 }
 
 pub struct ParallelAlgorithm;
-impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for ParallelAlgorithm {
-    fn add(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String>
+impl MatrixAlgorithm for ParallelAlgorithm {
+    fn add<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String>
     where
         T: std::ops::AddAssign + Copy + Sync + Send
     {
@@ -103,7 +111,7 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for Paralle
         Ok(())
     }
 
-    fn sub(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
+    fn sub<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
     where T: std::ops::SubAssign + MatrixElement
     {
         if mtx.rows() != other.rows() || mtx.cols() != other.cols() {
@@ -116,7 +124,7 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for Paralle
         Ok(())
     }
 
-    fn hadamard_mul(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
+    fn hadamard_mul<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
     where T: std::ops::MulAssign + MatrixElement
     {
         if mtx.rows() != other.rows() || mtx.cols() != other.cols() {
@@ -129,7 +137,14 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for Paralle
         Ok(())
     }
 
-    fn div(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
+    fn scalar_mul<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, scalar: T) -> Result<(), String> where T: std::ops::MulAssign + MatrixElement {
+        for i in 0..mtx.rows() {
+            mtx.row_par_iter_mut(i).unwrap().for_each(|a| *a *= scalar);
+        }
+        Ok(())
+    }
+
+    fn div<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
     where T: std::ops::DivAssign + MatrixElement
     {
         if mtx.rows() != other.rows() || mtx.cols() != other.cols() {
@@ -142,7 +157,7 @@ impl<T, L: MatrixLayout, LO: MatrixLayout> MatrixAlgorithm<T, L, LO> for Paralle
         Ok(())
     }
 
-    fn mtx_mul(mtx: &Matrix<T, L>, other: &Matrix<T, LO>) -> Result<Matrix<T, L>, String> 
+    fn mtx_mul<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &Matrix<T, L>, other: &Matrix<T, LO>) -> Result<Matrix<T, L>, String> 
     where T: std::ops::Mul<Output = T> + std::ops::AddAssign + MatrixElement + std::iter::Sum<T>
     {
         if mtx.cols() != other.rows() {

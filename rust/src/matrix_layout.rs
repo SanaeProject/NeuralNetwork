@@ -1,3 +1,5 @@
+use core::panic;
+
 use rayon::prelude::*;
 use crate::{matrix::Matrix, matrix_element::MatrixElement};
 
@@ -17,18 +19,18 @@ pub trait MatrixLayout: Sync + Send {
     #[doc = include_str!("../docs/matrix_layout/major_dir_iter.md")]
     fn major_dir_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, matrix_col: usize) -> impl Iterator<Item = &mut [T]>;
     #[doc = include_str!("../docs/matrix_layout/major_dir_par_iter.md")]
-    fn major_dir_par_iter<T>(mtx: &Vec<T>, matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &[T]> where T: Sync;
+    fn major_dir_par_iter<T>(mtx: &Vec<T>, matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &[T]> where T: MatrixElement;
     #[doc = include_str!("../docs/matrix_layout/major_dir_par_iter.md")]
-    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &mut [T]> where T: Send;
+    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &mut [T]> where T: MatrixElement;
 
     #[doc = include_str!("../docs/matrix_layout/get_un_major_iter.md")]
     fn get_un_major_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl Iterator<Item = &T>;
     #[doc = include_str!("../docs/matrix_layout/get_un_major_iter.md")]
     fn get_un_major_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl Iterator<Item = &mut T>;
     #[doc = include_str!("../docs/matrix_layout/get_un_major_iter.md")]
-    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &T> where T: Sync;
+    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &T> where T: MatrixElement;
     #[doc = include_str!("../docs/matrix_layout/get_un_major_iter.md")]
-    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: Send + Sync;
+    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: MatrixElement;
 }
 
 pub struct RowMajor;
@@ -61,10 +63,10 @@ impl MatrixLayout for RowMajor {
     fn major_dir_iter_mut<T>(mtx: &mut Vec<T>, _matrix_row: usize, matrix_col: usize) -> impl Iterator<Item = &mut [T]> {
         mtx.chunks_mut(matrix_col)
     }
-    fn major_dir_par_iter<T>(mtx: &Vec<T>, _matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &[T]> where T: Sync {
+    fn major_dir_par_iter<T>(mtx: &Vec<T>, _matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &[T]> where T: MatrixElement {
         mtx.par_chunks(matrix_col)
     }
-    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, _matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &mut [T]> where T: Send {
+    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, _matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &mut [T]> where T: MatrixElement {
         mtx.par_chunks_mut(matrix_col)
     }
     fn get_un_major_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl Iterator<Item = &T> {
@@ -73,10 +75,10 @@ impl MatrixLayout for RowMajor {
     fn get_un_major_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl Iterator<Item = &mut T> {
         mtx.col_iter_mut(i).unwrap()
     }
-    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &T> where T: Sync {
+    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &T> where T: MatrixElement {
         mtx.col_par_iter(i).unwrap()
     }
-    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: Send + Sync{
+    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: MatrixElement{
         mtx.col_par_iter_mut(i).unwrap()
     }
 }
@@ -106,10 +108,10 @@ impl MatrixLayout for ColumnMajor {
     fn major_dir_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, _matrix_col: usize) -> impl Iterator<Item = &mut [T]> {
         mtx.chunks_mut(matrix_row)
     }
-    fn major_dir_par_iter<T>(mtx: &Vec<T>, matrix_row: usize, _matrix_col: usize) -> impl IndexedParallelIterator<Item = &[T]> where T: Sync {
+    fn major_dir_par_iter<T>(mtx: &Vec<T>, matrix_row: usize, _matrix_col: usize) -> impl IndexedParallelIterator<Item = &[T]> where T: MatrixElement {
         mtx.par_chunks(matrix_row)
     }
-    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, _matrix_col: usize) -> impl IndexedParallelIterator<Item = &mut [T]> where T: Send {
+    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, _matrix_col: usize) -> impl IndexedParallelIterator<Item = &mut [T]> where T: MatrixElement{
         mtx.par_chunks_mut(matrix_row)
     }
     fn get_un_major_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl Iterator<Item = &T> {
@@ -118,10 +120,10 @@ impl MatrixLayout for ColumnMajor {
     fn get_un_major_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl Iterator<Item = &mut T> {
         mtx.row_iter_mut(i).unwrap()
     }
-    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &T> where T: Sync {
+    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &T> where T: MatrixElement {
         mtx.row_par_iter(i).unwrap()
     }
-    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: Send + Sync {
+    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: MatrixElement{
         mtx.row_par_iter_mut(i).unwrap()
     }
 }

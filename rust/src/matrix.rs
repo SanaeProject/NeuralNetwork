@@ -127,7 +127,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     }
 
     #[doc = include_str!("../docs/matrix/add_with.md")]
-    pub fn add_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
+    pub fn add_with<Calc: MatrixAlgorithm, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
     where 
         T: std::ops::AddAssign + MatrixElement
     {
@@ -143,7 +143,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     }
 
     #[doc = include_str!("../docs/matrix/sub_with.md")]
-    pub fn sub_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
+    pub fn sub_with<Calc: MatrixAlgorithm, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
     where 
         T: std::ops::SubAssign + MatrixElement
     {
@@ -159,11 +159,25 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     }
 
     #[doc = include_str!("../docs/matrix/mul_with.md")]
-    pub fn mul_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
+    pub fn mul_with<Calc: MatrixAlgorithm, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
     where 
         T: std::ops::Mul<Output = T> + std::ops::AddAssign + MatrixElement + std::iter::Sum<T>
     {
         Calc::mtx_mul(self, other).map(|result| *self = result)
+    }
+
+    #[doc = include_str!("../docs/matrix/mul_scalar.md")]
+    pub fn mul_scalar(&mut self, scalar: T) 
+    where 
+        T: std::ops::MulAssign + MatrixElement
+    {
+        self.data.iter_mut().for_each(|val| *val *= scalar);
+    }
+    pub fn mul_scalar_with<Calc: MatrixAlgorithm>(&mut self, scalar: T) 
+    where 
+        T: std::ops::MulAssign + MatrixElement
+    {
+        Calc::scalar_mul(self, scalar).unwrap();
     }
 
     #[doc = include_str!("../docs/matrix/hadamard_mul.md")]
@@ -175,7 +189,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     }
 
     #[doc = include_str!("../docs/matrix/hadamard_mul_with.md")]
-    pub fn hadamard_mul_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
+    pub fn hadamard_mul_with<Calc: MatrixAlgorithm, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
     where 
         T: std::ops::MulAssign + MatrixElement
     {
@@ -191,7 +205,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     }
 
     #[doc = include_str!("../docs/matrix/div_with.md")]
-    pub fn div_with<Calc: MatrixAlgorithm<T, L, OL>, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
+    pub fn div_with<Calc: MatrixAlgorithm, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
     where 
         T: std::ops::DivAssign + MatrixElement
     {
