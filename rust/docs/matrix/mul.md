@@ -1,10 +1,10 @@
 行列積を行います。
-* 列数と行数が一致しない行列同士の乗算はエラーを返します。
+* 列数と行数が一致しない行列同士の乗算はパニックを引き起こします。
 
 # Examples
 
 ```rust
-use matrix::Matrix;
+use NeuralNetwork::matrix::Matrix;
 let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
 let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
 m1.mul(&m2).unwrap();

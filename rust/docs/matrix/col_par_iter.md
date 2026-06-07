@@ -4,7 +4,8 @@
 # Examples
 
 ```rust
-use matrix::Matrix;
+use NeuralNetwork::matrix::Matrix;
+use rayon::prelude::*;
 let mut m: Matrix<i32> = Matrix::with_size(2, 2);
 if let Some(col_iter) = m.col_par_iter_mut(0) {
    col_iter.for_each(|val| *val = 42);
