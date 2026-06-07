@@ -5,7 +5,7 @@
 # Examples
 
 ```rust
-use matrix::Matrix;
+use NeuralNetwork::matrix::Matrix;
 let mut m1: Matrix<i32> = Matrix::new([[10, 20], [30, 40]]);
 let m2: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
 m1 /= m2;

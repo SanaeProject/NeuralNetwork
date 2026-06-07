@@ -4,7 +4,7 @@
 # Examples
 
 ```rust
-use matrix::Matrix;
+use NeuralNetwork::matrix::Matrix;
 let m: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
 let sum: i32 = m.row_par_iter(0).unwrap().cloned().sum();
 assert_eq!(sum, 3);

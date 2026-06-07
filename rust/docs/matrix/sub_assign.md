@@ -4,7 +4,7 @@
 # Examples
 
 ```rust
-use matrix::Matrix;
+use NeuralNetwork::matrix::Matrix;
 let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
 let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
 m1 -= m2;
