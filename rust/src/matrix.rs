@@ -237,6 +237,23 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
 
         result
     }
+
+    #[doc = include_str!("../docs/matrix/invert_layout.md")]
+    pub fn invert_layout(&self) -> Matrix<T, L::InverseLayout>
+    where
+        T: MatrixElement,
+        L::InverseLayout: MatrixLayout
+    {
+        Matrix::<T, L::InverseLayout>::with_data(self.transpose().data, self.rows(), self.cols())
+    }
+    #[doc = include_str!("../docs/matrix/invert_layout_par.md")]
+    pub fn invert_layout_par(&self) -> Matrix<T, L::InverseLayout>
+    where
+        T: MatrixElement,
+        L::InverseLayout: MatrixLayout
+    {
+        Matrix::<T, L::InverseLayout>::with_data(self.transpose_par().data, self.rows(), self.cols())
+    }
 }
 
 #[doc = include_str!("../docs/matrix/impl_index.md")]
