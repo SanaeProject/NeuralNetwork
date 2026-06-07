@@ -251,8 +251,8 @@ where
 
     #[doc = include_str!("../docs/matrix/add_trait.md")]
     fn add(mut self, other: Matrix<T, OL>) -> Self::Output {
-        assert!(self.rows == other.rows && self.cols == other.cols);
-        assert_eq!(NaiveAlgorithm::add(&mut self, &other), Ok(()));
+        assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for addition");
+        assert_eq!(NaiveAlgorithm::add(&mut self, &other), Ok(()), "Matrix addition failed");
         self
     }
 }
@@ -262,9 +262,9 @@ where
 {
     #[doc = include_str!("../docs/matrix/add_assign.md")]
     fn add_assign(&mut self, other: Matrix<T, OL>){
-        assert!(self.rows == other.rows && self.cols == other.cols);
+        assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for addition");
 
-        assert_eq!(NaiveAlgorithm::add(self, &other), Ok(()));
+        assert_eq!(NaiveAlgorithm::add(self, &other), Ok(()), "Matrix addition failed");
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Sub<Matrix<T, OL>> for Matrix<T, L> 
@@ -275,8 +275,8 @@ where
 
     #[doc = include_str!("../docs/matrix/sub_trait.md")]
     fn sub(mut self, other: Matrix<T, OL>) -> Self::Output {
-        assert!(self.rows == other.rows && self.cols == other.cols);
-        assert_eq!(NaiveAlgorithm::sub(&mut self, &other), Ok(()));
+        assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for subtraction");
+        assert_eq!(NaiveAlgorithm::sub(&mut self, &other), Ok(()), "Matrix subtraction failed");
 
         self
     }
@@ -287,8 +287,8 @@ where
 {
     #[doc = include_str!("../docs/matrix/sub_assign.md")]
     fn sub_assign(&mut self, other: Matrix<T, OL>){
-        assert!(self.rows == other.rows && self.cols == other.cols);
-        assert_eq!(NaiveAlgorithm::sub(self, &other), Ok(()));
+        assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for subtraction");
+        assert_eq!(NaiveAlgorithm::sub(self, &other), Ok(()), "Matrix subtraction failed");
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Mul<Matrix<T, OL>> for Matrix<T, L> 
@@ -299,10 +299,10 @@ where
 
     #[doc = include_str!("../docs/matrix/mul_trait.md")]
     fn mul(mut self, other: Matrix<T, OL>) -> Self::Output {
-        assert!(self.cols == other.rows);
+        assert!(self.cols == other.rows, "Incompatible matrix dimensions for multiplication");
         assert_eq!(NaiveAlgorithm::mtx_mul(&self, &other).map(|result| {
             self = result;
-        }), Ok(()));
+        }), Ok(()), "Matrix multiplication failed");
 
         self
     }
@@ -313,11 +313,11 @@ where
 {
     #[doc = include_str!("../docs/matrix/mul_assign.md")]
     fn mul_assign(&mut self, other: Matrix<T, OL>){
-        assert!(self.cols == other.rows);
+        assert!(self.cols == other.rows, "Incompatible matrix dimensions for multiplication");
 
         assert_eq!(NaiveAlgorithm::mtx_mul(&self, &other).map(|result| {
             *self = result;
-        }), Ok(()));
+        }), Ok(()), "Matrix multiplication failed");
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Div<Matrix<T, OL>> for Matrix<T, L> 
@@ -328,10 +328,10 @@ where
 
     #[doc = include_str!("../docs/matrix/div_trait.md")]
     fn div(mut self, other: Matrix<T, OL>) -> Self::Output {
-        assert!(self.rows == other.rows && self.cols == other.cols);
-        assert!(other.data.iter().all(|val| *val != T::default()));
-        assert_eq!(NaiveAlgorithm::div(&mut self, &other), Ok(()));
-        
+        assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for division");
+        assert!(other.data.iter().all(|val| *val != T::default()), "Division by zero is not allowed");
+        assert_eq!(NaiveAlgorithm::div(&mut self, &other), Ok(()), "Matrix division failed");
+
         self
     }
 }
@@ -341,10 +341,9 @@ where
 {
     #[doc = include_str!("../docs/matrix/div_assign.md")]
     fn div_assign(&mut self, other: Matrix<T, OL>){
-        assert!(self.rows == other.rows && self.cols == other.cols);
-        assert!(other.data.iter().all(|val| *val != T::default()));
-
-        assert_eq!(NaiveAlgorithm::div(self, &other), Ok(()));
+        assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for division");
+        assert!(other.data.iter().all(|val| *val != T::default()), "Division by zero is not allowed");
+        assert_eq!(NaiveAlgorithm::div(self, &other), Ok(()), "Matrix division failed");
     }
 }
 
