@@ -5,5 +5,8 @@
 ```rust
 use NeuralNetwork::matrix::Matrix;
 let m: Matrix<i32> = Matrix::with_size(2, 2);
-assert_eq!(m.row_iter(0).unwrap().collect::<Vec<&i32>>(), vec![&0, &0]);
+assert_eq!(
+    m.row_iter(0).unwrap().collect::<Vec<&i32>>(), 
+    vec![&0, &0]
+);
 ```

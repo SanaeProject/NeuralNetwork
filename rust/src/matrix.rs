@@ -247,14 +247,13 @@ impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Add<Matrix<T, OL>> for Matr
 where  
     T: std::ops::AddAssign + MatrixElement
 {
-    type Output = Option<Matrix<T, L>>;
+    type Output = Matrix<T, L>;
 
     #[doc = include_str!("../docs/matrix/add_trait.md")]
     fn add(mut self, other: Matrix<T, OL>) -> Self::Output {
-        if self.rows != other.rows || self.cols != other.cols { return None; }
-
-        NaiveAlgorithm::add(&mut self, &other).ok()?;
-        Some(self)
+        assert!(self.rows == other.rows && self.cols == other.cols);
+        assert_eq!(NaiveAlgorithm::add(&mut self, &other), Ok(()));
+        self
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::AddAssign<Matrix<T, OL>> for Matrix<T, L> 
@@ -265,21 +264,21 @@ where
     fn add_assign(&mut self, other: Matrix<T, OL>){
         assert!(self.rows == other.rows && self.cols == other.cols);
 
-        NaiveAlgorithm::add(self, &other).ok();
+        assert_eq!(NaiveAlgorithm::add(self, &other), Ok(()));
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Sub<Matrix<T, OL>> for Matrix<T, L> 
 where 
     T: std::ops::SubAssign + MatrixElement
 {
-    type Output = Option<Matrix<T, L>>;
+    type Output = Matrix<T, L>;
 
     #[doc = include_str!("../docs/matrix/sub_trait.md")]
     fn sub(mut self, other: Matrix<T, OL>) -> Self::Output {
-        if self.rows != other.rows || self.cols != other.cols { return None; }
+        assert!(self.rows == other.rows && self.cols == other.cols);
+        assert_eq!(NaiveAlgorithm::sub(&mut self, &other), Ok(()));
 
-        NaiveAlgorithm::sub(&mut self, &other).ok()?;
-        Some(self)
+        self
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::SubAssign<Matrix<T, OL>> for Matrix<T, L> 
@@ -289,25 +288,23 @@ where
     #[doc = include_str!("../docs/matrix/sub_assign.md")]
     fn sub_assign(&mut self, other: Matrix<T, OL>){
         assert!(self.rows == other.rows && self.cols == other.cols);
-
-        NaiveAlgorithm::sub(self, &other).ok();
+        assert_eq!(NaiveAlgorithm::sub(self, &other), Ok(()));
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Mul<Matrix<T, OL>> for Matrix<T, L> 
 where 
     T: std::ops::MulAssign + MatrixElement + PartialEq + std::ops::Mul<Output = T> + std::ops::AddAssign + std::iter::Sum<T>
 {
-    type Output = Option<Matrix<T, L>>;
+    type Output = Matrix<T, L>;
 
     #[doc = include_str!("../docs/matrix/mul_trait.md")]
     fn mul(mut self, other: Matrix<T, OL>) -> Self::Output {
-        if self.rows != other.rows || self.cols != other.cols { return None; }
-
-        NaiveAlgorithm::mtx_mul(&self, &other).map(|result| {
+        assert!(self.cols == other.rows);
+        assert_eq!(NaiveAlgorithm::mtx_mul(&self, &other).map(|result| {
             self = result;
-        }).ok()?;
+        }), Ok(()));
 
-        Some(self)
+        self
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::MulAssign<Matrix<T, OL>> for Matrix<T, L> 
@@ -316,27 +313,26 @@ where
 {
     #[doc = include_str!("../docs/matrix/mul_assign.md")]
     fn mul_assign(&mut self, other: Matrix<T, OL>){
-        assert!(self.rows == other.rows && self.cols == other.cols);
+        assert!(self.cols == other.rows);
 
-        NaiveAlgorithm::mtx_mul(&self, &other).ok().map(|result| {
+        assert_eq!(NaiveAlgorithm::mtx_mul(&self, &other).map(|result| {
             *self = result;
-        });
+        }), Ok(()));
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Div<Matrix<T, OL>> for Matrix<T, L> 
 where 
     T: std::ops::DivAssign + MatrixElement + PartialEq
 {
-    type Output = Option<Matrix<T, L>>;
+    type Output = Matrix<T, L>;
 
     #[doc = include_str!("../docs/matrix/div_trait.md")]
     fn div(mut self, other: Matrix<T, OL>) -> Self::Output {
-        if self.rows != other.rows || self.cols != other.cols { return None; }
-        if other.data.iter().any(|val| *val == T::default()) { return None; }
-
-        NaiveAlgorithm::div(&mut self, &other).ok()?;
-
-        Some(self)
+        assert!(self.rows == other.rows && self.cols == other.cols);
+        assert!(other.data.iter().all(|val| *val != T::default()));
+        assert_eq!(NaiveAlgorithm::div(&mut self, &other), Ok(()));
+        
+        self
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::DivAssign<Matrix<T, OL>> for Matrix<T, L> 
@@ -348,7 +344,7 @@ where
         assert!(self.rows == other.rows && self.cols == other.cols);
         assert!(other.data.iter().all(|val| *val != T::default()));
 
-        NaiveAlgorithm::div(self, &other).ok();
+        assert_eq!(NaiveAlgorithm::div(self, &other), Ok(()));
     }
 }
 

@@ -5,11 +5,12 @@
 
 ```rust
 use NeuralNetwork::matrix::Matrix;
+use NeuralNetwork::matrix_algorithm::*;
 let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
 let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
 m1.hadamard_mul_with::<NaiveAlgorithm, _>(&m2).unwrap();
-assert_eq!(m1.get(0, 0), Some(&5));
-assert_eq!(m1.get(0, 1), Some(&12));
-assert_eq!(m1.get(1, 0), Some(&21));
-assert_eq!(m1.get(1, 1), Some(&32));
+assert_eq!(m1[(0, 0)], 5);
+assert_eq!(m1[(0, 1)], 12);
+assert_eq!(m1[(1, 0)], 21);
+assert_eq!(m1[(1, 1)], 32);
 ```

@@ -4,9 +4,10 @@
 
 ```rust
 use NeuralNetwork::matrix::Matrix;
+
 let mut m: Matrix<i32> = Matrix::with_size(2, 2);
 if let Some(row_iter) = m.row_iter_mut(0) {
     row_iter.for_each(|val| *val = 42);
 }
-assert_eq!(m.row_iter_mut(0).unwrap().collect::<Vec<&i32>>(), vec![&42, &42]);
+assert_eq!(m.row_iter_mut(0).unwrap().collect::<Vec<&mut i32>>(), vec![&mut 42, &mut 42]);
 ```

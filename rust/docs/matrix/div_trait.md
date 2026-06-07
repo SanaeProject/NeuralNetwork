@@ -1,15 +1,16 @@
 同じサイズの行列同士の要素ごとの除算を行います。
-* サイズが異なる行列同士の除算はNoneを返します。
-* 0で割る要素がある場合もNoneを返します。
+* サイズが異なる行列同士の除算はパニックを引き起こします。
+* 0で割る要素がある場合もパニックを引き起こします。
 
 # Examples
 
 ```rust
 use NeuralNetwork::matrix::Matrix;
+let m1: Matrix<i32> = Matrix::new([[10, 20], [30, 40]]);
 let m2: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
 let m3 = m1 / m2;
-assert_eq!(m3.unwrap().get(0, 0), Some(&10));
-assert_eq!(m3.unwrap().get(0, 1), Some(&10));
-assert_eq!(m3.unwrap().get(1, 0), Some(&10));
-assert_eq!(m3.unwrap().get(1, 1), Some(&10));
+assert_eq!(m3[(0, 0)], 10);
+assert_eq!(m3[(0, 1)], 10);
+assert_eq!(m3[(1, 0)], 10);
+assert_eq!(m3[(1, 1)], 10);
 ```
