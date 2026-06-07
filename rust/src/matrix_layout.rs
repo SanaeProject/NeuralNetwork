@@ -1,5 +1,3 @@
-use core::panic;
-
 use rayon::prelude::*;
 use crate::{matrix::Matrix, matrix_element::MatrixElement};
 
@@ -31,6 +29,8 @@ pub trait MatrixLayout: Sync + Send {
     fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &T> where T: MatrixElement;
     #[doc = include_str!("../docs/matrix_layout/get_un_major_iter.md")]
     fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: MatrixElement;
+
+    type InverseLayout;
 }
 
 pub struct RowMajor;
@@ -81,6 +81,8 @@ impl MatrixLayout for RowMajor {
     fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: MatrixElement{
         mtx.col_par_iter_mut(i).unwrap()
     }
+
+    type InverseLayout = ColumnMajor;
 }
 pub struct ColumnMajor;
 impl MatrixLayout for ColumnMajor {
@@ -126,4 +128,6 @@ impl MatrixLayout for ColumnMajor {
     fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: MatrixElement{
         mtx.row_par_iter_mut(i).unwrap()
     }
+
+    type InverseLayout = RowMajor;
 }
