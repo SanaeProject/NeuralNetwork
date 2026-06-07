@@ -4,9 +4,9 @@ use rayon::prelude::*;
 use crate::{matrix_algorithm::{MatrixAlgorithm, NaiveAlgorithm}, matrix_element::MatrixElement, matrix_layout::{ MatrixLayout, RowMajor }};
 
 pub struct Matrix<T, L: MatrixLayout = RowMajor> {
-    data    : Vec<T>,
-    rows    : usize,
-    cols    : usize,
+    pub(crate) data    : Vec<T>,
+    pub(crate) rows    : usize,
+    pub(crate) cols    : usize,
     _marker : std::marker::PhantomData<L>,
 }
 
@@ -177,8 +177,9 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     where 
         T: std::ops::MulAssign + MatrixElement
     {
-        self.data.iter_mut().for_each(|val| *val *= scalar);
+        NaiveAlgorithm::scalar_mul(self, scalar).unwrap();
     }
+    #[doc = include_str!("../docs/matrix/mul_scalar_with.md")]
     pub fn mul_scalar_with<Calc: MatrixAlgorithm>(&mut self, scalar: T) 
     where 
         T: std::ops::MulAssign + MatrixElement

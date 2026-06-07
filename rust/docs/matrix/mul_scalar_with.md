@@ -4,8 +4,10 @@
 # Example
 ```rust
 use NeuralNetwork::matrix::Matrix;
+use NeuralNetwork::matrix_algorithm::*;
+
 let mut mat = Matrix::<i32>::new([[1, 2], [3, 4]]);
-mat.mul_scalar(2);
+mat.mul_scalar_with::<ParallelAlgorithm>(2);
 assert_eq!(mat[(0, 0)], 2);
 assert_eq!(mat[(0, 1)], 4);
 assert_eq!(mat[(1, 0)], 6);

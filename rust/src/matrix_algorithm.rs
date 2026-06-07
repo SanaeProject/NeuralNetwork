@@ -54,9 +54,11 @@ impl MatrixAlgorithm for NaiveAlgorithm {
     }
 
     fn scalar_mul<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, scalar: T) -> Result<(), String> where T: std::ops::MulAssign + MatrixElement {
-        for i in 0..mtx.rows() {
-            mtx.row_iter_mut(i).unwrap().for_each(|a| *a *= scalar);
-        }
+        let rows = mtx.rows();
+        let cols = mtx.cols();
+        L::major_dir_iter_mut(&mut mtx.data, rows, cols).for_each(|row| {
+            row.iter_mut().for_each(|a| *a *= scalar);
+        });
         Ok(())
     }
 
@@ -138,9 +140,11 @@ impl MatrixAlgorithm for ParallelAlgorithm {
     }
 
     fn scalar_mul<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, scalar: T) -> Result<(), String> where T: std::ops::MulAssign + MatrixElement {
-        for i in 0..mtx.rows() {
-            mtx.row_par_iter_mut(i).unwrap().for_each(|a| *a *= scalar);
-        }
+        let rows = mtx.rows();
+        let cols = mtx.cols();
+        L::major_dir_par_iter_mut(&mut mtx.data, rows, cols).for_each(|row| {
+            row.iter_mut().for_each(|a| *a *= scalar);
+        });
         Ok(())
     }
 
