@@ -38,6 +38,12 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
         Self { data: vec![T::default(); row * col], rows: row, cols: col, _marker: std::marker::PhantomData }
     }
 
+    #[doc = include_str!("../docs/matrix/with_data.md")]
+    pub fn with_data(data: Vec<T>, row: usize, col: usize) -> Self {
+        assert!(data.len() == row * col, "Data length must match matrix dimensions");
+        Self { data, rows: row, cols: col, _marker: std::marker::PhantomData }
+    }
+
     #[doc = include_str!("../docs/matrix/rows.md")]
     pub fn rows(&self) -> usize { self.rows }
 
