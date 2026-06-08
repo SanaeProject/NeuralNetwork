@@ -5,8 +5,8 @@ use crate::{matrix_algorithm::{MatrixAlgorithm, NaiveAlgorithm}, matrix_element:
 
 pub struct Matrix<T, L: MatrixLayout = RowMajor> {
     pub(crate) data    : Vec<T>,
-    pub(crate) rows    : usize,
-    pub(crate) cols    : usize,
+    rows    : usize,
+    cols    : usize,
     _marker : std::marker::PhantomData<L>,
 }
 
