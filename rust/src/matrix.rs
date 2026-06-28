@@ -368,27 +368,32 @@ impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Add<&Matrix<T, OL>> for Mat
 where  
     T: std::ops::AddAssign + MatrixElement
 {
-    type Output = Matrix<T, L>;
+    type Output = Result<Matrix<T, L>, String>;
 
     #[doc = include_str!("../docs/matrix/add_trait.md")]
     fn add(mut self, other: &Matrix<T, OL>) -> Self::Output {
         assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for addition");
-        assert_eq!(NaiveAlgorithm::add(&mut self, &other), Ok(()), "Matrix addition failed");
-        self
+        if self.rows == 0 || self.cols == 0 {
+            return Err("Matrix dimensions must match for addition".to_string());
+        }
+        NaiveAlgorithm::add(&mut self, &other)?;
+        Ok(self)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Add<&Matrix<T, OL>> for &Matrix<T, L> 
 where  
     T: std::ops::AddAssign + MatrixElement
 {
-    type Output = Matrix<T, L>;
+    type Output = Result<Matrix<T, L>, String>;
 
     #[doc = include_str!("../docs/matrix/add_trait.md")]
     fn add(self, other: &Matrix<T, OL>) -> Self::Output {
         let mut result = self.clone();
-        assert!(result.rows == other.rows && result.cols == other.cols, "Matrix dimensions must match for addition");
-        assert_eq!(NaiveAlgorithm::add(&mut result, &other), Ok(()), "Matrix addition failed");
-        result
+        if result.rows == 0 || result.cols == 0 {
+            return Err("Matrix dimensions must match for addition".to_string());
+        }
+        NaiveAlgorithm::add(&mut result, &other)?;
+        Ok(result)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::AddAssign<&Matrix<T, OL>> for Matrix<T, L> 
@@ -413,28 +418,33 @@ impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Sub<&Matrix<T, OL>> for Mat
 where 
     T: std::ops::SubAssign + MatrixElement
 {
-    type Output = Matrix<T, L>;
+    type Output = Result<Matrix<T, L>, String>;
 
     #[doc = include_str!("../docs/matrix/sub_trait.md")]
     fn sub(mut self, other: &Matrix<T, OL>) -> Self::Output {
-        assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for subtraction");
-        assert_eq!(NaiveAlgorithm::sub(&mut self, &other), Ok(()), "Matrix subtraction failed");
+        if self.rows == 0 || self.cols == 0 {
+            return Err("Matrix dimensions must match for subtraction".to_string());
+        }
+        NaiveAlgorithm::sub(&mut self, &other)?;
 
-        self
+        Ok(self)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Sub<&Matrix<T, OL>> for &Matrix<T, L> 
 where 
     T: std::ops::SubAssign + MatrixElement
 {
-    type Output = Matrix<T, L>;
+    type Output = Result<Matrix<T, L>, String>;
 
     #[doc = include_str!("../docs/matrix/sub_trait.md")]
     fn sub(self, other: &Matrix<T, OL>) -> Self::Output {
+        if self.rows == 0 || self.cols == 0 {
+            return Err("Matrix dimensions must match for subtraction".to_string());
+        }
         let mut result = self.clone();
-        assert!(result.rows == other.rows && result.cols == other.cols, "Matrix dimensions must match for subtraction");
-        assert_eq!(NaiveAlgorithm::sub(&mut result, &other), Ok(()), "Matrix subtraction failed");
-        result
+        NaiveAlgorithm::sub(&mut result, &other)?;
+
+        Ok(result)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::SubAssign<&Matrix<T, OL>> for Matrix<T, L> 
@@ -458,34 +468,37 @@ impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Mul<&Matrix<T, OL>> for Mat
 where 
     T: std::ops::MulAssign + MatrixElement + PartialEq + std::ops::Mul<Output = T> + std::ops::AddAssign + std::iter::Sum<T>
 {
-    type Output = Matrix<T, L>;
+    type Output = Result<Matrix<T, L>, String>;
 
     #[doc = include_str!("../docs/matrix/mul_trait.md")]
     fn mul(mut self, other: &Matrix<T, OL>) -> Self::Output {
-        assert!(self.cols == other.rows, "Incompatible matrix dimensions for multiplication");
-        assert_eq!(NaiveAlgorithm::mtx_mul(&self, &other).map(|result| {
+        if self.rows == 0 || self.cols == 0 || other.rows == 0 || other.cols == 0 {
+            return Err("Matrix dimensions must match for multiplication".to_string());
+        }
+        NaiveAlgorithm::mtx_mul(&self, &other).map(|result| {
             self = result;
-        }), Ok(()), "Matrix multiplication failed");
+        })?;
 
-        self
+        Ok(self)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Mul<&Matrix<T, OL>> for &Matrix<T, L> 
 where 
     T: std::ops::MulAssign + MatrixElement + PartialEq + std::ops::Mul<Output = T> + std::ops::AddAssign + std::iter::Sum<T>
 {
-    type Output = Matrix<T, L>;
+    type Output = Result<Matrix<T, L>, String>;
 
     #[doc = include_str!("../docs/matrix/mul_trait.md")]
     fn mul(self, other: &Matrix<T, OL>) -> Self::Output {
-        assert!(self.cols == other.rows, "Incompatible matrix dimensions for multiplication");
-
+        if self.rows == 0 || self.cols == 0 || other.rows == 0 || other.cols == 0 {
+            return Err("Matrix dimensions must match for multiplication".to_string());
+        }
         let mut result = self.clone();
-        assert_eq!(NaiveAlgorithm::mtx_mul(&self, &other).map(|res| {
+        NaiveAlgorithm::mtx_mul(&self, &other).map(|res| {
             result = res;
-        }), Ok(()), "Matrix multiplication failed");
+        })?;
 
-        result
+        Ok(result)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::MulAssign<&Matrix<T, OL>> for Matrix<T, L> 
@@ -512,32 +525,41 @@ impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Div<&Matrix<T, OL>> for Mat
 where 
     T: std::ops::DivAssign + MatrixElement + PartialEq
 {
-    type Output = Matrix<T, L>;
+    type Output = Result<Matrix<T, L>, String>;
 
     #[doc = include_str!("../docs/matrix/div_trait.md")]
     fn div(mut self, other: &Matrix<T, OL>) -> Self::Output {
-        assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for division");
-        assert!(other.data.iter().all(|val| *val != T::default()), "Division by zero is not allowed");
-        assert_eq!(NaiveAlgorithm::div(&mut self, &other), Ok(()), "Matrix division failed");
+        if self.rows == 0 || self.cols == 0 || other.rows == 0 || other.cols == 0 {
+            return Err("Matrix dimensions must match for division".to_string());
+        }
+        if other.data.iter().all(|val| *val == T::default()) {
+            return Err("Division by zero is not allowed".to_string());
+        }
+        NaiveAlgorithm::div(&mut self, &other)?;
 
-        self
+        Ok(self)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Div<&Matrix<T, OL>> for &Matrix<T, L> 
 where 
     T: std::ops::DivAssign + MatrixElement + PartialEq
 {
-    type Output = Matrix<T, L>;
+    type Output = Result<Matrix<T, L>, String>;
 
     #[doc = include_str!("../docs/matrix/div_trait.md")]
     fn div(self, other: &Matrix<T, OL>) -> Self::Output {
+        if self.rows == 0 || self.cols == 0 || other.rows == 0 || other.cols == 0 {
+            return Err("Matrix dimensions must match for division".to_string());
+        }
         assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for division");
-        assert!(other.data.iter().all(|val| *val != T::default()), "Division by zero is not allowed");
-        
-        let mut result = self.clone();
-        assert_eq!(NaiveAlgorithm::div(&mut result, &other), Ok(()), "Matrix division failed");
+        if other.data.iter().all(|val| *val == T::default()) {
+            return Err("Division by zero is not allowed".to_string());
+        }
 
-        result
+        let mut result = self.clone();
+        NaiveAlgorithm::div(&mut result, &other)?;
+
+        Ok(result)
     }
 }
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::DivAssign<&Matrix<T, OL>> for Matrix<T, L> 
