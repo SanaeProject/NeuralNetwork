@@ -11,6 +11,10 @@ pub struct Matrix<T, L: MatrixLayout = RowMajor> {
 }
 
 impl<T, L: MatrixLayout> Matrix<T, L> {
+    // ----------------------------------------------------------------------
+    // SECTION: Constructors
+    // ----------------------------------------------------------------------
+    
     #[doc = include_str!("../docs/matrix/new.md")]
     pub fn new<const ROWS: usize, const COLS: usize>(data: [[T; COLS]; ROWS]) -> Self
     where
@@ -44,6 +48,12 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
         Self { data, rows: row, cols: col, _marker: std::marker::PhantomData }
     }
 
+    // !SECTION: Constructors
+
+    // ----------------------------------------------------------------------
+    // SECTION: Utility functions
+    // ----------------------------------------------------------------------
+
     #[doc = include_str!("../docs/matrix/clone.md")]
     pub fn clone(&self) -> Self
     where 
@@ -57,6 +67,12 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
 
     #[doc = include_str!("../docs/matrix/cols.md")]
     pub fn cols(&self) -> usize { self.cols }
+
+    // !SECTION: Utility functions
+
+    // ----------------------------------------------------------------------
+    // SECTION: Getters and Iterators
+    // ----------------------------------------------------------------------
 
     #[doc = include_str!("../docs/matrix/get.md")]
     pub fn get(&self, row: usize, col: usize) -> Option<&T> 
@@ -167,6 +183,12 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
         Some(self.data.par_iter_mut().skip(start).step_by(step).take(self.rows))
     }
 
+    // !SECTION: Getters and Iterators
+
+    // ----------------------------------------------------------------------
+    // SECTION: Matrix Operations
+    // ----------------------------------------------------------------------
+
     #[doc = include_str!("../docs/matrix/add.md")]
     pub fn add(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
     where 
@@ -263,6 +285,12 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
         Calc::div(self, other)
     }
 
+    // !SECTION: Matrix Operations
+
+    // ----------------------------------------------------------------------
+    // SECTION: Matrix Transformations
+    // ----------------------------------------------------------------------
+
     #[doc = include_str!("../docs/matrix/transpose.md")]
     pub fn transpose(&self) -> Self
     where T: MatrixElement
@@ -313,8 +341,15 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     {
         Matrix::<T, L::InverseLayout>::with_data(self.transpose_par().data, self.rows(), self.cols())
     }
+
+    // !SECTION: Matrix Transformations
 }
 
+// ----------------------------------------------------------------------
+// SECTION: Trait Implementations
+// ----------------------------------------------------------------------
+
+// NOTE: 行と列のインデックスを使用し、Matrix構造体へアクセスできるようIndexトレイトを実装します。
 #[doc = include_str!("../docs/matrix/impl_index.md")]
 impl<T, L: MatrixLayout> std::ops::Index<(usize, usize)> for Matrix<T, L> {
     type Output = T;
@@ -324,6 +359,10 @@ impl<T, L: MatrixLayout> std::ops::Index<(usize, usize)> for Matrix<T, L> {
         self.get(row, col).expect("Index out of bounds")
     }
 }
+
+// ----------------------------------------------------------------------
+// SECTION: Addition
+// ----------------------------------------------------------------------
 
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Add<&Matrix<T, OL>> for Matrix<T, L> 
 where  
@@ -364,6 +403,12 @@ where
     }
 }
 
+// !SECTION: Addition
+
+// ----------------------------------------------------------------------
+// SECTION: Subtraction
+// ----------------------------------------------------------------------
+
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Sub<&Matrix<T, OL>> for Matrix<T, L> 
 where 
     T: std::ops::SubAssign + MatrixElement
@@ -402,6 +447,13 @@ where
         assert_eq!(NaiveAlgorithm::sub(self, &other), Ok(()), "Matrix subtraction failed");
     }
 }
+
+// !SECTION: Subtraction
+
+// ----------------------------------------------------------------------
+// SECTION: Multiplication
+// ----------------------------------------------------------------------
+
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Mul<&Matrix<T, OL>> for Matrix<T, L> 
 where 
     T: std::ops::MulAssign + MatrixElement + PartialEq + std::ops::Mul<Output = T> + std::ops::AddAssign + std::iter::Sum<T>
@@ -418,6 +470,24 @@ where
         self
     }
 }
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Mul<&Matrix<T, OL>> for &Matrix<T, L> 
+where 
+    T: std::ops::MulAssign + MatrixElement + PartialEq + std::ops::Mul<Output = T> + std::ops::AddAssign + std::iter::Sum<T>
+{
+    type Output = Matrix<T, L>;
+
+    #[doc = include_str!("../docs/matrix/mul_trait.md")]
+    fn mul(self, other: &Matrix<T, OL>) -> Self::Output {
+        assert!(self.cols == other.rows, "Incompatible matrix dimensions for multiplication");
+
+        let mut result = self.clone();
+        assert_eq!(NaiveAlgorithm::mtx_mul(&self, &other).map(|res| {
+            result = res;
+        }), Ok(()), "Matrix multiplication failed");
+
+        result
+    }
+}
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::MulAssign<&Matrix<T, OL>> for Matrix<T, L> 
 where  
     T: std::ops::MulAssign + MatrixElement + PartialEq + std::ops::Mul<Output = T> + std::ops::AddAssign + std::iter::Sum<T>
@@ -431,6 +501,13 @@ where
         }), Ok(()), "Matrix multiplication failed");
     }
 }
+
+// !SECTION: Multiplication
+
+// ----------------------------------------------------------------------
+// SECTION: Division
+// ----------------------------------------------------------------------
+
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Div<&Matrix<T, OL>> for Matrix<T, L> 
 where 
     T: std::ops::DivAssign + MatrixElement + PartialEq
@@ -446,6 +523,23 @@ where
         self
     }
 }
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Div<&Matrix<T, OL>> for &Matrix<T, L> 
+where 
+    T: std::ops::DivAssign + MatrixElement + PartialEq
+{
+    type Output = Matrix<T, L>;
+
+    #[doc = include_str!("../docs/matrix/div_trait.md")]
+    fn div(self, other: &Matrix<T, OL>) -> Self::Output {
+        assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for division");
+        assert!(other.data.iter().all(|val| *val != T::default()), "Division by zero is not allowed");
+        
+        let mut result = self.clone();
+        assert_eq!(NaiveAlgorithm::div(&mut result, &other), Ok(()), "Matrix division failed");
+
+        result
+    }
+}
 impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::DivAssign<&Matrix<T, OL>> for Matrix<T, L> 
 where  
     T: std::ops::DivAssign + MatrixElement + PartialEq
@@ -458,6 +552,9 @@ where
     }
 }
 
+// !SECTION: Division
+
+// NOTE: 表示用のフォーマットを実装するために、Displayトレイトを実装します。
 impl<T: std::fmt::Display, L: MatrixLayout> std::fmt::Display for Matrix<T, L> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         (0..self.rows).for_each(|r| {
@@ -472,3 +569,5 @@ impl<T: std::fmt::Display, L: MatrixLayout> std::fmt::Display for Matrix<T, L> {
         Ok(())
     }
 }
+
+// !SECTION: Trait Implementations
