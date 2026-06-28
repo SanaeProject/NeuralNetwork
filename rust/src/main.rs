@@ -1,8 +1,3 @@
-use NeuralNetwork::matrix;
-use NeuralNetwork::matrix::Matrix;
-use NeuralNetwork::matrix_layout::{ColumnMajor, RowMajor};
-use rayon::iter::ParallelIterator;
-
 fn main() {
     use NeuralNetwork::matrix::Matrix;
     let m: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);

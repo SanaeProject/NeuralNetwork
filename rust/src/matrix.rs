@@ -4,7 +4,7 @@ use rayon::prelude::*;
 use crate::{matrix_algorithm::{MatrixAlgorithm, NaiveAlgorithm}, matrix_element::MatrixElement, matrix_layout::{ MatrixLayout, RowMajor }};
 
 pub struct Matrix<T, L: MatrixLayout = RowMajor> {
-    pub(crate) data    : Vec<T>,
+    data    : Vec<T>,
     rows    : usize,
     cols    : usize,
     _marker : std::marker::PhantomData<L>,
@@ -44,6 +44,14 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
         Self { data, rows: row, cols: col, _marker: std::marker::PhantomData }
     }
 
+    #[doc = include_str!("../docs/matrix/clone.md")]
+    pub fn clone(&self) -> Self
+    where 
+        T: Clone
+    {
+        Self { data: self.data.clone(), rows: self.rows, cols: self.cols, _marker: PhantomData }
+    }
+
     #[doc = include_str!("../docs/matrix/rows.md")]
     pub fn rows(&self) -> usize { self.rows }
 
@@ -51,7 +59,8 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     pub fn cols(&self) -> usize { self.cols }
 
     #[doc = include_str!("../docs/matrix/get.md")]
-    pub fn get(&self, row: usize, col: usize) -> Option<&T> {
+    pub fn get(&self, row: usize, col: usize) -> Option<&T> 
+    {
         if row >= self.rows || col >= self.cols { return None; }
 
         let idx = L::get_index(row, col, self.rows, self.cols)?;
@@ -59,11 +68,40 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     }
 
     #[doc = include_str!("../docs/matrix/get_mut.md")]
-    pub fn get_mut(&mut self, row: usize, col: usize) -> Option<&mut T> {
+    pub fn get_mut(&mut self, row: usize, col: usize) -> Option<&mut T> 
+    {
         if row >= self.rows || col >= self.cols { return None; }
 
         let idx = L::get_index(row, col, self.rows, self.cols)?;
         self.data.get_mut(idx)
+    }
+
+    #[doc = include_str!("../docs/matrix/iter.md")]
+    pub fn iter(&self) -> impl Iterator<Item = &T> 
+    {
+        self.data.iter()
+    }
+    
+    #[doc = include_str!("../docs/matrix/iter.md")]
+    pub fn par_iter(&self) -> impl IndexedParallelIterator<Item = &T>
+    where 
+        T: Sync 
+    {
+        self.data.par_iter()
+    }
+
+    #[doc = include_str!("../docs/matrix/iter.md")]
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> 
+    {
+        self.data.iter_mut()
+    }
+
+    #[doc = include_str!("../docs/matrix/iter.md")]
+    pub fn par_iter_mut(&mut self) -> impl IndexedParallelIterator<Item = &mut T>
+    where 
+        T: MatrixElement
+    {
+        self.data.par_iter_mut()
     }
 
     #[doc = include_str!("../docs/matrix/row_iter.md")]
@@ -74,28 +112,32 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
 
     #[doc = include_str!("../docs/matrix/row_par_iter.md")]
     pub fn row_par_iter(&self, row: usize) -> Option<impl IndexedParallelIterator<Item = &T>>
-    where T: Sync
+    where 
+        T: Sync 
     {
         let (start, step) = L::row_stride(row, self.rows, self.cols)?;
         Some(self.data.par_iter().skip(start).step_by(step).take(self.cols))
     }
 
     #[doc = include_str!("../docs/matrix/row_iter_mut.md")]
-    pub fn row_iter_mut(&mut self, row: usize) -> Option<impl Iterator<Item = &mut T>> {
+    pub fn row_iter_mut(&mut self, row: usize) -> Option<impl Iterator<Item = &mut T>> 
+    {
         let (start, step) = L::row_stride(row, self.rows, self.cols)?;
         Some(self.data.iter_mut().skip(start).step_by(step).take(self.cols))
     }
 
     #[doc = include_str!("../docs/matrix/row_par_iter_mut.md")]
     pub fn row_par_iter_mut(&mut self, row: usize) -> Option<impl IndexedParallelIterator<Item = &mut T>>
-    where T: Sync + Send
+    where 
+        T: Sync + Send
     {
         let (start, step) = L::row_stride(row, self.rows, self.cols)?;
         Some(self.data.par_iter_mut().skip(start).step_by(step).take(self.cols))
     }
 
     #[doc = include_str!("../docs/matrix/col_iter.md")]
-    pub fn col_iter(&self, col: usize) -> Option<impl Iterator<Item = &T>> {
+    pub fn col_iter(&self, col: usize) -> Option<impl Iterator<Item = &T>> 
+    {
         let (start, step) = L::col_stride(col, self.rows, self.cols)?;
         Some(self.data.iter().skip(start).step_by(step).take(self.rows))
     }
@@ -110,7 +152,8 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     }
 
     #[doc = include_str!("../docs/matrix/col_iter_mut.md")]
-    pub fn col_iter_mut(&mut self, col: usize) -> Option<impl Iterator<Item = &mut T>> {
+    pub fn col_iter_mut(&mut self, col: usize) -> Option<impl Iterator<Item = &mut T>> 
+    {
         let (start, step) = L::col_stride(col, self.rows, self.cols)?;
         Some(self.data.iter_mut().skip(start).step_by(step).take(self.rows))
     }
@@ -179,6 +222,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     {
         NaiveAlgorithm::scalar_mul(self, scalar).unwrap();
     }
+
     #[doc = include_str!("../docs/matrix/mul_scalar_with.md")]
     pub fn mul_scalar_with<Calc: MatrixAlgorithm>(&mut self, scalar: T) 
     where 
@@ -281,62 +325,91 @@ impl<T, L: MatrixLayout> std::ops::Index<(usize, usize)> for Matrix<T, L> {
     }
 }
 
-impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Add<Matrix<T, OL>> for Matrix<T, L> 
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Add<&Matrix<T, OL>> for Matrix<T, L> 
 where  
     T: std::ops::AddAssign + MatrixElement
 {
     type Output = Matrix<T, L>;
 
     #[doc = include_str!("../docs/matrix/add_trait.md")]
-    fn add(mut self, other: Matrix<T, OL>) -> Self::Output {
+    fn add(mut self, other: &Matrix<T, OL>) -> Self::Output {
         assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for addition");
         assert_eq!(NaiveAlgorithm::add(&mut self, &other), Ok(()), "Matrix addition failed");
         self
     }
 }
-impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::AddAssign<Matrix<T, OL>> for Matrix<T, L> 
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Add<&Matrix<T, OL>> for &Matrix<T, L> 
+where  
+    T: std::ops::AddAssign + MatrixElement
+{
+    type Output = Matrix<T, L>;
+
+    #[doc = include_str!("../docs/matrix/add_trait.md")]
+    fn add(self, other: &Matrix<T, OL>) -> Self::Output {
+        let mut result = self.clone();
+        assert!(result.rows == other.rows && result.cols == other.cols, "Matrix dimensions must match for addition");
+        assert_eq!(NaiveAlgorithm::add(&mut result, &other), Ok(()), "Matrix addition failed");
+        result
+    }
+}
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::AddAssign<&Matrix<T, OL>> for Matrix<T, L> 
 where  
     T: std::ops::AddAssign + MatrixElement
 {
     #[doc = include_str!("../docs/matrix/add_assign.md")]
-    fn add_assign(&mut self, other: Matrix<T, OL>){
+    fn add_assign(&mut self, other: &Matrix<T, OL>){
         assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for addition");
 
         assert_eq!(NaiveAlgorithm::add(self, &other), Ok(()), "Matrix addition failed");
     }
 }
-impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Sub<Matrix<T, OL>> for Matrix<T, L> 
+
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Sub<&Matrix<T, OL>> for Matrix<T, L> 
 where 
     T: std::ops::SubAssign + MatrixElement
 {
     type Output = Matrix<T, L>;
 
     #[doc = include_str!("../docs/matrix/sub_trait.md")]
-    fn sub(mut self, other: Matrix<T, OL>) -> Self::Output {
+    fn sub(mut self, other: &Matrix<T, OL>) -> Self::Output {
         assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for subtraction");
         assert_eq!(NaiveAlgorithm::sub(&mut self, &other), Ok(()), "Matrix subtraction failed");
 
         self
     }
 }
-impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::SubAssign<Matrix<T, OL>> for Matrix<T, L> 
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Sub<&Matrix<T, OL>> for &Matrix<T, L> 
+where 
+    T: std::ops::SubAssign + MatrixElement
+{
+    type Output = Matrix<T, L>;
+
+    #[doc = include_str!("../docs/matrix/sub_trait.md")]
+    fn sub(self, other: &Matrix<T, OL>) -> Self::Output {
+        let mut result = self.clone();
+        assert!(result.rows == other.rows && result.cols == other.cols, "Matrix dimensions must match for subtraction");
+        assert_eq!(NaiveAlgorithm::sub(&mut result, &other), Ok(()), "Matrix subtraction failed");
+        result
+    }
+}
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::SubAssign<&Matrix<T, OL>> for Matrix<T, L> 
 where  
     T: std::ops::SubAssign + MatrixElement
 {
     #[doc = include_str!("../docs/matrix/sub_assign.md")]
-    fn sub_assign(&mut self, other: Matrix<T, OL>){
+    fn sub_assign(&mut self, other: &Matrix<T, OL>){
         assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for subtraction");
         assert_eq!(NaiveAlgorithm::sub(self, &other), Ok(()), "Matrix subtraction failed");
     }
 }
-impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Mul<Matrix<T, OL>> for Matrix<T, L> 
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Mul<&Matrix<T, OL>> for Matrix<T, L> 
 where 
     T: std::ops::MulAssign + MatrixElement + PartialEq + std::ops::Mul<Output = T> + std::ops::AddAssign + std::iter::Sum<T>
 {
     type Output = Matrix<T, L>;
 
     #[doc = include_str!("../docs/matrix/mul_trait.md")]
-    fn mul(mut self, other: Matrix<T, OL>) -> Self::Output {
+    fn mul(mut self, other: &Matrix<T, OL>) -> Self::Output {
         assert!(self.cols == other.rows, "Incompatible matrix dimensions for multiplication");
         assert_eq!(NaiveAlgorithm::mtx_mul(&self, &other).map(|result| {
             self = result;
@@ -345,12 +418,12 @@ where
         self
     }
 }
-impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::MulAssign<Matrix<T, OL>> for Matrix<T, L> 
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::MulAssign<&Matrix<T, OL>> for Matrix<T, L> 
 where  
     T: std::ops::MulAssign + MatrixElement + PartialEq + std::ops::Mul<Output = T> + std::ops::AddAssign + std::iter::Sum<T>
 {
     #[doc = include_str!("../docs/matrix/mul_assign.md")]
-    fn mul_assign(&mut self, other: Matrix<T, OL>){
+    fn mul_assign(&mut self, other: &Matrix<T, OL>){
         assert!(self.cols == other.rows, "Incompatible matrix dimensions for multiplication");
 
         assert_eq!(NaiveAlgorithm::mtx_mul(&self, &other).map(|result| {
@@ -358,14 +431,14 @@ where
         }), Ok(()), "Matrix multiplication failed");
     }
 }
-impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Div<Matrix<T, OL>> for Matrix<T, L> 
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::Div<&Matrix<T, OL>> for Matrix<T, L> 
 where 
     T: std::ops::DivAssign + MatrixElement + PartialEq
 {
     type Output = Matrix<T, L>;
 
     #[doc = include_str!("../docs/matrix/div_trait.md")]
-    fn div(mut self, other: Matrix<T, OL>) -> Self::Output {
+    fn div(mut self, other: &Matrix<T, OL>) -> Self::Output {
         assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for division");
         assert!(other.data.iter().all(|val| *val != T::default()), "Division by zero is not allowed");
         assert_eq!(NaiveAlgorithm::div(&mut self, &other), Ok(()), "Matrix division failed");
@@ -373,12 +446,12 @@ where
         self
     }
 }
-impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::DivAssign<Matrix<T, OL>> for Matrix<T, L> 
+impl<T, L: MatrixLayout, OL: MatrixLayout> std::ops::DivAssign<&Matrix<T, OL>> for Matrix<T, L> 
 where  
     T: std::ops::DivAssign + MatrixElement + PartialEq
 {
     #[doc = include_str!("../docs/matrix/div_assign.md")]
-    fn div_assign(&mut self, other: Matrix<T, OL>){
+    fn div_assign(&mut self, other: &Matrix<T, OL>){
         assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for division");
         assert!(other.data.iter().all(|val| *val != T::default()), "Division by zero is not allowed");
         assert_eq!(NaiveAlgorithm::div(self, &other), Ok(()), "Matrix division failed");

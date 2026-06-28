@@ -8,7 +8,7 @@
 use NeuralNetwork::matrix::Matrix;
 let m1: Matrix<i32> = Matrix::new([[10, 20], [30, 40]]);
 let m2: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
-let m3 = m1 / m2;
+let m3 = m1 / &m2; // m1は所有権を失いますが、m2は所有権を保持します。
 assert_eq!(m3[(0, 0)], 10);
 assert_eq!(m3[(0, 1)], 10);
 assert_eq!(m3[(1, 0)], 10);
