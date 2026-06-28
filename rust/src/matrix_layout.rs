@@ -1,5 +1,5 @@
 use rayon::prelude::*;
-use crate::{matrix::Matrix, matrix_element::MatrixElement};
+use crate::matrix::Matrix;
 
 pub trait MatrixLayout: Sync + Send {
     #[doc = include_str!("../docs/matrix_layout/get_index.md")]

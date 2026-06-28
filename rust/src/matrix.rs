@@ -1,10 +1,10 @@
 use core::fmt;
-use std::{marker::PhantomData, ops::Mul};
+use std::marker::PhantomData;
 use rayon::prelude::*;
 use crate::{matrix_algorithm::{MatrixAlgorithm, NaiveAlgorithm}, matrix_element::MatrixElement, matrix_layout::{ MatrixLayout, RowMajor }};
 
 pub struct Matrix<T, L: MatrixLayout = RowMajor> {
-    data    : Vec<T>,
+    pub(crate) data : Vec<T>,
     rows    : usize,
     cols    : usize,
     _marker : std::marker::PhantomData<L>,
