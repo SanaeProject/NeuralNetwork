@@ -532,7 +532,7 @@ where
         if self.rows == 0 || self.cols == 0 || other.rows == 0 || other.cols == 0 {
             return Err("Matrix dimensions must match for division".to_string());
         }
-        if other.data.iter().all(|val| *val == T::default()) {
+        if other.data.iter().any(|val| *val == T::default()) {
             return Err("Division by zero is not allowed".to_string());
         }
         NaiveAlgorithm::div(&mut self, &other)?;
