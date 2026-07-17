@@ -552,7 +552,7 @@ where
             return Err("Matrix dimensions must match for division".to_string());
         }
         assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for division");
-        if other.data.iter().all(|val| *val == T::default()) {
+        if other.data.iter().any(|val| *val == T::default()) {
             return Err("Division by zero is not allowed".to_string());
         }
 
