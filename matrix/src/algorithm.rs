@@ -68,6 +68,9 @@ impl MatrixAlgorithm for NaiveAlgorithm {
         if mtx.rows() != other.rows() || mtx.cols() != other.cols() {
             return Err("行列のサイズが一致しません".to_string());
         }
+        if other.data.iter().any(|val| *val == T::default()) {
+            return Err("0で割ることはできません".to_string());
+        }
 
         for i in 0..mtx.rows() {
             mtx.row_iter_mut(i).unwrap().zip(other.row_iter(i).unwrap()).for_each(|(a, b)| *a /= *b);
