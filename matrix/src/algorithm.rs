@@ -8,7 +8,7 @@ pub trait MatrixAlgorithm {
     fn sub<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::SubAssign + MatrixElement;
     fn hadamard_mul<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::MulAssign + MatrixElement;
     fn scalar_mul<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, scalar: T) -> Result<(), String> where T: std::ops::MulAssign + MatrixElement;
-    fn div<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::DivAssign + MatrixElement;
+    fn div<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> where T: std::ops::DivAssign + MatrixElement + std::cmp::PartialEq;
     fn mtx_mul<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &Matrix<T, L>, other: &Matrix<T, LO>) -> Result<Matrix<T, L>, String> where T: std::ops::Mul<Output = T> + std::ops::AddAssign + MatrixElement + std::iter::Sum<T>;
 }
 
@@ -56,14 +56,19 @@ impl MatrixAlgorithm for NaiveAlgorithm {
     fn scalar_mul<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, scalar: T) -> Result<(), String> where T: std::ops::MulAssign + MatrixElement {
         let rows = mtx.rows();
         let cols = mtx.cols();
-        L::major_dir_iter_mut(&mut mtx.data, rows, cols).for_each(|row| {
-            row.iter_mut().for_each(|a| *a *= scalar);
-        });
+
+        if rows == 0 || cols == 0 { return Ok(()); }
+
+        L::major_dir_iter_mut(&mut mtx.data, rows, cols)
+            .expect("Failed to create major direction iterator for matrix")
+            .for_each(|row| {
+                row.iter_mut().for_each(|a| *a *= scalar);
+            });
         Ok(())
     }
 
     fn div<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
-    where T: std::ops::DivAssign + MatrixElement
+    where T: std::ops::DivAssign + MatrixElement + std::cmp::PartialEq
     {
         if mtx.rows() != other.rows() || mtx.cols() != other.cols() {
             return Err("行列のサイズが一致しません".to_string());
@@ -147,14 +152,19 @@ impl MatrixAlgorithm for ParallelAlgorithm {
     {
         let rows = mtx.rows();
         let cols = mtx.cols();
-        L::major_dir_par_iter_mut(&mut mtx.data, rows, cols).for_each(|row| {
-            row.iter_mut().for_each(|a| *a *= scalar);
-        });
+
+        if rows == 0 || cols == 0 { return Ok(()); }
+        
+        L::major_dir_par_iter_mut(&mut mtx.data, rows, cols)
+            .expect("Failed to create major direction iterator for matrix")
+            .for_each(|row| {
+                row.iter_mut().for_each(|a| *a *= scalar);
+            });
         Ok(())
     }
 
     fn div<T, L: MatrixLayout, LO: MatrixLayout>(mtx: &mut Matrix<T, L>, other: &Matrix<T, LO>) -> Result<(), String> 
-    where T: std::ops::DivAssign + MatrixElement
+    where T: std::ops::DivAssign + MatrixElement + std::cmp::PartialEq
     {
         if mtx.rows() != other.rows() || mtx.cols() != other.cols() {
             return Err("行列のサイズが一致しません".to_string());

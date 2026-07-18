@@ -54,14 +54,6 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     // SECTION: Utility functions
     // ----------------------------------------------------------------------
 
-    #[doc = include_str!("../docs/matrix/clone.md")]
-    pub fn clone(&self) -> Self
-    where 
-        T: Clone
-    {
-        Self { data: self.data.clone(), rows: self.rows, cols: self.cols, _marker: PhantomData }
-    }
-
     #[doc = include_str!("../docs/matrix/rows.md")]
     pub fn rows(&self) -> usize { self.rows }
 
@@ -272,7 +264,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     #[doc = include_str!("../docs/matrix/div.md")]
     pub fn div(&mut self, other: &Matrix<T, L>) -> Result<(), String> 
     where 
-        T: std::ops::DivAssign + MatrixElement
+        T: std::ops::DivAssign + MatrixElement + std::cmp::PartialEq
     {
         NaiveAlgorithm::div(self, other)
     }
@@ -280,7 +272,7 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     #[doc = include_str!("../docs/matrix/div_with.md")]
     pub fn div_with<Calc: MatrixAlgorithm, OL: MatrixLayout>(&mut self, other: &Matrix<T, OL>) -> Result<(), String> 
     where 
-        T: std::ops::DivAssign + MatrixElement
+        T: std::ops::DivAssign + MatrixElement + std::cmp::PartialEq
     {
         Calc::div(self, other)
     }
@@ -296,12 +288,17 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     where T: MatrixElement
     {
         let (r_rows, r_cols) =  (self.cols(), self.rows());
+        if r_rows == 0 || r_cols == 0 { return Self::with_size(r_rows, r_cols); }
+
         let mut result = Self::with_size(r_rows, r_cols);
 
         L::major_dir_iter_mut(&mut result.data, r_rows, r_cols)
+            .expect("Failed to create major direction iterator for result matrix")
             .enumerate()
             .for_each(|(r_row, row)| {
-            row.iter_mut().zip(L::get_un_major_iter(&self, r_row))
+            row.iter_mut().zip(
+                L::get_un_major_iter(&self, r_row).expect("Failed to create un-major direction iterator for self matrix")
+            )
                 .for_each(|(a, b)| *a = *b);
         });
 
@@ -313,12 +310,17 @@ impl<T, L: MatrixLayout> Matrix<T, L> {
     where T: MatrixElement
     {
         let (r_rows, r_cols) =  (self.cols(), self.rows());
+        if r_rows == 0 || r_cols == 0 { return Self::with_size(r_rows, r_cols); }
+
         let mut result = Self::with_size(r_rows, r_cols);
 
         L::major_dir_par_iter_mut(&mut result.data, r_rows, r_cols)
+            .expect("Failed to create major direction iterator for result matrix")
             .enumerate()
             .for_each(|(r_row, row)| {
-                row.par_iter_mut().zip(L::get_un_major_par_iter(&self, r_row))
+                row.par_iter_mut().zip(
+                    L::get_un_major_par_iter(&self, r_row).expect("Failed to create un-major direction iterator for self matrix")
+                )
                     .for_each(|(a, b)| *a = *b);
         });
 
@@ -360,6 +362,17 @@ impl<T, L: MatrixLayout> std::ops::Index<(usize, usize)> for Matrix<T, L> {
     }
 }
 
+// NOTE: Cloneトレイトを実装し、Matrix構造体のクローンを作成できるようにします。
+#[doc = include_str!("../docs/matrix/clone.md")]
+impl<T, L: MatrixLayout> Clone for Matrix<T, L> 
+where 
+    T: Clone
+{
+    fn clone(&self) -> Self {
+        Self { data: self.data.clone(), rows: self.rows, cols: self.cols, _marker: PhantomData }
+    }
+}
+
 // ----------------------------------------------------------------------
 // SECTION: Addition
 // ----------------------------------------------------------------------
@@ -372,9 +385,11 @@ where
 
     #[doc = include_str!("../docs/matrix/add_trait.md")]
     fn add(mut self, other: &Matrix<T, OL>) -> Self::Output {
-        assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for addition");
-        if self.rows == 0 || self.cols == 0 {
-            return Err("Matrix dimensions must match for addition".to_string());
+        if self.rows != other.rows || self.cols != other.cols { 
+            return Err("行列のサイズが一致しません".to_string()); 
+        }
+        if self.rows == 0 || self.cols == 0 { 
+            return Err("Matrix dimensions must match for addition".to_string()); 
         }
         NaiveAlgorithm::add(&mut self, &other)?;
         Ok(self)
@@ -551,7 +566,9 @@ where
         if self.rows == 0 || self.cols == 0 || other.rows == 0 || other.cols == 0 {
             return Err("Matrix dimensions must match for division".to_string());
         }
-        assert!(self.rows == other.rows && self.cols == other.cols, "Matrix dimensions must match for division");
+        if self.rows != other.rows || self.cols != other.cols {
+            return Err("Matrix dimensions must match for division".to_string());
+        }
         if other.data.iter().any(|val| *val == T::default()) {
             return Err("Division by zero is not allowed".to_string());
         }

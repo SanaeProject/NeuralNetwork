@@ -12,23 +12,23 @@ pub trait MatrixLayout: Sync + Send {
     fn col_stride(col: usize, matrix_row: usize, matrix_col: usize) -> Option<(usize, usize)>;
 
     #[doc = include_str!("../docs/matrix_layout/major_dir_iter.md")]
-    fn major_dir_iter<T>(mtx: &Vec<T>, matrix_row: usize, matrix_col: usize) -> impl Iterator<Item = &[T]>;
+    fn major_dir_iter<T>(mtx: &Vec<T>, matrix_row: usize, matrix_col: usize) -> Option<impl Iterator<Item = &[T]>>;
     
     #[doc = include_str!("../docs/matrix_layout/major_dir_iter.md")]
-    fn major_dir_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, matrix_col: usize) -> impl Iterator<Item = &mut [T]>;
+    fn major_dir_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, matrix_col: usize) -> Option<impl Iterator<Item = &mut [T]>>;
     #[doc = include_str!("../docs/matrix_layout/major_dir_par_iter.md")]
-    fn major_dir_par_iter<T>(mtx: &Vec<T>, matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &[T]> where T: Sync;
+    fn major_dir_par_iter<T>(mtx: &Vec<T>, matrix_row: usize, matrix_col: usize) -> Option<impl IndexedParallelIterator<Item = &[T]>> where T: Sync;
     #[doc = include_str!("../docs/matrix_layout/major_dir_par_iter.md")]
-    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &mut [T]> where T: Sync + Send;
+    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, matrix_col: usize) -> Option<impl IndexedParallelIterator<Item = &mut [T]>> where T: Sync + Send;
 
     #[doc = include_str!("../docs/matrix_layout/get_un_major_iter.md")]
-    fn get_un_major_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl Iterator<Item = &T>;
+    fn get_un_major_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> Option<impl Iterator<Item = &T>>;
     #[doc = include_str!("../docs/matrix_layout/get_un_major_iter.md")]
-    fn get_un_major_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl Iterator<Item = &mut T>;
+    fn get_un_major_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> Option<impl Iterator<Item = &mut T>>;
     #[doc = include_str!("../docs/matrix_layout/get_un_major_iter.md")]
-    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &T> where T: Sync;
+    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> Option<impl IndexedParallelIterator<Item = &T>> where T: Sync;
     #[doc = include_str!("../docs/matrix_layout/get_un_major_iter.md")]
-    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: Sync + Send;
+    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> Option<impl IndexedParallelIterator<Item = &mut T>> where T: Sync + Send;
 
     type InverseLayout;
 }
@@ -57,29 +57,42 @@ impl MatrixLayout for RowMajor {
         Some((col, m_col))
     }
 
-    fn major_dir_iter<T>(mtx: &Vec<T>, _matrix_row: usize, matrix_col: usize) -> impl Iterator<Item = &[T]> {
-        mtx.chunks(matrix_col)
+    fn major_dir_iter<T>(mtx: &Vec<T>, _matrix_row: usize, matrix_col: usize) -> Option<impl Iterator<Item = &[T]>> {
+        if matrix_col == 0 {
+            return None;
+        }
+
+        Some(mtx.chunks(matrix_col))
     }
-    fn major_dir_iter_mut<T>(mtx: &mut Vec<T>, _matrix_row: usize, matrix_col: usize) -> impl Iterator<Item = &mut [T]> {
-        mtx.chunks_mut(matrix_col)
+    fn major_dir_iter_mut<T>(mtx: &mut Vec<T>, _matrix_row: usize, matrix_col: usize) -> Option<impl Iterator<Item = &mut [T]>> {
+        if matrix_col == 0 {
+            return None;
+        }
+        Some(mtx.chunks_mut(matrix_col))
     }
-    fn major_dir_par_iter<T>(mtx: &Vec<T>, _matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &[T]> where T: Sync {
-        mtx.par_chunks(matrix_col)
+    fn major_dir_par_iter<T>(mtx: &Vec<T>, _matrix_row: usize, matrix_col: usize) -> Option<impl IndexedParallelIterator<Item = &[T]>> where T: Sync {
+        if matrix_col == 0 {
+            return None;
+        }
+        Some(mtx.par_chunks(matrix_col))
     }
-    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, _matrix_row: usize, matrix_col: usize) -> impl IndexedParallelIterator<Item = &mut [T]> where T: Sync + Send {
-        mtx.par_chunks_mut(matrix_col)
+    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, _matrix_row: usize, matrix_col: usize) -> Option<impl IndexedParallelIterator<Item = &mut [T]>> where T: Sync + Send {
+        if matrix_col == 0 {
+            return None;
+        }
+        Some(mtx.par_chunks_mut(matrix_col))
     }
-    fn get_un_major_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl Iterator<Item = &T> {
-        mtx.col_iter(i).unwrap()
+    fn get_un_major_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> Option<impl Iterator<Item = &T>> {
+        mtx.col_iter(i)
     }
-    fn get_un_major_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl Iterator<Item = &mut T> {
-        mtx.col_iter_mut(i).unwrap()
+    fn get_un_major_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> Option<impl Iterator<Item = &mut T>> {
+        mtx.col_iter_mut(i)
     }
-    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &T> where T: Sync {
-        mtx.col_par_iter(i).unwrap()
+    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> Option<impl IndexedParallelIterator<Item = &T>> where T: Sync {
+        mtx.col_par_iter(i)
     }
-    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: Sync + Send{
-        mtx.col_par_iter_mut(i).unwrap()
+    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> Option<impl IndexedParallelIterator<Item = &mut T>> where T: Sync + Send{
+        mtx.col_par_iter_mut(i)
     }
 
     type InverseLayout = ColumnMajor;
@@ -104,29 +117,41 @@ impl MatrixLayout for ColumnMajor {
         }
         Some((col * m_row, 1))
     }
-    fn major_dir_iter<T>(mtx: &Vec<T>, matrix_row: usize, _matrix_col: usize) -> impl Iterator<Item = &[T]> {
-        mtx.chunks(matrix_row)
+    fn major_dir_iter<T>(mtx: &Vec<T>, matrix_row: usize, _matrix_col: usize) -> Option<impl Iterator<Item = &[T]>> {
+        if matrix_row == 0 {
+            return None;
+        }
+        Some(mtx.chunks(matrix_row))
     }
-    fn major_dir_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, _matrix_col: usize) -> impl Iterator<Item = &mut [T]> {
-        mtx.chunks_mut(matrix_row)
+    fn major_dir_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, _matrix_col: usize) -> Option<impl Iterator<Item = &mut [T]>> {
+        if matrix_row == 0 {
+            return None;
+        }
+        Some(mtx.chunks_mut(matrix_row))
     }
-    fn major_dir_par_iter<T>(mtx: &Vec<T>, matrix_row: usize, _matrix_col: usize) -> impl IndexedParallelIterator<Item = &[T]> where T: Sync {
-        mtx.par_chunks(matrix_row)
+    fn major_dir_par_iter<T>(mtx: &Vec<T>, matrix_row: usize, _matrix_col: usize) -> Option<impl IndexedParallelIterator<Item = &[T]>> where T: Sync {
+        if matrix_row == 0 {
+            return None;
+        }
+        Some(mtx.par_chunks(matrix_row))
     }
-    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, _matrix_col: usize) -> impl IndexedParallelIterator<Item = &mut [T]> where T: Sync + Send {
-        mtx.par_chunks_mut(matrix_row)
+    fn major_dir_par_iter_mut<T>(mtx: &mut Vec<T>, matrix_row: usize, _matrix_col: usize) -> Option<impl IndexedParallelIterator<Item = &mut [T]>> where T: Sync + Send {
+        if matrix_row == 0 {
+            return None;
+        }
+        Some(mtx.par_chunks_mut(matrix_row))
     }
-    fn get_un_major_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl Iterator<Item = &T> {
-        mtx.row_iter(i).unwrap()
+    fn get_un_major_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> Option<impl Iterator<Item = &T>> {
+        mtx.row_iter(i)
     }
-    fn get_un_major_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl Iterator<Item = &mut T> {
-        mtx.row_iter_mut(i).unwrap()
+    fn get_un_major_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> Option<impl Iterator<Item = &mut T>> {
+        mtx.row_iter_mut(i)
     }
-    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &T> where T: Sync {
-        mtx.row_par_iter(i).unwrap()
+    fn get_un_major_par_iter<T, L: MatrixLayout>(mtx: &Matrix<T, L>, i: usize) -> Option<impl IndexedParallelIterator<Item = &T>> where T: Sync {
+        mtx.row_par_iter(i)
     }
-    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> impl IndexedParallelIterator<Item = &mut T> where T: Sync + Send{
-        mtx.row_par_iter_mut(i).unwrap()
+    fn get_un_major_par_iter_mut<T, L: MatrixLayout>(mtx: &mut Matrix<T, L>, i: usize) -> Option<impl IndexedParallelIterator<Item = &mut T>> where T: Sync + Send{
+        mtx.row_par_iter_mut(i)
     }
 
     type InverseLayout = RowMajor;
