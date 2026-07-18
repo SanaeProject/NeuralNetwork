@@ -1,0 +1,28 @@
+name: Gemini Code Reviewer
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Gemini Reviewer
+        uses: sshnaidm/gemini-code-review-action@v2
+        with:
+          gemini-key: ${{ secrets.GEMINI_API_KEY }}
+          model: 'gemini-2.5-flash'
+          prompt: |
+            あなたは極めて優秀なシニアエンジニアです。
+            提出されたコードの差分（Diff）を分析し、以下の観点からレビューしてコメントを日本語で残してください。
+            1. バグの引き金になりそうな潜在的な問題（メモリ効率、未定義動作など）
+            2. パフォーマンスや計算効率の改善点
+            3. コードの可読性やメンテナンス性
