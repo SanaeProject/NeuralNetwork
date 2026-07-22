@@ -19,160 +19,261 @@ NeuralNetworkをゼロから構築するプロジェクトです。
 #### 1. コンストラクタ (Constructors)
 
 <details>
-<summary>Matrix::new(data)</summary>
-
-固定長2次元配列 `[[T; COLS]; ROWS]` から行列を生成しま  す。指定されたレイアウト（`MatrixLayout`）に基づき、内部の1次元ベクタへ自動的に配置されます。
-
-```rust
-use matrix::Matrix;
-let m: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
-assert_eq!(m.get(0, 0), Some(&1));
-assert_eq!(m.get(0, 1), Some(&2));
-assert_eq!(m.get(1, 0), Some(&3));
-assert_eq!(m.get(1, 1), Some(&4));
-```
+  <summary>Matrix::new(data)</summary>
+  
+  固定長2次元配列 `[[T; COLS]; ROWS]` から行列を生成します。指定された  レイアウト（`MatrixLayout`）に基づき、内部の1次元ベクタへ自動的に配置されます。
+  
+  - 行優先時
+    $$
+    \begin{bmatrix}
+    1 & 2 \\
+    3 & 4
+    \end{bmatrix}
+    =>
+    \begin{bmatrix}
+    1 & 2 & 3 & 4
+    \end{bmatrix}
+    $$
+  - 列優先時
+    $$
+    \begin{bmatrix}
+    1 & 2 \\
+    3 & 4
+    \end{bmatrix}
+    =>
+    \begin{bmatrix}
+    1 & 3 & 2 & 4
+    \end{bmatrix}
+    $$
+  
+  ```rust
+  use matrix::Matrix;
+  let m: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
+  assert_eq!(m.get(0, 0), Some(&1));
+  assert_eq!(m.get(0, 1), Some(&2));
+  assert_eq!(m.get(1, 0), Some(&3));
+  assert_eq!(m.get(1, 1), Some(&4));
+  ```
 </details>
 
 <details>
-<summary>Matrix::with_size(row, col)</summary>
+  <summary>Matrix::with_size(row, col)</summary>
+  
+  指定した行数・列数で、すべての要素が初期値（`T::default()`）の行列を生成します。
 
-指定した行数・列数で、すべての要素が初期値（`T::default()`）の行列を生成します。
-
-```rust
-use matrix::Matrix;
-let m: Matrix<i32> = Matrix::with_size(2, 2);
-assert_eq!(m.get(0, 0), Some(&0));
-assert_eq!(m.get(0, 1), Some(&0));
-assert_eq!(m.get(1, 0), Some(&0));
-assert_eq!(m.get(1, 1), Some(&0));
-```
+  $$
+  \begin{bmatrix}
+  0 & 0 \\
+  0 & 0
+  \end{bmatrix}
+  $$
+  
+  ```rust
+  use matrix::Matrix;
+  let m: Matrix<i32> = Matrix::with_size(2, 2);
+  assert_eq!(m.get(0, 0), Some(&0));
+  assert_eq!(m.get(0, 1), Some(&0));
+  assert_eq!(m.get(1, 0), Some(&0));
+  assert_eq!(m.get(1, 1), Some(&0));
+  ```
 </details>
 
 <details>
-<summary>Matrix::with_data(data, row, col)</summary>
+  <summary>Matrix::with_data(data, row, col)</summary>
+  
+  既存の1次元ベクタ `Vec<T>` をもとに、指定したサイズでデータ長が一致しているかアサートした上で初期化します。
 
-既存の1次元ベクタ `Vec<T>` をもとに、指定したサイズでデータ長が一致しているかアサートした上で初期化します。
-
-```rust
-use matrix::Matrix;
-let data = vec![1, 2, 3, 4, 5, 6];
-let matrix = Matrix::<i32>::with_data(data, 2, 3);
-assert_eq!(matrix.get(0, 0), Some(&1));
-```
+  - 二行三列にパース(行優先)
+    $$
+    \begin{bmatrix}
+    1 & 2 & 3 & 4 & 5 & 6
+    \end{bmatrix}
+    =>
+    \begin{bmatrix}
+    1 & 2 & 3 \\
+    4 & 5 & 6 
+    \end{bmatrix}
+    $$
+  - 二行三列にパース(列優先)
+    $$
+    \begin{bmatrix}
+    1 & 2 & 3 & 4 & 5 & 6
+    \end{bmatrix}
+    =>
+    \begin{bmatrix}
+    1 & 3 & 5\\
+    2 & 4 & 6
+    \end{bmatrix}
+    $$
+  
+  ```rust
+  use matrix::Matrix;
+  let data = vec![1, 2, 3, 4, 5, 6];
+  let matrix = Matrix::<i32>::with_data(data, 2, 3);
+  assert_eq!(matrix.get(0, 0), Some(&1));
+  ```
 </details>
-
 
 #### 2. ユーティリティ & 要素アクセス (Utility & Accessors)
 
 <details>
-<summary>rows() / cols()</summary>
+  <summary>rows() / cols()</summary>
+  
+  行列の行数、および列数を取得します。
 
-行列の行数、および列数を取得します。
-
-```rust
-use matrix::Matrix;
-let m: Matrix<i32> = Matrix::with_size(3, 4); // [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-assert_eq!(m.rows(), 3);
-```
-
-```rust
-use matrix::Matrix;
-let m: Matrix<i32> = Matrix::with_size(3, 4); // [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-assert_eq!(m.cols(), 4);
-```
-
+  $$
+  \begin{bmatrix}
+  0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 \\
+  \end{bmatrix}
+  =>
+  rows = 3行,
+  cols = 4列
+  $$
+  ```rust
+  use matrix::Matrix;
+  let m: Matrix<i32> = Matrix::with_size(3, 4); // [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+  assert_eq!(m.rows(), 3);
+  assert_eq!(m.cols(), 4);
+  ```
 </details>
 
 <details>
-<summary>get(row, col) / get_mut(row, col)</summary>
-
-指定したインデックスの要素への参照（または可変参照）を `Option` 型で安全に取得します。範囲外アクセスの場合は `None` を返します。
-
-```rust
-use matrix::Matrix;
-let m: Matrix<i32> = Matrix::with_size(2, 2);
-assert_eq!(m.get(0, 0), Some(&0));
-```
-
-```rust
-use matrix::Matrix;
-let mut m: Matrix<i32> = Matrix::with_size(2, 2);
-if let Some(val) = m.get_mut(0, 0) {
-    *val = 42;
-}
-assert_eq!(m.get(0, 0), Some(&42));
-```
+  <summary>get(row, col) / get_mut(row, col)</summary>
+  
+  指定したインデックスの要素への参照（または可変参照）を `Option` 型で安全に取得します。範囲外アクセスの場合は `None` を返します。
+  
+  ```rust
+  use matrix::Matrix;
+  let m: Matrix<i32> = Matrix::with_size(2, 2);
+  assert_eq!(m.get(0, 0), Some(&0));
+  ```
+  
+  ```rust
+  use matrix::Matrix;
+  let mut m: Matrix<i32> = Matrix::with_size(2, 2);
+  if let Some(val) = m.get_mut(0, 0) {
+      *val = 42;
+  }
+  assert_eq!(m.get(0, 0), Some(&42));
+  ```
 </details>
 
 <details>
-<summary>インデックスアクセス (`matrix[(r, c)]`)</summary>
-
-`std::ops::Index` トレイトの実装により、`matrix[(row, col)]` 形式の直感的な記述で要素へのアクセスが可能です（範囲外の場合はパニックします）。
+  <summary>インデックスアクセス (`matrix[(r, c)]`)</summary>
+  
+  `std::ops::Index` トレイトの実装により、`matrix[(row, col)]` 形式の直感的な記述で要素へのアクセスが可能です（範囲外の場合はパニックします）。
 </details>
 
 #### 3. イテレータ (Iterators)
 
 単一スレッド用の通常のイテレータに加え、`rayon` を利用した並列処理用イテレータを標準でサポートしています。
 <details>
-<summary>全体イテレータ `iter()` / `iter_mut()` (通常) 、 `par_iter()` / `par_iter_mut()` (並列)</summary>
+  <summary>全体イテレータ `iter()` / `iter_mut()` (通常) 、 `par_iter()` / `par_iter_mut()` (並列)</summary>
 
-```rust
-use matrix::Matrix;
-let mtx = Matrix::<i32>::new([[1, 2], [3, 4]]);
-let mut iter = mtx.iter();
-assert_eq!(iter.next(), Some(&1));
-assert_eq!(iter.next(), Some(&2));
-assert_eq!(iter.next(), Some(&3));
-assert_eq!(iter.next(), Some(&4));
-```
-
+  $$
+  \begin{bmatrix}
+  1 & 2 \\
+  3 & 4
+  \end{bmatrix}\\
+  行優先 =
+  \begin{bmatrix}
+  1 & 2 & 3 & 4
+  \end{bmatrix}\\
+  列優先 = 
+  \begin{bmatrix}
+  1 & 3 & 2 & 4
+  \end{bmatrix}
+  $$
+  
+  ```rust
+  use matrix::Matrix;
+  let mtx = Matrix::<i32>::new([[1, 2], [3, 4]]);
+  let mut iter = mtx.iter();
+  assert_eq!(iter.next(), Some(&1));
+  assert_eq!(iter.next(), Some(&2));
+  assert_eq!(iter.next(), Some(&3));
+  assert_eq!(iter.next(), Some(&4));
+  ```
 </details>
 
 <details>
-<summary>行方向イテレータ `row_iter(row)` / `row_iter_mut(row)` (通常) 、 `row_par_iter(row)` / `row_par_iter_mut(row)` (並列)</summary>
-
-```rust
-use matrix::Matrix;
-let m: Matrix<i32> = Matrix::with_size(2, 2);
-assert_eq!(
-    m.row_iter(0).unwrap().collect::<Vec<&i32>>(), 
-    vec![&0, &0]
-);
-```
-
-```rust
-use matrix::Matrix;
-
-let mut m: Matrix<i32> = Matrix::with_size(2, 2);
-if let Some(row_iter) = m.row_iter_mut(0) {
-    row_iter.for_each(|val| *val = 42);
-}
-
-assert_eq!(m[(0, 0)], 42);
-assert_eq!(m[(0, 1)], 42);
-```
-
+  <summary>行方向イテレータ `row_iter(row)` / `row_iter_mut(row)` (通 常) 、`row_par_iter(row)` / `row_par_iter_mut(row)` (並列)</summary>
+  
+  * レイアウトには影響されません。
+  $$
+  \begin{bmatrix}
+  1 & 2 \\
+  3 & 4
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    \begin{bmatrix}
+    1 & 2
+    \end{bmatrix}
+    \begin{bmatrix}
+    3 & 4
+    \end{bmatrix}
+  \end{bmatrix}
+  $$
+  
+  ```rust
+  use matrix::Matrix;
+  let m: Matrix<i32> = Matrix::with_size(2, 2);
+  assert_eq!(
+      m.row_iter(0).unwrap().collect::<Vec<&i32>>(), 
+      vec![&0, &0]
+  );
+  ```
+  
+  ```rust
+  use matrix::Matrix;
+  
+  let mut m: Matrix<i32> = Matrix::with_size(2, 2);
+  if let Some(row_iter) = m.row_iter_mut(0) {
+      row_iter.for_each(|val| *val = 42);
+  }
+  
+  assert_eq!(m[(0, 0)], 42);
+  assert_eq!(m[(0, 1)], 42);
+  ```
 </details>
 
 <details>
-<summary>列方向イテレータ `col_iter(col)` / `col_iter_mut(col)` (通常) 、 `col_par_iter(col)` / `col_par_iter_mut(col)` (並列)</summary>
+  <summary>列方向イテレータ `col_iter(col)` / `col_iter_mut(col)` (通 常) 、 `col_par_iter(col)` / `col_par_iter_mut(col)` (並列)</summary>
+  
+  * レイアウトには影響されません。
 
-*(※メモリレイアウトのストライド計算ロジックを挟むことで、効率的なスキップ・ステップ走査を行います)*
-
-```rust
-use matrix::Matrix;
-let m: Matrix<i32> = Matrix::with_size(2, 2);
-assert_eq!(m.col_iter(0).unwrap().collect::<Vec<&i32>>(), vec![&0, &0]);
-```
-```rust
-use matrix::Matrix;
-let mut m: Matrix<i32> = Matrix::with_size(2, 2);
-if let Some(col_iter) = m.col_iter_mut(0) {
-   col_iter.for_each(|val| *val = 42);
-}
-assert_eq!(m.col_iter(0).unwrap().collect::<Vec<&i32>>(), vec![&42, &42]);
-```
-
+  $$
+  \begin{bmatrix}
+  1 & 2 \\
+  3 & 4
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    \begin{bmatrix}
+    1 & 3
+    \end{bmatrix}
+    \begin{bmatrix}
+    2 & 4
+    \end{bmatrix}
+  \end{bmatrix}
+  $$
+  
+  ```rust
+  use matrix::Matrix;
+  let m: Matrix<i32> = Matrix::with_size(2, 2);
+  assert_eq!(m.col_iter(0).unwrap().collect::<Vec<&i32>>(), vec![&0, & 0]);
+  ```
+  ```rust
+  use matrix::Matrix;
+  let mut m: Matrix<i32> = Matrix::with_size(2, 2);
+  if let Some(col_iter) = m.col_iter_mut(0) {
+     col_iter.for_each(|val| *val = 42);
+  }
+  assert_eq!(m.col_iter(0).unwrap().collect::<Vec<&i32>>(), vec![&42, &42]);
+  ```
 </details>
 
 #### 4. 行列演算 (Matrix Operations)
@@ -180,126 +281,174 @@ assert_eq!(m.col_iter(0).unwrap().collect::<Vec<&i32>>(), vec![&42, &42]);
 通常のメソッド呼び出しのほか、Rustの標準的な演算子（`+`, `-`, `*`, `/`, `+=`, `-=`, `*=`, `/=`）に対応しています。また、アルゴリズム戦略（`MatrixAlgorithm`）が用意されています。
 
 <details>
-<summary>加算・減算 (`+`, `-`, `+=`, `-=`)</summary>
+  <summary>加算・減算 (`+`, `-`, `+=`, `-=`)</summary>
 
-同じサイズの行列同士の要素ごとの加減算を行います。サイズ不一致の場合はエラーを返します。
+  同じサイズの行列同士の要素ごとの加減算を行います。サイズ不一致の場合はエラーを返します。
 
-```rust
-use matrix::Matrix;
-let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
-let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
-m1.add(&m2).unwrap();
-assert_eq!(m1.get(0, 0), Some(&6));
-assert_eq!(m1.get(0, 1), Some(&8));
-assert_eq!(m1.get(1, 0), Some(&10));
-assert_eq!(m1.get(1, 1), Some(&12));
-```
+  $$
+  A_{r,c} + B_{r,c} = C_{r,c} \\
+  C_{j,k} = A_{j,k} + B_{j,k} \\
+  \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}
+  +
+  \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix}
+  =
+  \begin{bmatrix} 6 & 8 \\ 10 & 12 \end{bmatrix}
+  $$
+  
+  ```rust
+  use matrix::Matrix;
+  let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
+  let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
+  m1.add(&m2).unwrap();
+  assert_eq!(m1.get(0, 0), Some(&6));
+  assert_eq!(m1.get(0, 1), Some(&8));
+  assert_eq!(m1.get(1, 0), Some(&10));
+  assert_eq!(m1.get(1, 1), Some(&12));
+  ```
+  
+  - `MatrixAlgorithm` トレイトを実装することで、加算・減算のアルゴリズムを差し替えることができます。
 
-- `MatrixAlgorithm` トレイトを実装することで、加算・減算のアルゴリズムを差し替えることができます。
-
-```rust
-use matrix::Matrix;
-use matrix::algorithm::*;
-let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
-let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
-m1.add_with::<NaiveAlgorithm, _>(&m2).unwrap();
-assert_eq!(m1.get(0, 0), Some(&6));
-assert_eq!(m1.get(0, 1), Some(&8));
-assert_eq!(m1.get(1, 0), Some(&10));
-assert_eq!(m1.get(1, 1), Some(&12));
-```
-
+  ```rust
+  use matrix::Matrix;
+  use matrix::algorithm::*;
+  let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
+  let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
+  m1.add_with::<NaiveAlgorithm, _>(&m2).unwrap();
+  assert_eq!(m1.get(0, 0), Some(&6));
+  assert_eq!(m1.get(0, 1), Some(&8));
+  assert_eq!(m1.get(1, 0), Some(&10));
+  assert_eq!(m1.get(1, 1), Some(&12));
+  ```
 </details>
 
 <details>
-<summary>行列積 (`*`, `*=`)</summary>
-通常の行列掛け算（線形代数的な積）を行います（左側の列数と右側の行数が一致している必要があります）。
+  <summary>行列積 (`*`, `*=`)</summary>
+  通常の行列掛け算（線形代数的な積）を行います（左側の列数と右側の行数が一致している必要があります）。
 
-```rust
-use matrix::Matrix;
-let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
-let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
-m1.mul(&m2).unwrap();
-assert_eq!(m1.get(0, 0), Some(&19));
-assert_eq!(m1.get(0, 1), Some(&22));
-assert_eq!(m1.get(1, 0), Some(&43));
-assert_eq!(m1.get(1, 1), Some(&50));
-```
+  $$
+  A_{a, b} * B_{b, c} = C_{a, c}\\C_{j,k} = \sum_{i=1}^b{A_{j, i} \cdot B_{i, k}}
+  $$
+  $$
+  \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}
+  \cdot
+  \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix}
+  =
+  \begin{bmatrix} 19 & 22 \\ 43 & 50 \end{bmatrix}
+  $$
+
+  ```rust
+  use matrix::Matrix;
+  let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
+  let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
+  m1.mul(&m2).unwrap();
+  assert_eq!(m1.get(0, 0), Some(&19));
+  assert_eq!(m1.get(0, 1), Some(&22));
+  assert_eq!(m1.get(1, 0), Some(&43));
+  assert_eq!(m1.get(1, 1), Some(&50));
+  ```
 </details>
 
 <details>
-<summary>要素ごとの積・商 (`hadamard_mul`, `/`, `/=`)</summary>
-アダマール積（要素ごとの掛け算）および要素ごとの割り算を行います。ゼロ除算は厳しくチェックされ、エラーを返します。
+  <summary>要素ごとの積・商 (`hadamard_mul`, `/`, `/=`)</summary>
+  アダマール積（要素ごとの掛け算）および要素ごとの割り算を行います。ゼロ除算は厳しくチェックされ、エラーを返します。
 
-```rust
-use matrix::Matrix;
-let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
-let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
-m1.hadamard_mul(&m2).unwrap();
-assert_eq!(m1.get(0, 0), Some(&5));
-assert_eq!(m1.get(0, 1), Some(&12));
-assert_eq!(m1.get(1, 0), Some(&21));
-assert_eq!(m1.get(1, 1), Some(&32));
-```
+  $$
+  A_{r,c} \odot B_{r,c} = C_{r,c} \\
+  C_{j,k} = A_{j,k} \cdot B_{j,k} \\
+  \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}
+  \odot
+  \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix}
+  =
+  \begin{bmatrix} 5 & 12 \\ 21 & 32 \end{bmatrix}
+  $$
+  
+  ```rust
+  use matrix::Matrix;
+  let mut m1: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
+  let m2: Matrix<i32> = Matrix::new([[5, 6], [7, 8]]);
+  m1.hadamard_mul(&m2).unwrap();
+  assert_eq!(m1.get(0, 0), Some(&5));
+  assert_eq!(m1.get(0, 1), Some(&12));
+  assert_eq!(m1.get(1, 0), Some(&21));
+  assert_eq!(m1.get(1, 1), Some(&32));
+  ```
 </details>
 
 <details>
-<summary>スカラー倍 (`mul_scalar`)</summary>
-行列の全要素に共通の値を掛け合わせます。
+  <summary>スカラー倍 (`mul_scalar`)</summary>
+  行列の全要素に共通の値を掛け合わせます。
 
-```rust
-use matrix::Matrix;
-let mut mat = Matrix::<i32>::new([[1, 2], [3, 4]]);
-mat.mul_scalar(2);
-assert_eq!(mat[(0, 0)], 2);
-assert_eq!(mat[(0, 1)], 4);
-assert_eq!(mat[(1, 0)], 6);
-assert_eq!(mat[(1, 1)], 8);
-```
+  $$
+  A_{r,c} \odot B = C_{r,c} \\
+  C_{j,k} = A_{j,k} \cdot B \\
+  \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}
+  \odot
+  2
+  =
+  \begin{bmatrix} 2 & 4 \\ 6 & 8 \end{bmatrix}
+  $$
+  
+  ```rust
+  use matrix::Matrix;
+  let mut mat = Matrix::<i32>::new([[1, 2], [3, 4]]);
+  mat.mul_scalar(2);
+  assert_eq!(mat[(0, 0)], 2);
+  assert_eq!(mat[(0, 1)], 4);
+  assert_eq!(mat[(1, 0)], 6);
+  assert_eq!(mat[(1, 1)], 8);
+  ```
 </details>
 
 #### 5. 変換処理 (Transformations)
 
 <details>
 <summary>`transpose()` / `transpose_par()`</summary>
-行列の転置を行います（行と列の入れ替え）。`_par` 版は並列イテレータを用いて高速に転置処理を実行します。
+  行列の転置を行います（行と列の入れ替え）。`_par` 版は並列イテレータを用いて高速に転置処理を実行します。
 
-```rust
-use matrix::Matrix;
-let m: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
-let transposed = m.transpose();
-assert_eq!(transposed[(0, 0)], 1);
-assert_eq!(transposed[(0, 1)], 3);
-assert_eq!(transposed[(1, 0)], 2);
-assert_eq!(transposed[(1, 1)], 4);
-```
+  $$
+  A_{r,c} => A^T  = A_{c,r} \\
+  A^T_{j, k} = A_{k, j}\\ 
+  \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}
+  =>
+  \begin{bmatrix} 1 & 3 \\ 2 & 4 \end{bmatrix}
+  $$
+  
+  ```rust
+  use matrix::Matrix;
+  let m: Matrix<i32> = Matrix::new([[1, 2], [3, 4]]);
+  let transposed = m.transpose();
+  assert_eq!(transposed[(0, 0)], 1);
+  assert_eq!(transposed[(0, 1)], 3);
+  assert_eq!(transposed[(1, 0)], 2);
+  assert_eq!(transposed[(1, 1)], 4);
+  ```
 </details>
 
 <details>
-<summary>`invert_layout()` / `invert_layout_par()`</summary>
-
-内部のデータ配列を転置させつつ、型レベルでのメモリレイアウト（例: 行優先 ⇄ 列優先）を反転させた新しい行列を生成します。
-
-```rust
-use matrix::Matrix;
-use matrix::layout::{RowMajor, ColumnMajor};
-let m: Matrix<i32, RowMajor> = Matrix::new([[1, 2], [3, 4]]);
-let inverted = m.invert_layout();
-
-// 反転後の行列はColumnMajorレイアウトになる。
-// アクセス時のインデックスは同じだが、内部的なデータの配置が異なる。
-assert_eq!(inverted[(0, 0)], 1);
-assert_eq!(inverted[(0, 1)], 2);
-assert_eq!(inverted[(1, 0)], 3);
-assert_eq!(inverted[(1, 1)], 4);
-```
+  <summary>`invert_layout()` / `invert_layout_par()`</summary>
+  
+  内部のデータ配列を転置させつつ、型レベルでのメモリレイアウト（例: 行優先 ⇄ 列優先）を反転させた新しい行列を生成します。
+  
+  ```rust
+  use matrix::Matrix;
+  use matrix::layout::{RowMajor, ColumnMajor};
+  let m: Matrix<i32, RowMajor> = Matrix::new([[1, 2], [3, 4]]);
+  let inverted = m.invert_layout();
+  
+  // 反転後の行列はColumnMajorレイアウトになる。
+  // アクセス時のインデックスは同じだが、内部的なデータの配置が異なる。
+  assert_eq!(inverted[(0, 0)], 1);
+  assert_eq!(inverted[(0, 1)], 2);
+  assert_eq!(inverted[(1, 0)], 3);
+  assert_eq!(inverted[(1, 1)], 4);
+  ```
 </details>
 
 #### 6. 表示 (Display)
 
 <details>
-<summary>`std::fmt::Display` トレイト</summary>
-
-`println!("{}", matrix);` で呼び出した際、各行をタブ区切り（`\t`）の人間が読みやすい2次元グリッド形式で標準出力へフォーマットします。
-
+  <summary>`std::fmt::Display` トレイト</summary>
+  
+  `println!("{}", matrix);` で呼び出した際、各行をタブ区切り（`\t`）の人間が読みやすい2次元グリッド形式で標準出力へフォーマットします。
+  
 </details>
