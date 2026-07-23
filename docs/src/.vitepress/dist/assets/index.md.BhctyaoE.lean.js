@@ -1,0 +1,1 @@
+import{_ as a,o as e,c as r,ae as i}from"./chunks/framework.D9_ZvfG7.js";const h=JSON.parse('{"title":"Matrix","description":"","frontmatter":{},"headers":[],"relativePath":"index.md","filePath":"index.md"}'),l={name:"index.md"};function o(n,t,s,_,d,c){return e(),r("div",null,[...t[0]||(t[0]=[i("",2)])])}const f=a(l,[["render",o]]);export{h as __pageData,f as default};
