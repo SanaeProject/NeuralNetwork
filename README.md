@@ -5,6 +5,9 @@ NeuralNetworkをゼロから構築するプロジェクトです。
 - [ゼロから作るDeep Learning](https://www.oreilly.co.jp/books/9784873117584/)を参考にしています。  
 - 作成にはRustを使用し、行列型の実装から始めています。
 
+## 詳しいライブラリの仕様
+![仕様書](https://sanaeproject.github.io/NeuralNetwork/)
+
 ## 行列型
 
 - 行列型の実装は、`matrix`クレートにまとめています。
