@@ -6,7 +6,7 @@ NeuralNetworkをゼロから構築するプロジェクトです。
 - 作成にはRustを使用し、行列型の実装から始めています。
 
 ## 詳しいライブラリの仕様
-![仕様書](https://sanaeproject.github.io/NeuralNetwork/)
+[仕様書](https://sanaeproject.github.io/NeuralNetwork/)
 
 ## 行列型
 
