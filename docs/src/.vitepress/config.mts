@@ -4,6 +4,7 @@ import mathjax3 from 'markdown-it-mathjax3'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "MatrixDocs",
+  base: "/NeuralNetwork/",
   description: "Matrix document",
   markdown: {
     config: (md) => {
