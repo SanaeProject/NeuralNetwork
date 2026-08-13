@@ -1,0 +1,10 @@
+[package]
+name = "clblast-rs"
+version = "0.1.0"
+edition = "2024"
+
+[build-dependencies]
+vcpkg = "0.2.15"
+
+[dependencies]
+opencl3 = "0.12.3"
