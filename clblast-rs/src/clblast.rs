@@ -1,8 +1,8 @@
 use opencl3::memory::{Buffer, ClMem};
 
 type CLBlastStatusCode = i32;
-type CLBlastLayout = u32;
-type CLBlastTranspose = u32;
+type CLBlastLayout = i32;
+type CLBlastTranspose = i32;
 
 type CLCommandQueue = *mut std::ffi::c_void;
 type CLEvent = *mut std::ffi::c_void;
@@ -99,13 +99,13 @@ impl<T> CLBlast<T> {
             }
         )
     }
-    pub fn set_buffer(&mut self, target: usize, vec: &[T], row_major: bool, rows: usize, cols: usize) -> Result<(), String>{
+    pub fn set_buffer(&mut self, target: usize, mem_flag: opencl3::memory::cl_mem_flags, vec: &[T], row_major: bool, rows: usize, cols: usize) -> Result<(), String>{
         if target >= self.buffers.len() {
             return Err(String::from("Target index is out of range"));
         }
         let mut buffer = unsafe {
             opencl3::memory::Buffer::<T>::create(
-                &self.context, opencl3::memory::CL_MEM_WRITE_ONLY, vec.len(), std::ptr::null_mut()
+                &self.context, mem_flag, vec.len(), std::ptr::null_mut()
             )?
         };
         unsafe{
@@ -182,6 +182,95 @@ impl CLBlast<f32> {
             Ok(())
         } else {
             Err(format!("CLBlast GEMM failed with status code: {}", status))
+        }
+    }
+    pub fn dot_mul(&mut self) -> Result<(), String> {
+        let x = self.buffers[A_BUFFER].as_ref().ok_or_else(|| String::from("Buffer X not set"))?;
+        let y = self.buffers[B_BUFFER].as_ref().ok_or_else(|| String::from("Buffer Y not set"))?;
+
+        let n = x.rows * x.cols; // Assuming x is a vector
+        let mut raw_queue = self.queue.get();
+
+        let status = unsafe {
+            clblast_sdot(
+                n,
+                x.buffer.get(), 0,
+                x.buffer.get(), 0, 1,
+                y.buffer.get(), 0, 1,
+                &mut raw_queue,
+                std::ptr::null_mut(),
+            )
+        };
+
+        if status == 0 {
+            Ok(())
+        } else {
+            Err(format!("CLBlast DOT failed with status code: {}", status))
+        }
+    }
+}
+impl CLBlast<f64> {
+    pub fn mat_mul(&mut self) -> Result<(), String> {
+        let a = self.buffers[A_BUFFER].as_ref().ok_or_else(|| String::from("Buffer A not set"))?;
+        let b = self.buffers[B_BUFFER].as_ref().ok_or_else(|| String::from("Buffer B not set"))?;
+        let c = self.buffers[C_BUFFER].as_ref().ok_or_else(|| String::from("Buffer C not set"))?;
+
+        let layout = if a.row_major { Layout::RowMajor } else { Layout::ColMajor };
+        
+        let (a_ld, b_ld, c_ld) = if a.row_major {
+            (a.cols, b.cols, c.cols)
+        } else {
+            (a.rows, b.rows, c.rows)
+        };
+        let mut raw_queue = self.queue.get();
+
+        let status = unsafe {
+            clblast_dgemm(
+                layout as CLBlastLayout,
+                Transpose::No as CLBlastTranspose,
+                Transpose::No as CLBlastTranspose,
+                a.rows, // m
+                b.cols, // n
+                a.cols, // k
+                1.0,
+                a.buffer.get(), 0, a_ld,
+                b.buffer.get(), 0, b_ld,
+                0.0,
+                c.buffer.get(), 0, c_ld,
+                &mut raw_queue,
+                std::ptr::null_mut(),
+            )
+        };
+
+        if status == 0 {
+            Ok(())
+        } else {
+            Err(format!("CLBlast GEMM failed with status code: {}", status))
+        }
+    }
+
+    pub fn dot_mul(&mut self) -> Result<(), String> {
+        let x = self.buffers[A_BUFFER].as_ref().ok_or_else(|| String::from("Buffer X not set"))?;
+        let y = self.buffers[B_BUFFER].as_ref().ok_or_else(|| String::from("Buffer Y not set"))?;
+
+        let n = x.rows * x.cols; // Assuming x is a vector
+        let mut raw_queue = self.queue.get();
+
+        let status = unsafe {
+            clblast_ddot(
+                n,
+                x.buffer.get(), 0,
+                x.buffer.get(), 0, 1,
+                y.buffer.get(), 0, 1,
+                &mut raw_queue,
+                std::ptr::null_mut(),
+            )
+        };
+
+        if status == 0 {
+            Ok(())
+        } else {
+            Err(format!("CLBlast DOT failed with status code: {}", status))
         }
     }
 }
