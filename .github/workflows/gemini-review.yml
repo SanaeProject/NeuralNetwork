@@ -11,6 +11,8 @@ permissions:
 jobs:
   review:
     runs-on: ubuntu-latest
+    env:
+      GEMINI_CLI_TRUST_WORKSPACE: "true"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
