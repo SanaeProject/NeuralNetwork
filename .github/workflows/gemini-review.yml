@@ -19,4 +19,9 @@ jobs:
       - uses: google-github-actions/run-gemini-cli@v0
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          workflow: pr-review  # or issue-triage / on-demand
+          prompt: |
+            あなたは極めて優秀なシニアエンジニアです。
+            提出されたコードの差分（Diff）を分析し、以下の観点からレビューしてコメントを日本語で残してください。
+            1. バグの引き金になりそうな潜在的な問題
+            2. パフォーマンスや計算効率の改善点
+            3. コードの可読性やメンテナンス性
